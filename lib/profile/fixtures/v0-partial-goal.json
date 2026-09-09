@@ -1,0 +1,22 @@
+{
+  "_comment": "A v0 profile whose goal is missing downPaymentPct and the home-specific fields. In the v0 engine `g.amount * (g.downPaymentPct / 100)` yields NaN, which propagates through net worth and blanks the chart from that year onward. Migration must fill every field.",
+  "currentAge": 41,
+  "lifeExpectancy": 88,
+  "incomes": [
+    { "id": 1, "name": "Salary", "amount": 240000, "frequency": "monthly", "growthRate": 6, "retireAge": 60 }
+  ],
+  "monthlyExpense": 120000,
+  "inflationRate": 7,
+  "lifestyleCreep": 3,
+  "currentNW": 18000000,
+  "monthlyInvestment": 90000,
+  "investmentStepUp": 12,
+  "expectedXIRR": 13,
+  "investSurplus": true,
+  "postRetireReturn": 7.5,
+  "exitTaxRate": 12.5,
+  "goals": [
+    { "id": 1, "name": "Second Home", "emoji": "home", "age": 50, "amount": 15000000, "hasLoan": true },
+    { "id": 2, "name": "Sabbatical", "emoji": "travel", "age": 45, "amount": 2000000 }
+  ]
+}

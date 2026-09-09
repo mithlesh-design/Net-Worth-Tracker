@@ -1,0 +1,20 @@
+{
+  "_comment": "A v0 profile predating the income `frequency` field. toAnnual's fallback would treat these as YEARLY, understating a monthly salary by 12x. Migration must default them to monthly and flag them.",
+  "currentAge": 26,
+  "lifeExpectancy": 80,
+  "incomes": [
+    { "id": 1, "name": "Salary", "amount": 90000, "growthRate": 8, "retireAge": 58 },
+    { "id": 2, "name": "Freelance", "amount": 20000, "growthRate": 3, "retireAge": 58 }
+  ],
+  "monthlyExpense": 35000,
+  "inflationRate": 6,
+  "lifestyleCreep": 1,
+  "currentNW": 0,
+  "monthlyInvestment": 0,
+  "investmentStepUp": 5,
+  "expectedXIRR": 11,
+  "investSurplus": false,
+  "postRetireReturn": 6,
+  "exitTaxRate": 10,
+  "goals": []
+}

@@ -1,0 +1,19 @@
+{
+  "_comment": "Numbers stored as strings, which JSONB round-trips happily. `\"50000\" + 12` concatenates rather than adding, so these must be coerced at the migration boundary.",
+  "currentAge": "34",
+  "lifeExpectancy": "82",
+  "incomes": [
+    { "id": 1, "name": "Salary", "amount": "175000", "frequency": "monthly", "growthRate": "9", "retireAge": "56" }
+  ],
+  "monthlyExpense": "72000",
+  "inflationRate": "6",
+  "lifestyleCreep": "2",
+  "currentNW": "7500000",
+  "monthlyInvestment": "60000",
+  "investmentStepUp": "10",
+  "expectedXIRR": "12",
+  "investSurplus": true,
+  "postRetireReturn": "7",
+  "exitTaxRate": "12.5",
+  "goals": []
+}

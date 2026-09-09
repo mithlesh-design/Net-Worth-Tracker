@@ -1,0 +1,25 @@
+{
+  "_comment": "A complete v0 profile: exactly the 14 keys gatherSettings wrote.",
+  "currentAge": 30,
+  "lifeExpectancy": 85,
+  "incomes": [
+    { "id": 1, "name": "Primary Salary", "amount": 150000, "frequency": "monthly", "growthRate": 10, "retireAge": 55 }
+  ],
+  "monthlyExpense": 60000,
+  "inflationRate": 6,
+  "lifestyleCreep": 2,
+  "currentNW": 5000000,
+  "monthlyInvestment": 50000,
+  "investmentStepUp": 10,
+  "expectedXIRR": 12,
+  "investSurplus": true,
+  "postRetireReturn": 7,
+  "exitTaxRate": 12.5,
+  "goals": [
+    {
+      "id": 1, "name": "Buy Home", "emoji": "home", "age": 35, "amount": 8000000,
+      "hasLoan": true, "downPaymentPct": 20, "loanRate": 8.5, "loanTenure": 20,
+      "appreciationRate": 5, "maintenancePct": 1
+    }
+  ]
+}
