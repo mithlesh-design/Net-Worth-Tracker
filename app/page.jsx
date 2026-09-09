@@ -32,84 +32,25 @@ import {
    HELPERS — now live in lib/finance so they can be unit tested outside React.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-import { fmt, fmtAxis, toWords, toAnnual, numToWordsIndian } from "@/lib/finance/format.mjs";
+import { fmt, fmtAxis, toWords, toAnnual, monthlyEquivalent, numToWordsIndian } from "@/lib/finance/format.mjs";
 import { calcIncomeTax } from "@/lib/finance/tax.mjs";
 import { calcEMI } from "@/lib/finance/loans.mjs";
-import { runProjection } from "@/lib/finance/projection.mjs";
+import { runProjectionV1 } from "@/lib/finance/projection.mjs";
+import { effectiveAge, isAgeDerived, todayISO } from "@/lib/finance/age.mjs";
+import { annualPremium } from "@/lib/finance/insurance.mjs";
+import { buildContributionPlan } from "@/lib/finance/contributions.mjs";
+import { BUCKET_DEFS, PPF_ANNUAL_CAP, ASSUMPTIONS_AS_OF } from "@/lib/finance/assumptions.mjs";
+import { migrate } from "@/lib/profile/migrate.mjs";
+import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
+import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
 
 const GOAL_EMOJIS = { home: "🏠", education: "🎓", car: "🚗", wedding: "💒", travel: "✈️", retirement: "🏖️", other: "🎯" };
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   SHARED UI
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, prefix = "", suffix = "", showWords = false, warn = false }) {
-  const pct = ((Math.min(Math.max(value, min), max) - min) / (max - min)) * 100;
-  const trackColor = warn ? "#ef4444" : "#22c55e";
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between">
-        <label className="text-[0.63rem] font-semibold" style={{ color: 'var(--text-secondary)' }}>{label}</label>
-        <div className={`flex items-center rounded-lg px-2 py-1 border text-xs font-bold ${warn ? "" : ""}`}
-          style={warn
-            ? { background: 'var(--info-red-bg)', borderColor: 'var(--info-red-border)', color: 'var(--info-red-text)' }
-            : { background: 'var(--bg-tertiary)', borderColor: 'var(--border-secondary)', color: 'var(--text-primary)' }
-          }>
-          {prefix && <span className="mr-0.5 text-[0.6rem]" style={{ color: 'var(--text-secondary)' }}>{prefix}</span>}
-          <input type="number" value={value} onChange={(e) => onChange(Number(e.target.value) || 0)}
-            className="w-20 text-right bg-transparent outline-none" step={step} style={{ color: 'var(--text-primary)' }} />
-          {suffix && <span className="ml-0.5 text-[0.6rem]" style={{ color: 'var(--text-secondary)' }}>{suffix}</span>}
-        </div>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={Math.min(Math.max(value, min), max)}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
-        style={{ background: `linear-gradient(to right, ${trackColor} ${pct}%, var(--slider-track-bg) ${pct}%)` }} />
-      {showWords && value > 0 && <p className="text-[0.55rem] italic truncate" style={{ color: 'var(--text-secondary)' }}>{toWords(value)}</p>}
-    </div>
-  );
-}
-
-function SectionCard({ children, title, className = "" }) {
-  return (
-    <div className={`rounded-2xl border p-4 shadow-sm ${className}`}
-      style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', boxShadow: '0 1px 2px var(--shadow-color)' }}>
-      {title && <div className="text-[0.58rem] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: 'var(--text-secondary)' }}>{title}</div>}
-      {children}
-    </div>
-  );
-}
-
-function CollapsibleSection({ title, children, defaultOpen = true, badge = null }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <SectionCard>
-      <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full text-left">
-        <div className="text-[0.58rem] font-bold uppercase tracking-[0.2em] flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-          {title}
-          {badge && <span className="rounded-full px-2 py-0.5 text-[0.55rem] font-bold normal-case tracking-normal" style={{ background: 'var(--badge-emerald-bg)', color: 'var(--badge-emerald-text)' }}>{badge}</span>}
-        </div>
-        <ChevronDown size={12} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`} style={{ color: 'var(--text-muted)' }} />
-      </button>
-      {open && <div className="mt-3 space-y-4">{children}</div>}
-    </SectionCard>
-  );
-}
-
-/* Toggle Switch */
-function ToggleSwitch({ value, onChange, label }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <button onClick={() => onChange(!value)}
-        className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${value ? "bg-emerald-500" : ""}`}
-        style={!value ? { background: 'var(--toggle-off-bg)' } : {}}>
-        <div className={`absolute top-0.5 w-4 h-4 rounded-full shadow-sm transition-transform duration-200 ${value ? "translate-x-5" : "translate-x-0.5"}`}
-          style={{ background: 'var(--bg-secondary)' }} />
-      </button>
-      <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
-    </div>
-  );
-}
+import {
+  SectionCard, CollapsibleSection, SliderInput, ToggleSwitch,
+  InfoStrip, SegmentedControl, ItemCard, AddItemButton,
+  TextField, DateField, YesNoField, DerivedStat, FieldError,
+} from "@/components/ui";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TOOLTIP
@@ -230,77 +171,106 @@ export default function FinancialPlanner() {
   /* ── Theme ── */
   const { theme, toggleTheme } = useTheme();
 
-  /* ── Timeline ── */
-  const [currentAge, setCurrentAge] = useState(28);
-  const [lifeExpectancy, setLifeExpectancy] = useState(85);
+  /* ── The whole planner is one object ──
+     Previously 18 separate useState hooks, mirrored by hand in gatherSettings
+     and applySettings and listed by hand in the projection's dependency array.
+     At 38+ fields that is three places to forget, and a missed dependency
+     produces a chart that silently stops updating. One object, one dep. */
+  const [plan, setPlan] = useState(() => migrate(FIRST_RUN_V0));
 
-  /* ── Income Sources (Fix 2: frequency field) ── */
-  const [incomes, setIncomes] = useState([
-    { id: 1, name: "Primary Salary", amount: 150000, frequency: "monthly", growthRate: 10, retireAge: 55 },
-  ]);
+  /* Writes one field by dotted path, e.g. setField("expenses.rent", 12000). */
+  const setField = useCallback((path, value) => {
+    setPlan((prev) => {
+      const next = structuredClone(prev);
+      const keys = path.split(".");
+      let node = next;
+      for (const k of keys.slice(0, -1)) node = node[k];
+      node[keys[keys.length - 1]] = value;
+      return next;
+    });
+  }, []);
+
+  const updateListItem = useCallback((listPath, id, key, val) => {
+    setPlan((prev) => {
+      const next = structuredClone(prev);
+      const keys = listPath.split(".");
+      let node = next;
+      for (const k of keys.slice(0, -1)) node = node[k];
+      const last = keys[keys.length - 1];
+      node[last] = node[last].map((it) => (it.id === id ? { ...it, [key]: val } : it));
+      return next;
+    });
+  }, []);
+
+  /* Read-only aliases so the existing JSX keeps working unchanged. */
+  const {
+    currentAge, lifeExpectancy, incomes, inflationRate, lifestyleCreep,
+    investmentStepUp, expectedXIRR, investSurplus, postRetireReturn,
+    exitTaxRate, goals,
+  } = plan;
+  const monthlyExpense = plan.expenses.household + plan.expenses.rent;
+  const currentNW = plan.holdings.unallocated;
+  const monthlyInvestment = plan.legacy.monthlyInvestment;
+
+  const setCurrentAge = (v) => setField("currentAge", v);
+  const setLifeExpectancy = (v) => setField("lifeExpectancy", v);
+  const setInflationRate = (v) => setField("inflationRate", v);
+  const setLifestyleCreep = (v) => setField("lifestyleCreep", v);
+  const setInvestmentStepUp = (v) => setField("investmentStepUp", v);
+  const setExpectedXIRR = (v) => setField("expectedXIRR", v);
+  const setInvestSurplus = (v) => setField("investSurplus", v);
+  const setPostRetireReturn = (v) => setField("postRetireReturn", v);
+  const setExitTaxRate = (v) => setField("exitTaxRate", v);
+  const setMonthlyExpense = (v) => setField("expenses.household", v);
+  const setCurrentNW = (v) => setField("holdings.unallocated", v);
+  const setMonthlyInvestment = (v) => setField("legacy.monthlyInvestment", v);
+  const setIncomes = (v) => setField("incomes", v);
+  const setGoals = (v) => setField("goals", v);
+
   const [showAddIncome, setShowAddIncome] = useState(false);
-  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", growthRate: 5, retireAge: 55 });
+  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", basis: "gross", role: "other", growthRate: 5, retireAge: 55 });
 
-  /* ── Expenses ── */
-  const [monthlyExpense, setMonthlyExpense] = useState(50000);
-  const [inflationRate, setInflationRate] = useState(6);
-  const [lifestyleCreep, setLifestyleCreep] = useState(2);
-
-  /* ── Investments ── */
-  const [currentNW, setCurrentNW] = useState(500000);
-  const [monthlyInvestment, setMonthlyInvestment] = useState(50000);
-  const [investmentStepUp, setInvestmentStepUp] = useState(10);
-  const [expectedXIRR, setExpectedXIRR] = useState(12);
-
-  /* ── Fix 1: Surplus strategy toggle ── */
-  const [investSurplus, setInvestSurplus] = useState(true);
-
-  /* ── Module 2: Post-Retirement Return ── */
-  const [postRetireReturn, setPostRetireReturn] = useState(7);
-
-  /* ── Module 4: LTCG Tax Wall ── */
-  const [exitTaxRate, setExitTaxRate] = useState(12.5);
-
-  /* ── Fix 8: Goals with optional loan financing ── */
-  const [goals, setGoals] = useState([
-    {
-      id: 1, name: "Buy Home", emoji: "home", age: 32, amount: 8000000,
-      hasLoan: true, downPaymentPct: 20, loanRate: 8.5, loanTenure: 20,
-      // Home-specific
-      appreciationRate: 5, maintenancePct: 1,
-    },
-    {
-      id: 2, name: "Kid's Education", emoji: "education", age: 45, amount: 3000000,
-      hasLoan: false, downPaymentPct: 100, loanRate: 9, loanTenure: 5,
-      appreciationRate: 0, maintenancePct: 0,
-    },
-  ]);
-  const [showAddGoal, setShowAddGoal] = useState(false);
+  /* Monotonic ids. Date.now() collides on a fast double-click, which produces
+     duplicate React keys and two rows that edit together. */
+  const nextId = useRef(Date.now());
+  const makeId = () => ++nextId.current;
 
   /* ── Income CRUD ── */
   const addIncome = () => {
-    setIncomes([...incomes, { ...newInc, id: Date.now() }]);
+    setField("incomes", [...incomes, { ...newInc, id: makeId() }]);
     setShowAddIncome(false);
-    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", growthRate: 5, retireAge: 55 });
+    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", basis: "gross", role: "other", growthRate: 5, retireAge: 55 });
   };
-  const removeIncome = (id) => setIncomes(incomes.filter((i) => i.id !== id));
-  const updateIncome = (id, key, val) => setIncomes(incomes.map((i) => (i.id === id ? { ...i, [key]: val } : i)));
+  const removeIncome = (id) => setField("incomes", incomes.filter((i) => i.id !== id));
+  const updateIncome = (id, key, val) => updateListItem("incomes", id, key, val);
 
   /* ── Goal CRUD ── */
   const addGoal = () => {
-    setGoals([...goals, {
-      id: Date.now(), name: "New Goal", emoji: "other", age: currentAge + 5, amount: 1000000,
+    setField("goals", [...goals, {
+      id: makeId(), name: "New Goal", emoji: "other", age: effectiveAge(plan) + 5, amount: 1000000,
       hasLoan: false, downPaymentPct: 100, loanRate: 9, loanTenure: 5,
       appreciationRate: 0, maintenancePct: 0,
     }]);
-    setShowAddGoal(false);
   };
-  const removeGoal = (id) => setGoals(goals.filter((g) => g.id !== id));
-  const updateGoal = (id, key, val) => setGoals(goals.map((g) => (g.id === id ? { ...g, [key]: val } : g)));
+  const removeGoal = (id) => setField("goals", goals.filter((g) => g.id !== id));
+  const updateGoal = (id, key, val) => updateListItem("goals", id, key, val);
 
   /* ── Derived ── */
+  const age = effectiveAge(plan);
+  const ageIsDerived = isAgeDerived(plan);
   const totalMonthlyIncome = incomes.reduce((s, i) => s + toAnnual(i.amount, i.frequency) / 12, 0);
-  const earliestRetireAge = incomes.length > 0 ? Math.min(...incomes.map((i) => i.retireAge)) : 60;
+  /* Retirement is one explicit age. v0 had the tiles use min(retireAge) while
+     the engine used every(), so the two disagreed for multi-income profiles. */
+  const earliestRetireAge = plan.retirementAge;
+  const findings = useMemo(() => validate(plan), [plan]);
+  const findingsFor = useCallback(
+    (prefix) => findings.filter((f) => f.path === prefix || f.path.startsWith(prefix + ".")),
+    [findings]);
+  const cplan = useMemo(() => buildContributionPlan(plan), [plan]);
+  const premiums = useMemo(() => annualPremium(plan.medical), [plan.medical]);
+  const totalHoldings = useMemo(
+    () => Object.values(plan.holdings).reduce((s, v) => s + (Number(v) || 0), 0),
+    [plan.holdings]);
 
   /* ══════════════════════════════════════════════════════════════════════
      PROFILE SAVE / LOAD (requires auth)
@@ -309,31 +279,15 @@ export default function FinancialPlanner() {
   const { data: session } = useSession();
   const [savedProfiles, setSavedProfiles] = useState([]);
 
-  // Gather all current settings into a serializable object
-  const gatherSettings = useCallback(() => ({
-    currentAge, lifeExpectancy,
-    incomes, monthlyExpense, inflationRate, lifestyleCreep,
-    currentNW, monthlyInvestment, investmentStepUp, expectedXIRR,
-    investSurplus, postRetireReturn, exitTaxRate, goals,
-  }), [currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep, currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, investSurplus, postRetireReturn, exitTaxRate, goals]);
+  /* One deep clone in, one migrate out. Every field is persisted automatically,
+     so a newly added field can no longer be saved but not loaded (or vice
+     versa) because someone updated one list and not the other. Derived totals
+     are never stored, so a saved total cannot drift from its parts. */
+  const gatherSettings = useCallback(() => serialize(plan), [plan]);
 
-  // Apply loaded settings
-  const applySettings = useCallback((s) => {
-    if (s.currentAge !== undefined) setCurrentAge(s.currentAge);
-    if (s.lifeExpectancy !== undefined) setLifeExpectancy(s.lifeExpectancy);
-    if (s.incomes) setIncomes(s.incomes);
-    if (s.monthlyExpense !== undefined) setMonthlyExpense(s.monthlyExpense);
-    if (s.inflationRate !== undefined) setInflationRate(s.inflationRate);
-    if (s.lifestyleCreep !== undefined) setLifestyleCreep(s.lifestyleCreep);
-    if (s.currentNW !== undefined) setCurrentNW(s.currentNW);
-    if (s.monthlyInvestment !== undefined) setMonthlyInvestment(s.monthlyInvestment);
-    if (s.investmentStepUp !== undefined) setInvestmentStepUp(s.investmentStepUp);
-    if (s.expectedXIRR !== undefined) setExpectedXIRR(s.expectedXIRR);
-    if (s.investSurplus !== undefined) setInvestSurplus(s.investSurplus);
-    if (s.postRetireReturn !== undefined) setPostRetireReturn(s.postRetireReturn);
-    if (s.exitTaxRate !== undefined) setExitTaxRate(s.exitTaxRate);
-    if (s.goals) setGoals(s.goals);
-  }, []);
+  /* migrate() on load makes a v0 profile safe without a backfill, and is
+     idempotent so re-loading is harmless. */
+  const applySettings = useCallback((s) => setPlan(migrate(s)), []);
 
   const refreshProfiles = useCallback(async () => {
     if (!session) return;
@@ -371,13 +325,10 @@ export default function FinancialPlanner() {
      SIMULATION ENGINE
      ═══════════════════════════════════════════════════════════════════════ */
 
-  const simulation = useMemo(() => runProjection({
-    currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep,
-    currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, postRetireReturn,
-    exitTaxRate, investSurplus, goals,
-  }), [currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep,
-       currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, postRetireReturn,
-       exitTaxRate, investSurplus, goals]);
+  /* One dependency. clampPlan is a defence against a hand-edited stored profile
+     reaching the engine with, say, a 100% exit tax; the UI reports the problem
+     separately rather than silently correcting it. */
+  const simulation = useMemo(() => runProjectionV1(clampPlan(plan)), [plan]);
 
   /* ── Derived ── */
   const retirePoint = simulation.data.find((d) => d.age === earliestRetireAge);
