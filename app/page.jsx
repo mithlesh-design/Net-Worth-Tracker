@@ -51,6 +51,12 @@ import {
   InfoStrip, SegmentedControl, ItemCard, AddItemButton,
   TextField, DateField, YesNoField, DerivedStat, FieldError,
 } from "@/components/ui";
+import PersonalDetails from "@/components/sections/PersonalDetails";
+import MedicalInsurance from "@/components/sections/MedicalInsurance";
+import MonthlyInvestments from "@/components/sections/MonthlyInvestments";
+import CurrentHoldings from "@/components/sections/CurrentHoldings";
+import LifeInsurance from "@/components/sections/LifeInsurance";
+import MonthlySummary from "@/components/sections/MonthlySummary";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TOOLTIP
@@ -73,6 +79,7 @@ function NetWorthTooltip({ active, payload }) {
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income Tax</span><span className="text-red-400 font-semibold">−{fmt(d.incomeTax)}</span></div>
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Post-Tax Income</span><span className="text-blue-600 font-semibold">{fmt(d.postTaxIncome)}</span></div>
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="text-orange-500 font-semibold">−{fmt(d.annualExpense)}</span></div>
+        {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance Premium</span><span className="text-orange-400 font-semibold">−{fmt(d.insurancePremium)}</span></div>}
         {d.totalEMI > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loan EMIs</span><span className="text-rose-400 font-semibold">−{fmt(d.totalEMI)}</span></div>}
         {d.maintenanceCost > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Maintenance</span><span className="text-amber-500 font-semibold">−{fmt(d.maintenanceCost)}</span></div>}
         <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-secondary)' }}>
@@ -80,11 +87,20 @@ function NetWorthTooltip({ active, payload }) {
           <span className={`font-bold ${d.availableCash < 0 ? "text-red-500" : "text-emerald-500"}`}>{fmt(d.availableCash)}</span>
         </div>
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Invested</span><span className="text-sky-500 font-semibold">+{fmt(d.invested)}</span></div>
+        {d.payrollContribution > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>… from payroll</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.payrollContribution)}</span></div>}
+        {d.contributionShortfall > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Contribution Shortfall</span><span className="text-red-400 font-semibold">{fmt(d.contributionShortfall)}</span></div>}
         {d.surplusSpent > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Surplus Spent</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.surplusSpent)}</span></div>}
         {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-secondary)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="text-amber-500 font-semibold">−{fmt(d.goalCostGross)}</span></div>}
         {d.totalPropertyValue > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property Assets</span><span className="text-amber-500 font-semibold">{fmt(d.totalPropertyValue)}</span></div>}
         {d.totalLoanOutstanding > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loans</span><span className="text-rose-400 font-semibold">−{fmt(d.totalLoanOutstanding)}</span></div>}
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Return Rate</span><span style={{ color: 'var(--text-secondary)' }}>{d.returnRate}%</span></div>
+        {d.lockedNW > 0 && (
+          <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-secondary)' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>Liquid / Locked</span>
+            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.liquidNW)} / {fmt(d.lockedNW)}</span>
+          </div>
+        )}
+        {d.unfundedThisYear > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Unfunded this year</span><span className="text-red-500 font-semibold">{fmt(d.unfundedThisYear)}</span></div>}
+        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Blended Return</span><span style={{ color: 'var(--text-secondary)' }}>{Number(d.returnRate).toFixed(1)}%</span></div>
       </div>
     </div>
   );
@@ -259,6 +275,12 @@ export default function FinancialPlanner() {
   const age = effectiveAge(plan);
   const ageIsDerived = isAgeDerived(plan);
   const totalMonthlyIncome = incomes.reduce((s, i) => s + toAnnual(i.amount, i.frequency) / 12, 0);
+  /* Gross and take-home are partitioned before tax, exactly as the engine does. */
+  const grossAnnual = incomes.filter((i) => i.basis !== "takehome")
+    .reduce((s, i) => s + toAnnual(i.amount, i.frequency), 0);
+  const takeHomeAnnual = incomes.filter((i) => i.basis === "takehome")
+    .reduce((s, i) => s + toAnnual(i.amount, i.frequency), 0);
+  const taxOnGross = calcIncomeTax(grossAnnual);
   /* Retirement is one explicit age. v0 had the tiles use min(retireAge) while
      the engine used every(), so the two disagreed for multi-income profiles. */
   const earliestRetireAge = plan.retirementAge;
@@ -271,6 +293,31 @@ export default function FinancialPlanner() {
   const totalHoldings = useMemo(
     () => Object.values(plan.holdings).reduce((s, v) => s + (Number(v) || 0), 0),
     [plan.holdings]);
+  const homeGoalAge = useMemo(() => {
+    const ages = goals.filter((g) => g.emoji === "home").map((g) => g.age);
+    return ages.length ? Math.min(...ages) : null;
+  }, [goals]);
+
+  /* True once any per-instrument return differs from the single XIRR slider, at
+     which point that slider no longer describes the portfolio and is replaced
+     by the blended read-out rather than silently losing its effect. */
+  const ratesAreCustom = useMemo(() => {
+    const overrides = Object.values(plan.bucketOverrides ?? {});
+    if (overrides.some((o) => o?.annualReturn != null)) return true;
+    return Object.values(plan.contributions ?? {}).some(
+      (c) => c && !Array.isArray(c) && c.annualReturn != null);
+  }, [plan.bucketOverrides, plan.contributions]);
+  const resetAllRates = () => {
+    setPlan((prev) => {
+      const next = structuredClone(prev);
+      next.bucketOverrides = {};
+      for (const [k, c] of Object.entries(next.contributions)) {
+        if (c && !Array.isArray(c)) c.annualReturn = null;
+      }
+      next.contributions.other = next.contributions.other.map((o) => ({ ...o, annualReturn: null }));
+      return next;
+    });
+  };
 
   /* ══════════════════════════════════════════════════════════════════════
      PROFILE SAVE / LOAD (requires auth)
@@ -329,12 +376,14 @@ export default function FinancialPlanner() {
      reaching the engine with, say, a 100% exit tax; the UI reports the problem
      separately rather than silently correcting it. */
   const simulation = useMemo(() => runProjectionV1(clampPlan(plan)), [plan]);
+  const blendedNow = simulation.data[0]?.blendedReturn ?? plan.expectedXIRR;
 
   /* ── Derived ── */
   const retirePoint = simulation.data.find((d) => d.age === earliestRetireAge);
   const lastPoint = simulation.data[simulation.data.length - 1];
   const firstDeficitAge = simulation.data.find((d) => d.deficit)?.age;
   const constrainedYears = simulation.data.filter((d) => d.constrained || d.deficit).length;
+  const shortfallYears = simulation.data.filter((d) => d.contributionShortfall > 0).length;
   const goalPoints = goals.map((g) => {
     const dp = simulation.data.find((d) => d.age === g.age);
     return dp ? { ...g, netWorth: dp.netWorth } : null;
@@ -387,11 +436,29 @@ export default function FinancialPlanner() {
         {/* ══════════════ LEFT SIDEBAR ══════════════ */}
         <aside className="flex w-full flex-col gap-3 lg:w-[380px] lg:shrink-0 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto lg:pr-1 lg:pb-6 scrollbar-thin">
 
+          {/* Personal Details — client fields 1-2 */}
+          <PersonalDetails plan={plan} setField={setField} findingsFor={findingsFor} />
+
           {/* Timeline */}
           <SectionCard title="Timeline">
             <div className="space-y-3">
-              <SliderInput label="Current Age" value={currentAge} onChange={setCurrentAge} min={18} max={65} suffix=" yrs" />
+              {/* Age has ONE source. When a date of birth is set the slider is
+                  replaced by the derived figure, so the two can never disagree. */}
+              {ageIsDerived ? (
+                <>
+                  <DerivedStat label="Current Age" value={`${age} yrs`} sub="from your date of birth" />
+                  <button onClick={() => setField("personal.dob", null)}
+                    className="text-[0.55rem] underline" style={{ color: 'var(--text-muted)' }}>
+                    Clear date of birth to set age manually
+                  </button>
+                </>
+              ) : (
+                <SliderInput label="Current Age" value={currentAge} onChange={setCurrentAge} min={18} max={65} suffix=" yrs" />
+              )}
               <SliderInput label="Life Expectancy" value={lifeExpectancy} onChange={setLifeExpectancy} min={60} max={100} suffix=" yrs" />
+              <SliderInput label="Retirement Age" value={plan.retirementAge}
+                onChange={(v) => setField("retirementAge", v)} min={age} max={80} suffix=" yrs" />
+              <FieldError findings={[...findingsFor("currentAge"), ...findingsFor("lifeExpectancy"), ...findingsFor("retirementAge")]} />
             </div>
           </SectionCard>
 
@@ -426,8 +493,28 @@ export default function FinancialPlanner() {
                     ))}
                   </div>
                 </div>
-                <SliderInput label="Annual Growth" value={inc.growthRate} onChange={(v) => updateIncome(inc.id, "growthRate", v)} min={0} max={25} step={0.5} suffix="%" />
-                <SliderInput label="Retire Age" value={inc.retireAge} onChange={(v) => updateIncome(inc.id, "retireAge", v)} min={currentAge} max={75} suffix=" yrs" />
+                {/* Gross vs take-home decides whether income tax is applied and
+                    whether an EPF deduction would be subtracted twice. */}
+                <SegmentedControl
+                  label="This amount is"
+                  options={[
+                    { value: "gross", label: "Gross (CTC)" },
+                    { value: "takehome", label: "Take-home" },
+                  ]}
+                  value={inc.basis ?? "gross"}
+                  onChange={(v) => updateIncome(inc.id, "basis", v)}
+                />
+                <p className="text-[0.55rem]" style={{ color: 'var(--text-muted)' }}>
+                  {inc.basis === "takehome"
+                    ? "What reaches your bank. Not taxed again, and growth applies to a net figure, so the effective tax rate is held constant."
+                    : "Before income tax and EPF."}
+                </p>
+                <SliderInput
+                  label={inc.role === "salary" ? "Average Salary Growth (annual)" : "Annual Growth"}
+                  value={inc.growthRate} onChange={(v) => updateIncome(inc.id, "growthRate", v)}
+                  min={0} max={25} step={0.5} suffix="%" />
+                <SliderInput label="Retire Age" value={inc.retireAge} onChange={(v) => updateIncome(inc.id, "retireAge", v)} min={age} max={75} suffix=" yrs" />
+                <FieldError findings={findingsFor(`incomes.${incomes.indexOf(inc)}`)} />
               </div>
             ))}
             {showAddIncome ? (
@@ -466,32 +553,130 @@ export default function FinancialPlanner() {
                 <Plus size={13} /> Add Income Source
               </button>
             )}
-            {/* Tax info */}
+            {/* Totals */}
+            <div className="border-t pt-3 space-y-2" style={{ borderColor: 'var(--border-secondary)' }}>
+              <DerivedStat label="Total Monthly Income" value={`${fmt(totalMonthlyIncome)}/mo`} />
+              <DerivedStat label="Total Annual Income" value={fmt(totalMonthlyIncome * 12)}
+                sub="before income tax" tone="muted" />
+            </div>
+
+            {/* Tax info — only gross sources are taxed. Summing calcIncomeTax
+                per source would grant the rebate and deduction once each. */}
             <div className="rounded-lg border px-3 py-2 text-[0.6rem] space-y-1"
               style={{ background: 'var(--info-blue-bg)', borderColor: 'var(--info-blue-border)', color: 'var(--info-blue-text)' }}>
               <div className="font-bold">Income Tax (New Regime 2024-25)</div>
-              <div>Gross: {fmt(totalMonthlyIncome * 12)} → Tax: {fmt(calcIncomeTax(totalMonthlyIncome * 12))} → Post-tax: {fmt(totalMonthlyIncome * 12 - calcIncomeTax(totalMonthlyIncome * 12))}/yr</div>
+              <div>Gross: {fmt(grossAnnual)} → Tax: {fmt(taxOnGross)} → Post-tax: {fmt(grossAnnual - taxOnGross)}/yr</div>
+              {takeHomeAnnual > 0 && (
+                <div>Take-home sources: {fmt(takeHomeAnnual)}/yr, not taxed again.</div>
+              )}
             </div>
           </CollapsibleSection>
 
-          {/* Budget */}
+          {/* Budget — client fields 6-7 */}
           <CollapsibleSection title="Budget & Expenses">
-            <SliderInput label="Monthly Spend" value={monthlyExpense} onChange={setMonthlyExpense} min={10000} max={500000} step={5000} prefix="₹" showWords />
+            <SliderInput label="Household expenses (₹/month)" value={plan.expenses.household}
+              onChange={(v) => setField("expenses.household", v)}
+              min={0} max={500000} step={5000} prefix="₹" showWords
+              warn={findingsFor("expenses.household").length > 0} />
+            <InfoStrip tone="amber">
+              Day-to-day living only. Exclude rent, insurance premiums, investments and
+              loan EMIs — those are captured in their own sections.
+            </InfoStrip>
+            <SliderInput label="Rent (₹/month)" value={plan.expenses.rent}
+              onChange={(v) => setField("expenses.rent", v)}
+              min={0} max={500000} step={1000} prefix="₹" showWords
+              warn={findingsFor("expenses.rent").length > 0} />
+
+            <div className="border-t pt-3 space-y-2" style={{ borderColor: 'var(--border-secondary)' }}>
+              <DerivedStat label="Total Monthly Living Expenses" value={fmt(monthlyExpense)}
+                sub={`${fmt(monthlyExpense * 12)}/yr`} />
+              <DerivedStat label="Insurance premium" value={`${fmt(premiums.total / 12)}/mo`}
+                sub="from Medical Insurance" tone="muted" />
+            </div>
+
             <SliderInput label="Inflation Rate" value={inflationRate} onChange={setInflationRate} min={0} max={15} step={0.5} suffix="%" />
             <SliderInput label="Lifestyle Creep" value={lifestyleCreep} onChange={setLifestyleCreep} min={0} max={10} step={0.5} suffix="%" />
-            <div className="rounded-lg border px-3 py-2 text-[0.6rem]"
-              style={{ background: 'var(--info-amber-bg)', borderColor: 'var(--info-amber-border)', color: 'var(--info-amber-text)' }}>
+            <SliderInput label="Medical Inflation" value={plan.medicalInflation}
+              onChange={(v) => setField("medicalInflation", v)} min={0} max={20} step={0.5} suffix="%" />
+
+            {plan.expenses.rent > 0 && (
+              <div className="border-t pt-3" style={{ borderColor: 'var(--border-secondary)' }}>
+                <ToggleSwitch value={plan.stopRentOnHomePurchase}
+                  onChange={(v) => setField("stopRentOnHomePurchase", v)}
+                  label="Stop rent after a home purchase" />
+                <p className="text-[0.55rem] mt-1" style={{ color: 'var(--text-muted)' }}>
+                  {homeGoalAge !== null
+                    ? (plan.stopRentOnHomePurchase
+                        ? `Rent stops at age ${homeGoalAge}, when your home goal completes.`
+                        : `Rent continues alongside the EMI from age ${homeGoalAge}.`)
+                    : "No home goal set, so this has no effect yet."}
+                </p>
+              </div>
+            )}
+
+            <InfoStrip tone="amber">
               Expenses grow at <strong>{(inflationRate + lifestyleCreep).toFixed(1)}%</strong>/yr
-            </div>
+            </InfoStrip>
           </CollapsibleSection>
+
+          {/* Medical Insurance — client fields 8-9 */}
+          <MedicalInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
+
+          {/* Monthly Investments — client fields 10-16 */}
+          <MonthlyInvestments plan={plan} setField={setField} findingsFor={findingsFor}
+            cplan={cplan} makeId={makeId} />
+
+          {/* Current Holdings — client fields 17-23 */}
+          <CurrentHoldings plan={plan} setField={setField} findingsFor={findingsFor}
+            totalHoldings={totalHoldings} />
+
+          {/* Life Insurance — client field 24 */}
+          <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
 
           {/* Investment Strategy */}
           <CollapsibleSection title="Investment Strategy">
-            <SliderInput label="Current Net Worth" value={currentNW} onChange={setCurrentNW} min={0} max={50000000} step={100000} prefix="₹" showWords />
-            <SliderInput label="Monthly SIP (Target)" value={monthlyInvestment} onChange={setMonthlyInvestment} min={0} max={500000} step={5000} prefix="₹" showWords />
+            {/* The aggregate net worth is now derived from the holdings it
+                always represented. It is never added on top of them. */}
+            <DerivedStat label="Starting Portfolio" value={fmt(totalHoldings)}
+              sub="total of Current Holdings above" />
+
+            {cplan.useDetailed ? (
+              <>
+                <DerivedStat label="Monthly Contributions" value={fmt(cplan.detailedMonthly)}
+                  sub="from Monthly Investments" />
+                <InfoStrip tone="blue">
+                  Your detailed contributions replace the aggregate SIP target. They are
+                  never added together.
+                </InfoStrip>
+              </>
+            ) : (
+              <SliderInput label="Monthly SIP (Target)" value={monthlyInvestment} onChange={setMonthlyInvestment} min={0} max={500000} step={5000} prefix="₹" showWords />
+            )}
+
             <SliderInput label="Annual Step-Up" value={investmentStepUp} onChange={setInvestmentStepUp} min={0} max={30} suffix="%" />
-            <SliderInput label="Expected XIRR (Working)" value={expectedXIRR} onChange={setExpectedXIRR} min={1} max={25} step={0.5} suffix="%" />
+
+            {ratesAreCustom ? (
+              <>
+                <DerivedStat label="Blended Portfolio Return" value={`${blendedNow.toFixed(1)}%`}
+                  sub="weighted by what you actually hold" />
+                <button onClick={resetAllRates}
+                  className="w-full rounded-lg border py-1.5 text-[0.6rem] font-bold transition"
+                  style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}>
+                  Set all instruments to {expectedXIRR}%
+                </button>
+              </>
+            ) : (
+              <SliderInput label="Expected XIRR (Working)" value={expectedXIRR} onChange={setExpectedXIRR} min={1} max={25} step={0.5} suffix="%" />
+            )}
+
             <SliderInput label="Post-Retirement Return" value={postRetireReturn} onChange={setPostRetireReturn} min={1} max={15} step={0.5} suffix="%" />
+
+            <InfoStrip tone="amber">
+              Each instrument uses its own assumed return, editable in Monthly
+              Investments. These are estimates, not guaranteed rates. Post-retirement
+              return applies as a cap, so a contractual PPF or EPF rate is not reduced.
+              Assumptions checked {ASSUMPTIONS_AS_OF}.
+            </InfoStrip>
             {/* Fix 1: Surplus toggle */}
             <div className="rounded-xl border p-3 space-y-2"
               style={{ background: 'var(--info-sky-bg)', borderColor: 'var(--info-sky-border)' }}>
@@ -600,6 +785,10 @@ export default function FinancialPlanner() {
         {/* ══════════════ RIGHT — CHART ══════════════ */}
         <section className="flex flex-1 flex-col gap-4 min-w-0">
 
+          <MonthlySummary plan={plan} cplan={cplan} premiums={premiums}
+            totalHoldings={totalHoldings} simulation={simulation}
+            totalMonthlyIncome={totalMonthlyIncome} />
+
           <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <div className="text-[0.55rem] font-bold uppercase tracking-[0.25em]" style={{ color: 'var(--text-secondary)' }}>Wealth Projection</div>
@@ -638,10 +827,10 @@ export default function FinancialPlanner() {
                 <div className="text-[0.58rem] font-bold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Net Worth at Age {lifeExpectancy}</div>
                 <div className="mt-1 flex items-baseline gap-3">
                   <span className="text-2xl font-black sm:text-3xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "—"}</span>
-                  {lastPoint && lastPoint.netWorthRaw > currentNW && (
+                  {lastPoint && lastPoint.netWorthRaw > simulation.openingPortfolio && (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.63rem] font-bold"
                       style={{ background: 'var(--badge-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
-                      <ArrowUpRight size={11} /> +{fmt(lastPoint.netWorthRaw - currentNW)}
+                      <ArrowUpRight size={11} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
                     </span>
                   )}
                   {lastPoint && lastPoint.netWorthRaw <= 0 && (
@@ -707,13 +896,29 @@ export default function FinancialPlanner() {
               </ResponsiveContainer>
             </div>
 
-            {constrainedYears > 0 && (
+            {(constrainedYears > 0 || shortfallYears > 0 || simulation.depletionAge) && (
               <div className="mt-4 rounded-xl border px-4 py-2.5 flex items-start gap-2"
                 style={{ background: 'var(--info-red-bg)', borderColor: 'var(--info-red-border)' }}>
                 <AlertTriangle size={14} className="text-red-400 mt-0.5 shrink-0" />
-                <div className="text-[0.63rem]" style={{ color: 'var(--info-red-text)' }}>
-                  <strong>Cash Flow Warning:</strong> {constrainedYears} year{constrainedYears > 1 ? "s" : ""} with negative cash flow.{" "}
-                  {firstDeficitAge && <>Starts at age <strong>{firstDeficitAge}</strong> — shortfall drawn from net worth.</>}
+                <div className="text-[0.63rem] space-y-1" style={{ color: 'var(--info-red-text)' }}>
+                  {constrainedYears > 0 && (
+                    <div>
+                      <strong>Cash Flow Warning:</strong> {constrainedYears} year{constrainedYears > 1 ? "s" : ""} with negative cash flow.{" "}
+                      {firstDeficitAge && <>Starts at age <strong>{firstDeficitAge}</strong> — shortfall drawn from your portfolio.</>}
+                    </div>
+                  )}
+                  {shortfallYears > 0 && (
+                    <div>
+                      Planned contributions could not be fully funded in{" "}
+                      <strong>{shortfallYears}</strong> year{shortfallYears > 1 ? "s" : ""}.
+                    </div>
+                  )}
+                  {simulation.depletionAge && (
+                    <div>
+                      Portfolio depleted at age <strong>{simulation.depletionAge}</strong>, with{" "}
+                      <strong>{fmt(lastPoint?.cumUnfunded ?? 0)}</strong> of goals and expenses unfunded.
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -723,8 +928,10 @@ export default function FinancialPlanner() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { label: "Peak Net Worth", value: fmt(simulation.peakNW), sub: numToWordsIndian(simulation.peakNW), color: "var(--badge-emerald-text)", bg: "var(--badge-emerald-bg)", border: "var(--info-emerald-border)" },
-              { label: "Corpus at Retire", value: retirePoint ? fmt(retirePoint.netWorth) : "—", sub: retirePoint ? `Age ${earliestRetireAge}` : "", color: "var(--badge-amber-text)", bg: "var(--badge-amber-bg)", border: "var(--info-amber-border)" },
-              { label: "FI Age", value: simulation.fiAge || "—", sub: simulation.fiAge ? `${simulation.fiAge - currentAge} yrs away` : "Not reached", color: "var(--badge-blue-text)", bg: "var(--badge-blue-bg)", border: "var(--info-blue-border)" },
+              /* netWorthRaw, not the clamped netWorth: a depleted plan should
+                 not display as a tidy ₹0. */
+              { label: "Corpus at Retire", value: retirePoint ? fmt(retirePoint.netWorthRaw) : "—", sub: retirePoint ? `${fmt(retirePoint.liquidNW)} liquid · ${fmt(retirePoint.lockedNW)} locked` : "", color: "var(--badge-amber-text)", bg: "var(--badge-amber-bg)", border: "var(--info-amber-border)" },
+              { label: "FI Age", value: simulation.fiAge || "—", sub: simulation.fiAge ? (simulation.fiAgeSustained === simulation.fiAge ? `${simulation.fiAge - age} yrs away` : simulation.fiAgeSustained ? `holds from ${simulation.fiAgeSustained}` : "not sustained") : "Not reached", color: "var(--badge-blue-text)", bg: "var(--badge-blue-bg)", border: "var(--info-blue-border)" },
               { label: `NW at ${lifeExpectancy}`, value: lastPoint ? fmt(lastPoint.netWorth) : "—", sub: lastPoint && lastPoint.netWorthRaw <= 0 ? "⚠ Depleted" : "", color: lastPoint && lastPoint.netWorthRaw <= 0 ? "var(--badge-red-text)" : "var(--badge-violet-text)", bg: lastPoint && lastPoint.netWorthRaw <= 0 ? "var(--badge-red-bg)" : "var(--badge-violet-bg)", border: lastPoint && lastPoint.netWorthRaw <= 0 ? "var(--info-red-border)" : "var(--info-violet-border)" },
             ].map((c) => (
               <div key={c.label} className="rounded-2xl border p-3"
