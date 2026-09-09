@@ -43,6 +43,7 @@ import { BUCKET_DEFS, PPF_ANNUAL_CAP, ASSUMPTIONS_AS_OF } from "@/lib/finance/as
 import { migrate } from "@/lib/profile/migrate.mjs";
 import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
 import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
+import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
 
 const GOAL_EMOJIS = { home: "🏠", education: "🎓", car: "🚗", wedding: "💒", travel: "✈️", retirement: "🏖️", other: "🎯" };
 
@@ -336,37 +337,105 @@ export default function FinancialPlanner() {
      idempotent so re-loading is harmless. */
   const applySettings = useCallback((s) => setPlan(migrate(s)), []);
 
+  /* Every handler used to swallow its failure in a silent catch with no else on
+     the res.ok check, so a failed save looked exactly like a successful one.
+     With 38 fields to fill in that is a real data hazard. */
+  const [saveState, setSaveState] = useState({ status: "idle", message: "" });
+  const [loadedProfileId, setLoadedProfileId] = useState(null);
+
   const refreshProfiles = useCallback(async () => {
     if (!session) return;
     try {
       const res = await fetch("/api/profiles");
       if (res.ok) setSavedProfiles(await res.json());
-    } catch (e) { /* silent */ }
+    } catch (e) { /* listing is best-effort; a save failure is what matters */ }
   }, [session]);
 
   const saveProfile = useCallback(async (name) => {
     if (!session) return;
+    /* Refuse to persist a profile the user still has to fix. */
+    if (hasErrors(findings)) {
+      setSaveState({ status: "error", message: "Fix the highlighted fields before saving." });
+      return;
+    }
+    setSaveState({ status: "saving", message: "" });
     try {
-      const res = await fetch("/api/profiles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, settings: gatherSettings() }),
-      });
-      if (res.ok) refreshProfiles();
-    } catch (e) { /* silent */ }
-  }, [session, gatherSettings, refreshProfiles]);
+      /* PUT when this profile already exists. saveProfile always POSTed, so
+         saving twice created a duplicate row and updated_at never moved. */
+      const existing = savedProfiles.find((p) => p.id === loadedProfileId && p.name === name)
+        ?? savedProfiles.find((p) => p.name === name);
+      const res = existing
+        ? await fetch(`/api/profiles/${existing.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, settings: gatherSettings() }),
+          })
+        : await fetch("/api/profiles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, settings: gatherSettings() }),
+          });
+      if (res.ok) {
+        const saved = await res.json().catch(() => null);
+        if (saved?.id) setLoadedProfileId(saved.id);
+        setSaveState({ status: "saved", message: existing ? "Profile updated." : "Profile saved." });
+        clearDraft();
+        refreshProfiles();
+      } else {
+        setSaveState({ status: "error", message: `Could not save (${res.status}). Please try again.` });
+      }
+    } catch (e) {
+      setSaveState({ status: "error", message: "Could not reach the server. Please try again." });
+    }
+  }, [session, gatherSettings, refreshProfiles, findings, savedProfiles, loadedProfileId]);
 
   const loadProfile = useCallback((profile) => {
-    if (profile?.settings) applySettings(profile.settings);
+    if (!profile?.settings) {
+      setSaveState({ status: "error", message: "That profile could not be read." });
+      return;
+    }
+    try {
+      applySettings(profile.settings);
+      setLoadedProfileId(profile.id ?? null);
+      setSaveState({ status: "idle", message: "" });
+    } catch (e) {
+      setSaveState({ status: "error", message: "That profile could not be loaded." });
+    }
   }, [applySettings]);
 
   const deleteProfile = useCallback(async (id) => {
     if (!session) return;
     try {
-      await fetch(`/api/profiles/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        setSaveState({ status: "error", message: `Could not delete (${res.status}).` });
+        return;
+      }
+      if (id === loadedProfileId) setLoadedProfileId(null);
       refreshProfiles();
-    } catch (e) { /* silent */ }
-  }, [session, refreshProfiles]);
+    } catch (e) {
+      setSaveState({ status: "error", message: "Could not reach the server." });
+    }
+  }, [session, refreshProfiles, loadedProfileId]);
+
+  /* ── Signed-out local draft ──
+     Restores the form after a refresh. Never written while signed in, and
+     cleared on every session change, so figures cannot leak between accounts
+     on a shared browser. */
+  const draftLoaded = useRef(false);
+  useEffect(() => {
+    if (session) { clearDraft(); draftLoaded.current = true; return; }
+    if (draftLoaded.current) return;
+    draftLoaded.current = true;
+    const draft = readDraft();
+    if (draft) setPlan(migrate(draft));
+  }, [session]);
+
+  useEffect(() => {
+    if (session) return;
+    const t = setTimeout(() => writeDraft(plan), 600);
+    return () => clearTimeout(t);
+  }, [plan, session]);
 
   /* ═══════════════════════════════════════════════════════════════════════
      SIMULATION ENGINE
@@ -427,6 +496,7 @@ export default function FinancialPlanner() {
             onDeleteProfile={deleteProfile}
             onRefreshProfiles={refreshProfiles}
             profiles={savedProfiles}
+            saveState={saveState}
           />
         </div>
       </header>

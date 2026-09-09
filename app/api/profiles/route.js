@@ -3,6 +3,15 @@ import { authOptions } from "@/lib/auth";
 import { createServerClient } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
+/* ⚠ TENANCY
+   The .eq("user_id", session.user.id) filter on every query below is the ONLY
+   thing isolating one user's profiles from another's. Do not remove it on the
+   assumption that row level security covers it: the RLS policies in
+   supabase/migration.sql use auth.uid(), which is always null here, because
+   these routes hold the service-role key (which bypasses RLS) and sessions are
+   NextAuth JWTs rather than Supabase Auth sessions.
+   The same applies to app/api/profiles/[id]/route.js. */
+
 // GET /api/profiles — list all profiles for current user
 export async function GET() {
   const session = await getServerSession(authOptions);

@@ -4,7 +4,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { LogIn, LogOut, User, Save, FolderOpen, Trash2, ChevronDown, X } from "lucide-react";
 
-export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles }) {
+export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profilesOpen, setProfilesOpen] = useState(false);
@@ -79,6 +79,16 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
 
           {/* Save Profile */}
           <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
+            {/* A failed save used to look exactly like a successful one: every
+                handler swallowed its error and none checked res.ok's else. */}
+            {saveState.status !== "idle" && saveState.message && (
+              <div className="mb-2 rounded-lg border px-2.5 py-1.5 text-[0.6rem]"
+                style={saveState.status === "error"
+                  ? { background: 'var(--info-red-bg)', borderColor: 'var(--info-red-border)', color: 'var(--info-red-text)' }
+                  : { background: 'var(--info-emerald-bg)', borderColor: 'var(--info-emerald-border)', color: 'var(--info-emerald-text)' }}>
+                {saveState.message}
+              </div>
+            )}
             {showSaveInput ? (
               <div className="flex gap-2">
                 <input

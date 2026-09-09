@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "node --test \"lib/**/*.test.mjs\"",
-    "check:profiles": "node scripts/check-profile-roundtrip.mjs"
+    "check:profiles": "node scripts/check-profile-roundtrip.mjs",
+    "check:fields": "node scripts/check-client-fields.mjs",
+    "check": "npm run test && npm run check:profiles && npm run check:fields"
   },
   "dependencies": {
     "next": "^14.2.0",

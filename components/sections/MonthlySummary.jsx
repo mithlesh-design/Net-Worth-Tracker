@@ -35,9 +35,11 @@ export default function MonthlySummary({
     ? cplan.detailedMonthly
     : plan.legacy.monthlyInvestment;
 
-  const firstRow = simulation.data[1] ?? simulation.data[0];
-  const emiMonthly = firstRow ? firstRow.totalEMI / 12 : 0;
-  const taxMonthly = firstRow ? firstRow.incomeTax / 12 : 0;
+  /* Year 0, so every figure here describes today. Reading year 1 would show
+     today's income against next year's grown tax. */
+  const today = simulation.data[0];
+  const emiMonthly = today ? today.totalEMI / 12 : 0;
+  const taxMonthly = today ? today.incomeTax / 12 : 0;
 
   /* Contributions are a transfer from cash into assets, not an expense and not
      extra wealth. The surplus is what is left after they have been made. */
