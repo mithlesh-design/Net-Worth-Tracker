@@ -1,0 +1,234 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════
+   THEME CSS CUSTOM PROPERTIES
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Default: dark theme (applied via :root so it works before JS hydrates) */
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0f0f0f;
+  --bg-secondary: #171717;
+  --bg-tertiary: #1e1e1e;
+  --border-primary: #2a2a2a;
+  --border-secondary: #222222;
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #606060;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --accent-soft: rgba(34, 197, 94, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --info-blue-bg: rgba(59, 130, 246, 0.08);
+  --info-blue-border: rgba(59, 130, 246, 0.15);
+  --info-blue-text: #93c5fd;
+  --info-amber-bg: rgba(245, 158, 11, 0.08);
+  --info-amber-border: rgba(245, 158, 11, 0.15);
+  --info-amber-text: #fbbf24;
+  --info-rose-bg: rgba(244, 63, 94, 0.08);
+  --info-rose-border: rgba(244, 63, 94, 0.15);
+  --info-rose-text: #fda4af;
+  --info-sky-bg: rgba(14, 165, 233, 0.08);
+  --info-sky-border: rgba(14, 165, 233, 0.15);
+  --info-sky-text: #7dd3fc;
+  --info-violet-bg: rgba(139, 92, 246, 0.08);
+  --info-violet-border: rgba(139, 92, 246, 0.15);
+  --info-violet-text: #c4b5fd;
+  --info-emerald-bg: rgba(34, 197, 94, 0.08);
+  --info-emerald-border: rgba(34, 197, 94, 0.15);
+  --info-emerald-text: #6ee7b7;
+  --info-red-bg: rgba(239, 68, 68, 0.08);
+  --info-red-border: rgba(239, 68, 68, 0.15);
+  --info-red-text: #fca5a5;
+  --slider-track-bg: #333333;
+  --toggle-off-bg: #404040;
+  --badge-emerald-bg: rgba(34, 197, 94, 0.12);
+  --badge-emerald-text: #4ade80;
+  --badge-amber-bg: rgba(245, 158, 11, 0.12);
+  --badge-amber-text: #fbbf24;
+  --badge-red-bg: rgba(239, 68, 68, 0.12);
+  --badge-red-text: #fca5a5;
+  --badge-blue-bg: rgba(59, 130, 246, 0.12);
+  --badge-blue-text: #93c5fd;
+  --badge-violet-bg: rgba(139, 92, 246, 0.12);
+  --badge-violet-text: #c4b5fd;
+  --chart-grid: #222222;
+  --chart-axis: #333333;
+  --chart-tick: #606060;
+  --gradient-start-opacity: 0.4;
+  --gradient-mid-opacity: 0.08;
+  --goal-marker-fill: #171717;
+  --scrollbar-color: #333333;
+  --input-bg: #1e1e1e;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+  --bg-primary: #faf8f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f0eb;
+  --border-primary: #e8e0d8;
+  --border-secondary: #f0e8e0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-muted: #9a9a9a;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --accent-soft: rgba(34, 197, 94, 0.08);
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --info-blue-bg: rgba(59, 130, 246, 0.06);
+  --info-blue-border: rgba(59, 130, 246, 0.15);
+  --info-blue-text: #2563eb;
+  --info-amber-bg: rgba(245, 158, 11, 0.06);
+  --info-amber-border: rgba(245, 158, 11, 0.15);
+  --info-amber-text: #b45309;
+  --info-rose-bg: rgba(244, 63, 94, 0.06);
+  --info-rose-border: rgba(244, 63, 94, 0.15);
+  --info-rose-text: #be123c;
+  --info-sky-bg: rgba(14, 165, 233, 0.06);
+  --info-sky-border: rgba(14, 165, 233, 0.15);
+  --info-sky-text: #0284c7;
+  --info-violet-bg: rgba(139, 92, 246, 0.06);
+  --info-violet-border: rgba(139, 92, 246, 0.15);
+  --info-violet-text: #7c3aed;
+  --info-emerald-bg: rgba(34, 197, 94, 0.06);
+  --info-emerald-border: rgba(34, 197, 94, 0.15);
+  --info-emerald-text: #059669;
+  --info-red-bg: rgba(239, 68, 68, 0.06);
+  --info-red-border: rgba(239, 68, 68, 0.15);
+  --info-red-text: #dc2626;
+  --slider-track-bg: #e5e7eb;
+  --toggle-off-bg: #d1d5db;
+  --badge-emerald-bg: #ecfdf5;
+  --badge-emerald-text: #059669;
+  --badge-amber-bg: #fffbeb;
+  --badge-amber-text: #b45309;
+  --badge-red-bg: #fef2f2;
+  --badge-red-text: #dc2626;
+  --badge-blue-bg: #eff6ff;
+  --badge-blue-text: #2563eb;
+  --badge-violet-bg: #f5f3ff;
+  --badge-violet-text: #7c3aed;
+  --chart-grid: #f0f0f0;
+  --chart-axis: #e5e7eb;
+  --chart-tick: #9ca3af;
+  --gradient-start-opacity: 0.3;
+  --gradient-mid-opacity: 0.04;
+  --goal-marker-fill: #ffffff;
+  --scrollbar-color: #e5e7eb;
+  --input-bg: #ffffff;
+  --hover-bg: rgba(0, 0, 0, 0.03);
+  --overlay-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SMOOTH TRANSITIONS
+   ═══════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Exclude elements that need their own transitions */
+input[type="range"],
+input[type="range"]::-webkit-slider-thumb,
+.recharts-surface,
+.recharts-surface * {
+  transition: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════════════ */
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-color);
+  border-radius: 9999px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RANGE SLIDER
+   ═══════════════════════════════════════════════════════════════════ */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid #22c55e;
+  box-shadow: 0 1px 4px var(--shadow-color);
+  cursor: pointer;
+  transition: transform 0.15s ease !important;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid #22c55e;
+  box-shadow: 0 1px 4px var(--shadow-color);
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NUMBER INPUT SPINNERS HIDDEN
+   ═══════════════════════════════════════════════════════════════════ */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PULSE ANIMATION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
