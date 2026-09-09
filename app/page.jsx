@@ -5,12 +5,7 @@ import { useSession } from "next-auth/react";
 import AuthButton from "@/components/AuthButton";
 import { useTheme } from "@/components/ThemeProvider";
 import {
-  Trash2,
-  TrendingUp,
-  TrendingDown,
   Wallet,
-  IndianRupee,
-  Landmark,
   Sparkles,
   AlertTriangle,
   ShieldCheck,
@@ -18,8 +13,6 @@ import {
   X,
   Plus,
   ChevronDown,
-  ToggleLeft,
-  ToggleRight,
   Sun,
   Moon,
 } from "lucide-react";
@@ -36,110 +29,13 @@ import {
 } from "recharts";
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   HELPERS
+   HELPERS — now live in lib/finance so they can be unit tested outside React.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const CURRENT_YEAR = new Date().getFullYear();
-
-const fmt = (n) => {
-  if (n === undefined || n === null || isNaN(n)) return "₹0";
-  const abs = Math.abs(n);
-  const sign = n < 0 ? "-" : "";
-  if (abs >= 1e7) return sign + "₹" + (abs / 1e7).toFixed(2) + " Cr";
-  if (abs >= 1e5) return sign + "₹" + (abs / 1e5).toFixed(2) + " L";
-  return sign + "₹" + abs.toLocaleString("en-IN", { maximumFractionDigits: 0 });
-};
-
-const fmtAxis = (v) => {
-  if (Math.abs(v) >= 1e7) return `₹${(v / 1e7).toFixed(1)}Cr`;
-  if (Math.abs(v) >= 1e5) return `₹${(v / 1e5).toFixed(0)}L`;
-  if (Math.abs(v) >= 1e3) return `₹${(v / 1e3).toFixed(0)}K`;
-  return `₹${v}`;
-};
-
-/* Indian Number-to-Words */
-const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
-const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-function convertChunk(n) {
-  if (n < 20) return ones[n];
-  if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
-  if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 ? " and " + convertChunk(n % 100) : "");
-  const th = Math.floor(n / 1000);
-  const rem = n % 1000;
-  return convertChunk(th) + " Thousand" + (rem > 0 ? " " + convertChunk(rem) : "");
-}
-function numToWordsIndian(n) {
-  if (n === 0) return "Zero Rupees";
-  if (isNaN(n) || !isFinite(n)) return "";
-  const abs = Math.abs(Math.round(n));
-  const parts = [];
-  const cr = Math.floor(abs / 1e7);
-  const lk = Math.floor((abs % 1e7) / 1e5);
-  const rest = abs % 1e5;
-  if (cr) parts.push(convertChunk(cr) + " Crore");
-  if (lk) parts.push(convertChunk(lk) + " Lakh");
-  if (rest) parts.push(convertChunk(rest));
-  return (n < 0 ? "Minus " : "") + parts.join(", ") + " Rupees";
-}
-const toWords = (v) => (!v || isNaN(v) || v === 0) ? "" : "₹ " + numToWordsIndian(v);
-
-/* Frequency helper */
-const toAnnual = (amount, frequency) => {
-  if (frequency === "monthly") return amount * 12;
-  if (frequency === "quarterly") return amount * 4;
-  return amount; // yearly
-};
-
-/* ─── New Tax Regime 2024-25 (India) ─── */
-function calcIncomeTax(annualIncome) {
-  // Standard deduction of ₹75,000
-  const taxable = Math.max(0, annualIncome - 75000);
-  let tax = 0;
-  const slabs = [
-    { limit: 400000, rate: 0 },      // 0-4L: 0%
-    { limit: 400000, rate: 0.05 },    // 4-8L: 5%
-    { limit: 400000, rate: 0.10 },    // 8-12L: 10%
-    { limit: 400000, rate: 0.15 },    // 12-16L: 15%
-    { limit: 400000, rate: 0.20 },    // 16-20L: 20%
-    { limit: Infinity, rate: 0.30 },  // 20L+: 30%
-  ];
-  let remaining = taxable;
-  for (const slab of slabs) {
-    if (remaining <= 0) break;
-    const taxableInSlab = Math.min(remaining, slab.limit);
-    tax += taxableInSlab * slab.rate;
-    remaining -= taxableInSlab;
-  }
-  // 4% cess
-  tax *= 1.04;
-  // Rebate: if taxable income <= 12L (after std deduction), tax = 0 under new regime
-  if (taxable <= 1200000) tax = 0;
-  return Math.round(tax);
-}
-
-/* EMI Calculator */
-function calcEMI(principal, annualRate, tenureYears) {
-  if (principal <= 0 || tenureYears <= 0) return 0;
-  const r = annualRate / 100 / 12;
-  const n = tenureYears * 12;
-  if (r === 0) return principal / n;
-  return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-}
-
-/* Loan yearly balance */
-function loanScheduleYearly(principal, annualRate, tenureYears) {
-  const r = annualRate / 100 / 12;
-  const n = tenureYears * 12;
-  const emi = calcEMI(principal, annualRate, tenureYears);
-  let balance = principal;
-  const yearly = [];
-  for (let m = 1; m <= n; m++) {
-    const interest = balance * r;
-    balance = Math.max(0, balance - (emi - interest));
-    if (m % 12 === 0 || m === n) yearly.push(Math.round(balance));
-  }
-  return yearly;
-}
+import { fmt, fmtAxis, toWords, toAnnual, numToWordsIndian } from "@/lib/finance/format.mjs";
+import { calcIncomeTax } from "@/lib/finance/tax.mjs";
+import { calcEMI } from "@/lib/finance/loans.mjs";
+import { runProjection } from "@/lib/finance/projection.mjs";
 
 const GOAL_EMOJIS = { home: "🏠", education: "🎓", car: "🚗", wedding: "💒", travel: "✈️", retirement: "🏖️", other: "🎯" };
 
@@ -475,180 +371,13 @@ export default function FinancialPlanner() {
      SIMULATION ENGINE
      ═══════════════════════════════════════════════════════════════════════ */
 
-  const simulation = useMemo(() => {
-    const years = lifeExpectancy - currentAge;
-    if (years <= 0) return { data: [], fiAge: null, peakNW: 0 };
-
-    const data = [];
-    let nw = currentNW;
-    let annualExpense = monthlyExpense * 12;
-    let targetAnnualInvestment = monthlyInvestment * 12;
-    let fiAge = null;
-    let peakNW = currentNW;
-
-    // Pre-compute goal loan structures
-    // Each goal with a loan spawns an EMI stream starting at goal.age
-    const goalLoanState = goals.map((g) => {
-      if (!g.hasLoan) return null;
-      const dp = g.amount * (g.downPaymentPct / 100);
-      const loanAmt = g.amount - dp;
-      if (loanAmt <= 0) return null;
-      const emi = calcEMI(loanAmt, g.loanRate, g.loanTenure);
-      const balances = loanScheduleYearly(loanAmt, g.loanRate, g.loanTenure);
-      return {
-        goalId: g.id, goalAge: g.age, emoji: g.emoji,
-        downPayment: dp, loanAmount: loanAmt,
-        annualEMI: emi * 12, tenure: g.loanTenure, balances,
-        appreciationRate: g.appreciationRate || 0,
-        maintenancePct: g.maintenancePct || 0,
-        assetValue: g.amount, // initial asset value for appreciating goals
-      };
-    }).filter(Boolean);
-
-    for (let y = 0; y <= years; y++) {
-      const age = currentAge + y;
-      const calendarYear = CURRENT_YEAR + y;
-
-      // ── Gross income ──
-      let grossIncome = 0;
-      incomes.forEach((inc) => {
-        if (age < inc.retireAge) {
-          grossIncome += toAnnual(inc.amount, inc.frequency) * Math.pow(1 + inc.growthRate / 100, y);
-        }
-      });
-      const isRetired = incomes.every((inc) => age >= inc.retireAge);
-
-      // ── Fix 4: Income tax (new regime) ──
-      const incomeTax = isRetired ? 0 : calcIncomeTax(grossIncome);
-      const postTaxIncome = grossIncome - incomeTax;
-
-      // ── Module 2: Return rate ──
-      const returnRate = isRetired ? postRetireReturn : expectedXIRR;
-
-      // ── Grow expenses ──
-      if (y > 0) annualExpense *= 1 + (inflationRate + lifestyleCreep) / 100;
-
-      // ── Grow target investment ──
-      if (y > 0) targetAnnualInvestment *= 1 + investmentStepUp / 100;
-
-      // ── Process goal events & loans ──
-      let totalEMI = 0;
-      let maintenanceCost = 0;
-      let totalPropertyValue = 0;
-      let totalLoanOutstanding = 0;
-      let goalCostNet = 0;
-      let goalCostGross = 0;
-
-      // Process each goal
-      goals.forEach((g) => {
-        // Goal trigger: deduct down payment (or full amount if no loan)
-        if (g.age === age) {
-          if (g.hasLoan) {
-            // Deduct down payment, grossed up for tax
-            const dp = g.amount * (g.downPaymentPct / 100);
-            const grossDP = dp / (1 - exitTaxRate / 100);
-            goalCostNet += dp;
-            goalCostGross += grossDP;
-          } else {
-            // Full amount, grossed up for tax
-            const gross = g.amount / (1 - exitTaxRate / 100);
-            goalCostNet += g.amount;
-            goalCostGross += gross;
-          }
-        }
-      });
-
-      // Active loan EMIs and property tracking
-      goalLoanState.forEach((ls) => {
-        const yearsElapsed = age - ls.goalAge;
-        if (yearsElapsed < 0) return; // not yet purchased
-        if (yearsElapsed < ls.tenure) {
-          totalEMI += ls.annualEMI;
-          totalLoanOutstanding += (ls.balances[yearsElapsed] || 0);
-        }
-        // Asset appreciation (for home-type goals)
-        if (ls.appreciationRate > 0 && yearsElapsed >= 0) {
-          const currentAssetVal = ls.assetValue * Math.pow(1 + ls.appreciationRate / 100, yearsElapsed);
-          totalPropertyValue += currentAssetVal;
-          // Module 3: Maintenance
-          if (ls.maintenancePct > 0) {
-            maintenanceCost += currentAssetVal * (ls.maintenancePct / 100);
-          }
-        }
-      });
-
-      // ═══ MODULE 1: Cash Flow Waterfall ═══
-      const totalAnnualSpends = annualExpense + totalEMI + maintenanceCost;
-      const availableCash = postTaxIncome - totalAnnualSpends;
-
-      let actualInvestment = 0;
-      let surplusSpent = 0;
-
-      if (!isRetired) {
-        if (investSurplus) {
-          // Fix 1: Invest ALL surplus
-          actualInvestment = Math.max(0, availableCash);
-        } else {
-          // Cap at target SIP
-          actualInvestment = Math.max(0, Math.min(targetAnnualInvestment, availableCash));
-          surplusSpent = Math.max(0, availableCash - actualInvestment);
-        }
-      }
-
-      const deficit = availableCash < 0 && !isRetired;
-      const constrained = !isRetired && !investSurplus && availableCash >= 0 && availableCash < targetAnnualInvestment;
-
-      // ── Net Worth Update ──
-      if (y === 0) {
-        nw = nw + actualInvestment;
-      } else if (!isRetired) {
-        nw = nw * (1 + returnRate / 100) + actualInvestment;
-        if (deficit) nw += availableCash;
-      } else {
-        nw = nw * (1 + returnRate / 100) - totalAnnualSpends;
-      }
-
-      // Deduct goals
-      nw -= goalCostGross;
-
-      const liquidNW = nw;
-      // Net worth = liquid investments only (property assets excluded)
-      const totalNW = liquidNW;
-
-      // Fix 5: chart value clamped to 0 (simulation continues internally)
-      const chartNW = Math.max(0, totalNW);
-
-      peakNW = Math.max(peakNW, totalNW);
-
-      if (!fiAge && liquidNW > 0 && totalAnnualSpends > 0 && liquidNW >= totalAnnualSpends * 25) {
-        fiAge = age;
-      }
-
-      data.push({
-        age, year: calendarYear,
-        netWorth: Math.round(chartNW),
-        netWorthRaw: Math.round(totalNW),
-        liquidNW: Math.round(liquidNW),
-        totalPropertyValue: Math.round(totalPropertyValue),
-        totalLoanOutstanding: Math.round(totalLoanOutstanding),
-        grossIncome: Math.round(grossIncome),
-        incomeTax: Math.round(incomeTax),
-        postTaxIncome: Math.round(postTaxIncome),
-        annualExpense: Math.round(annualExpense),
-        totalEMI: Math.round(totalEMI),
-        maintenanceCost: Math.round(maintenanceCost),
-        availableCash: Math.round(availableCash),
-        targetInvestment: Math.round(isRetired ? 0 : targetAnnualInvestment),
-        invested: Math.round(actualInvestment),
-        surplusSpent: Math.round(surplusSpent),
-        goalCost: Math.round(goalCostNet),
-        goalCostGross: Math.round(goalCostGross),
-        deficit, constrained, isRetired, returnRate,
-      });
-    }
-
-    return { data, fiAge, peakNW: Math.max(0, peakNW) };
-  }, [currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep, currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, postRetireReturn, exitTaxRate, investSurplus, goals]);
+  const simulation = useMemo(() => runProjection({
+    currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep,
+    currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, postRetireReturn,
+    exitTaxRate, investSurplus, goals,
+  }), [currentAge, lifeExpectancy, incomes, monthlyExpense, inflationRate, lifestyleCreep,
+       currentNW, monthlyInvestment, investmentStepUp, expectedXIRR, postRetireReturn,
+       exitTaxRate, investSurplus, goals]);
 
   /* ── Derived ── */
   const retirePoint = simulation.data.find((d) => d.age === earliestRetireAge);

@@ -1,0 +1,25 @@
+{
+  "currentAge": 35,
+  "lifeExpectancy": 80,
+  "incomes": [
+    { "id": 1, "name": "Primary Salary", "amount": 120000, "frequency": "monthly", "growthRate": 8, "retireAge": 58 },
+    { "id": 2, "name": "Bonus", "amount": 300000, "frequency": "yearly", "growthRate": 5, "retireAge": 55 }
+  ],
+  "monthlyExpense": 70000,
+  "inflationRate": 6,
+  "lifestyleCreep": 2,
+  "currentNW": 2500000,
+  "monthlyInvestment": 40000,
+  "investmentStepUp": 8,
+  "expectedXIRR": 11,
+  "investSurplus": false,
+  "postRetireReturn": 6.5,
+  "exitTaxRate": 12.5,
+  "goals": [
+    {
+      "id": 1, "name": "Buy Home", "emoji": "home", "age": 40, "amount": 12000000,
+      "hasLoan": true, "downPaymentPct": 25, "loanRate": 8.75, "loanTenure": 20,
+      "appreciationRate": 6, "maintenancePct": 1.5
+    }
+  ]
+}
