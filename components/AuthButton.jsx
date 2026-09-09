@@ -1,11 +1,14 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { LogIn, LogOut, User, Save, FolderOpen, Trash2, ChevronDown, X } from "lucide-react";
+/* One hook for both the real and the preview session, so nothing in this
+   component branches on which one is active beyond the demo labelling. */
+import { useAppSession } from "@/components/DemoAuthProvider";
 
 export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
-  const { data: session, status } = useSession();
+  const { data: session, status, isDemo, persisted, signOut } = useAppSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -65,6 +68,12 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
         <span className="text-xs font-medium max-w-[100px] truncate hidden sm:block" style={{ color: 'var(--text-secondary)' }}>
           {user.name || user.email}
         </span>
+        {isDemo && (
+          <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide hidden sm:block"
+            style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
+            Demo
+          </span>
+        )}
         <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
       </button>
 
@@ -73,8 +82,22 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', boxShadow: '0 8px 24px var(--shadow-color)' }}>
           {/* User info */}
           <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
-            <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{user.name || "User"}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{user.name || "User"}</p>
+              {isDemo && (
+                <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide"
+                  style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
+                  Demo mode
+                </span>
+              )}
+            </div>
             <p className="text-[0.6rem] truncate" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
+            {/* Said plainly rather than implied: nothing here reached a server. */}
+            {isDemo && !persisted && (
+              <p className="text-[0.55rem] mt-1" style={{ color: 'var(--info-red-text)' }}>
+                This browser blocked storage, so a refresh will sign you out.
+              </p>
+            )}
           </div>
 
           {/* Save Profile */}
@@ -156,6 +179,12 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
               </span>
               <ChevronDown size={12} className={`transition-transform ${profilesOpen ? "rotate-180" : ""}`} style={{ color: 'var(--text-muted)' }} />
             </button>
+
+            {profilesOpen && isDemo && (
+              <p className="mt-1 px-2 text-[0.55rem]" style={{ color: 'var(--text-muted)' }}>
+                Demo profiles are saved on this browser only.
+              </p>
+            )}
 
             {profilesOpen && (
               <div className="mt-1 max-h-48 overflow-y-auto space-y-1">

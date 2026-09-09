@@ -1,17 +1,45 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useDemoAuth } from "@/components/DemoAuthProvider";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  /* TEMPORARY: preview-only demo login. `demo.enabled` is a build-time
+     constant that is false in production, so everything below it is the
+     original flow. See lib/demo/config.mjs. */
+  const demo = useDemoAuth();
+
+  /* NextAuth sends the user back here as ?error=... when a provider is not
+     configured, which is the state this build is in. Strip it on arrival so a
+     stale failure from the real flow is not carried into the demo session. */
+  useEffect(() => {
+    if (!demo.enabled) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("error")) return;
+    url.searchParams.delete("error");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }, [demo.enabled]);
+
+  /* One click, no email, no OTP, no provider round trip. The planner is opened
+     with a clean URL so no authentication error parameter survives. */
+  const startDemoSession = () => {
+    setLoading(true);
+    demo.signIn(email);
+    router.replace("/");
+  };
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
+    if (demo.enabled) return startDemoSession();
     if (!email.trim()) return;
     setLoading(true);
     await signIn("email", { email, callbackUrl: "/" });
@@ -34,13 +62,21 @@ export default function SignInPage() {
               <Sparkles size={17} className="text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>Net Worth Tracker</h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>Net Worth Tracker</h1>
+                {demo.enabled && (
+                  <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide"
+                    style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
+                    Demo mode
+                  </span>
+                )}
+              </div>
               <p className="text-[0.55rem]" style={{ color: 'var(--text-muted)' }}>Sign in to save your profiles</p>
             </div>
           </div>
 
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={() => (demo.enabled ? startDemoSession() : signIn("google", { callbackUrl: "/" }))}
             className="w-full flex items-center justify-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm font-medium transition shadow-sm"
             style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
           >
@@ -76,8 +112,11 @@ export default function SignInPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
+                  placeholder={demo.enabled ? "you@example.com (optional in demo mode)" : "you@example.com"}
+                  /* Demo mode must work on one click, so the browser's own
+                     required-field block is lifted and an empty box falls back
+                     to the default demo identity. */
+                  required={!demo.enabled}
                   className="w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none transition"
                   style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-primary)', color: 'var(--text-primary)' }}
                 />
@@ -88,13 +127,15 @@ export default function SignInPage() {
                 className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 py-2.5 text-sm font-bold text-white transition shadow-sm flex items-center justify-center gap-2"
               >
                 <Mail size={14} />
-                {loading ? "Sending..." : "Send Magic Link"}
+                {loading ? (demo.enabled ? "Opening planner..." : "Sending...") : "Send Magic Link"}
               </button>
             </form>
           )}
 
           <p className="mt-5 text-[0.55rem] text-center" style={{ color: 'var(--text-muted)' }}>
-            The planner works without login. Sign in only to save & load profiles.
+            {demo.enabled
+              ? "Demo mode: no email is sent. You are signed in instantly on this browser, and profiles are saved here only."
+              : "The planner works without login. Sign in only to save & load profiles."}
           </p>
         </div>
       </div>

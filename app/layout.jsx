@@ -1,5 +1,6 @@
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
+import { DemoAuthProvider } from "@/components/DemoAuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata = {
@@ -13,7 +14,11 @@ export default function RootLayout({ children }) {
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
         <SessionProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
+              it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}
+          <DemoAuthProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </DemoAuthProvider>
         </SessionProvider>
       </body>
     </html>

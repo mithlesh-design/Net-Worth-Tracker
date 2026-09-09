@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
 import AuthButton from "@/components/AuthButton";
+/* One session hook and one profile store for both the real backend and the
+   temporary demo preview, so neither is branched on below. */
+import { useAppSession } from "@/components/DemoAuthProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import {
   Wallet,
@@ -44,6 +46,7 @@ import { migrate } from "@/lib/profile/migrate.mjs";
 import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
 import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
 import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
+import { getProfileStore } from "@/lib/profile/store.mjs";
 
 const GOAL_EMOJIS = { home: "🏠", education: "🎓", car: "🚗", wedding: "💒", travel: "✈️", retirement: "🏖️", other: "🎯" };
 
@@ -324,8 +327,12 @@ export default function FinancialPlanner() {
      PROFILE SAVE / LOAD (requires auth)
      ══════════════════════════════════════════════════════════════════════ */
 
-  const { data: session } = useSession();
+  const { data: session, isDemo } = useAppSession();
   const [savedProfiles, setSavedProfiles] = useState([]);
+
+  /* Real (Supabase via /api/profiles) and demo (this browser's storage) sit
+     behind one interface, so every handler below is written once. */
+  const store = useMemo(() => getProfileStore(isDemo), [isDemo]);
 
   /* One deep clone in, one migrate out. Every field is persisted automatically,
      so a newly added field can no longer be saved but not loaded (or vice
@@ -345,11 +352,10 @@ export default function FinancialPlanner() {
 
   const refreshProfiles = useCallback(async () => {
     if (!session) return;
-    try {
-      const res = await fetch("/api/profiles");
-      if (res.ok) setSavedProfiles(await res.json());
-    } catch (e) { /* listing is best-effort; a save failure is what matters */ }
-  }, [session]);
+    /* Listing is best-effort; a failed save is what actually costs the user. */
+    const res = await store.list();
+    if (res.ok) setSavedProfiles(res.profiles);
+  }, [session, store]);
 
   const saveProfile = useCallback(async (name) => {
     if (!session) return;
@@ -359,35 +365,29 @@ export default function FinancialPlanner() {
       return;
     }
     setSaveState({ status: "saving", message: "" });
-    try {
-      /* PUT when this profile already exists. saveProfile always POSTed, so
-         saving twice created a duplicate row and updated_at never moved. */
-      const existing = savedProfiles.find((p) => p.id === loadedProfileId && p.name === name)
-        ?? savedProfiles.find((p) => p.name === name);
-      const res = existing
-        ? await fetch(`/api/profiles/${existing.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, settings: gatherSettings() }),
-          })
-        : await fetch("/api/profiles", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, settings: gatherSettings() }),
-          });
-      if (res.ok) {
-        const saved = await res.json().catch(() => null);
-        if (saved?.id) setLoadedProfileId(saved.id);
-        setSaveState({ status: "saved", message: existing ? "Profile updated." : "Profile saved." });
-        clearDraft();
-        refreshProfiles();
-      } else {
-        setSaveState({ status: "error", message: `Could not save (${res.status}). Please try again.` });
-      }
-    } catch (e) {
-      setSaveState({ status: "error", message: "Could not reach the server. Please try again." });
+
+    /* Update when this profile already exists. saveProfile always created, so
+       saving twice made a duplicate row and updated_at never moved. */
+    const existing = savedProfiles.find((p) => p.id === loadedProfileId && p.name === name)
+      ?? savedProfiles.find((p) => p.name === name);
+    const settings = gatherSettings();
+    const res = existing
+      ? await store.update(existing.id, { name, settings })
+      : await store.create({ name, settings });
+
+    /* The store reports its own failure text, so a save that did not happen
+       can never be rendered with the success styling. */
+    if (!res.ok) {
+      setSaveState({ status: "error", message: res.message });
+      return;
     }
-  }, [session, gatherSettings, refreshProfiles, findings, savedProfiles, loadedProfileId]);
+    if (res.profile?.id) setLoadedProfileId(res.profile.id);
+    setSaveState({ status: "saved", message: res.message });
+    /* Only the real store makes the draft redundant by putting the plan on a
+       server; the demo store has nowhere else to keep the working figures. */
+    if (store.clearsDraftOnSave) clearDraft();
+    refreshProfiles();
+  }, [session, store, gatherSettings, refreshProfiles, findings, savedProfiles, loadedProfileId]);
 
   const loadProfile = useCallback((profile) => {
     if (!profile?.settings) {
@@ -405,37 +405,46 @@ export default function FinancialPlanner() {
 
   const deleteProfile = useCallback(async (id) => {
     if (!session) return;
-    try {
-      const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        setSaveState({ status: "error", message: `Could not delete (${res.status}).` });
-        return;
-      }
-      if (id === loadedProfileId) setLoadedProfileId(null);
-      refreshProfiles();
-    } catch (e) {
-      setSaveState({ status: "error", message: "Could not reach the server." });
+    const res = await store.remove(id);
+    if (!res.ok) {
+      setSaveState({ status: "error", message: res.message });
+      return;
     }
-  }, [session, refreshProfiles, loadedProfileId]);
+    if (id === loadedProfileId) setLoadedProfileId(null);
+    refreshProfiles();
+  }, [session, store, refreshProfiles, loadedProfileId]);
 
-  /* ── Signed-out local draft ──
-     Restores the form after a refresh. Never written while signed in, and
-     cleared on every session change, so figures cannot leak between accounts
-     on a shared browser. */
+  /* ── Local working draft ──
+     Restores the form after a refresh. Never written for a real account, and
+     cleared when one signs in, so figures cannot leak between accounts on a
+     shared browser.
+
+     The demo session is the deliberate exception: it has no server to hold the
+     plan, so keeping the draft is what carries the figures typed before
+     sign-in through to the signed-in planner, and back out again on sign-out. */
+  const keepsLocalDraft = !session || isDemo;
   const draftLoaded = useRef(false);
   useEffect(() => {
-    if (session) { clearDraft(); draftLoaded.current = true; return; }
+    if (!keepsLocalDraft) { clearDraft(); draftLoaded.current = true; return; }
     if (draftLoaded.current) return;
     draftLoaded.current = true;
     const draft = readDraft();
     if (draft) setPlan(migrate(draft));
-  }, [session]);
+  }, [keepsLocalDraft]);
 
   useEffect(() => {
-    if (session) return;
+    if (!keepsLocalDraft) return;
     const t = setTimeout(() => writeDraft(plan), 600);
     return () => clearTimeout(t);
-  }, [plan, session]);
+  }, [plan, keepsLocalDraft]);
+
+  /* A signed-out planner lists nobody's profiles, so a demo listing cannot
+     still be on screen when a real account signs in next. */
+  useEffect(() => {
+    if (session) return;
+    setSavedProfiles([]);
+    setLoadedProfileId(null);
+  }, [session]);
 
   /* ═══════════════════════════════════════════════════════════════════════
      SIMULATION ENGINE
