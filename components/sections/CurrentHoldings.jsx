@@ -22,7 +22,7 @@ const FIELDS = [
 
 const NAMED = FIELDS.map((f) => f.key);
 
-export default function CurrentHoldings({ plan, setField, findingsFor, totalHoldings }) {
+export default function CurrentHoldings({ plan, setField, findingsFor, totalHoldings, startingPortfolio }) {
   const h = plan.holdings;
   const namedTotal = NAMED.reduce((s, k) => s + (Number(h[k]) || 0), 0);
   const unallocated = Number(h.unallocated) || 0;
@@ -107,6 +107,17 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
           value={fmt(totalHoldings)}
           sub={`${fmt(liquid)} available · ${fmt(locked)} in retirement accounts`}
         />
+        {/* An eligible life insurance cash value is an asset but is entered on
+            its own card, so name it here rather than leaving the starting
+            portfolio larger than this total for no visible reason. */}
+        {startingPortfolio != null && startingPortfolio !== totalHoldings && (
+          <>
+            <DerivedStat label="Life insurance cash value"
+              value={fmt(startingPortfolio - totalHoldings)}
+              sub="from the Life Insurance card" tone="muted" />
+            <DerivedStat label="Starting Portfolio" value={fmt(startingPortfolio)} />
+          </>
+        )}
       </div>
 
       <InfoStrip tone="blue">

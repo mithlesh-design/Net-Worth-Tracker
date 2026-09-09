@@ -48,6 +48,7 @@ export default function MonthlySummary({
 
   const liquid = simulation.data[0]?.liquidNW ?? 0;
   const locked = simulation.data[0]?.lockedNW ?? 0;
+  const startingPortfolio = simulation.openingPortfolio ?? totalHoldings;
 
   return (
     <SectionCard title="Monthly Summary">
@@ -67,7 +68,10 @@ export default function MonthlySummary({
           value={fmt(Math.abs(surplus))}
           sub={surplus < 0 ? "planned outgoings exceed income" : "after all outgoings"}
           tone={surplus < 0 ? "warn" : "good"} />
-        <Tile label="Current Holdings" value={fmt(totalHoldings)}
+        {/* The engine's opening portfolio, not the sum of the Current Holdings
+            card alone: an eligible life insurance cash value is an asset too,
+            and showing only the card's total understated the start. */}
+        <Tile label="Starting Portfolio" value={fmt(startingPortfolio)}
           sub={`${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
       </div>
 

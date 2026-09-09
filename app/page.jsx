@@ -698,7 +698,7 @@ export default function FinancialPlanner() {
 
           {/* Current Holdings — client fields 17-23 */}
           <CurrentHoldings plan={plan} setField={setField} findingsFor={findingsFor}
-            totalHoldings={totalHoldings} />
+            totalHoldings={totalHoldings} startingPortfolio={simulation.openingPortfolio} />
 
           {/* Life Insurance — client field 24 */}
           <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
@@ -707,8 +707,10 @@ export default function FinancialPlanner() {
           <CollapsibleSection title="Investment Strategy">
             {/* The aggregate net worth is now derived from the holdings it
                 always represented. It is never added on top of them. */}
-            <DerivedStat label="Starting Portfolio" value={fmt(totalHoldings)}
-              sub="total of Current Holdings above" />
+            <DerivedStat label="Starting Portfolio" value={fmt(simulation.openingPortfolio)}
+              sub={simulation.openingPortfolio !== totalHoldings
+                ? `${fmt(totalHoldings)} holdings + ${fmt(simulation.openingPortfolio - totalHoldings)} insurance cash value`
+                : "total of Current Holdings above"} />
 
             {cplan.useDetailed ? (
               <>
