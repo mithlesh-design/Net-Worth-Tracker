@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const TOTAL_STEPS = 5;
@@ -14,11 +15,12 @@ export default function WizardNav({ currentStep, onBack, onNext, canSkipProtecti
 
   return (
     <div
-      className="flex items-center justify-between gap-4 pt-8 pb-4"
+      className="flex items-center justify-between gap-4 pt-8 pb-4 mt-2"
       style={{ borderTop: "1px solid var(--border-subtle)" }}
     >
       {!isFirst ? (
-        <Button variant="outline" onClick={onBack}>
+        <Button variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft size={14} />
           Back
         </Button>
       ) : (
@@ -26,8 +28,9 @@ export default function WizardNav({ currentStep, onBack, onNext, canSkipProtecti
       )}
 
       {!isLast ? (
-        <Button onClick={onNext} size="lg">
+        <Button onClick={onNext} size="lg" className="gap-2">
           {nextLabel}
+          <ArrowRight size={14} />
         </Button>
       ) : (
         <div />

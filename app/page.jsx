@@ -247,8 +247,8 @@ export default function FinancialPlanner() {
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-primary)' }}>
 
       {/* ══════════════ STICKY HEADER BAR ══════════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-3 sm:px-6"
-        style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-default)' }}>
+      <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-3.5 sm:px-6 backdrop-blur-xl"
+        style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderBottom: '1px solid var(--border-default)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <img
           src={theme === "dark" ? logoLight.src : logoDark.src}
           alt="Financial Independence Planner"

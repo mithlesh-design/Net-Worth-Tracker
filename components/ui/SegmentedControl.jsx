@@ -11,18 +11,21 @@ export default function SegmentedControl({ label, options, value, onChange, disa
   );
   return (
     <div>
-      {label && <Label className="block mb-1">{label}</Label>}
-      <div className={cn("flex gap-1.5", disabled && "opacity-50 pointer-events-none")}>
+      {label && <Label className="block mb-1.5">{label}</Label>}
+      <div className={cn(
+        "inline-flex gap-1 rounded-lg p-1 bg-[var(--surface-muted)]",
+        disabled && "opacity-50 pointer-events-none"
+      )}>
         {items.map((it) => (
           <button
             key={it.value}
             onClick={() => onChange(it.value)}
             disabled={disabled}
             className={cn(
-              "flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors",
+              "flex-1 py-1.5 px-3 rounded-md text-xs font-bold transition-all duration-150",
               value === it.value
-                ? "bg-[var(--button-primary-bg)] text-[var(--button-primary-text)]"
-                : "bg-[var(--surface-muted)] text-[var(--text-muted)] hover:bg-[var(--surface-hover)]"
+                ? "bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] shadow-sm"
+                : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             )}
           >
             {it.label}

@@ -5,9 +5,10 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => (
   <input
     type={type}
     className={cn(
-      "flex w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors",
+      "flex w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-all duration-150",
       "bg-[var(--input-bg)] border-[var(--input-border)] text-[var(--input-text)]",
       "placeholder:text-[var(--input-placeholder)]",
+      "hover:border-[var(--input-border-hover)]",
       "focus:border-[var(--input-border-focus)] focus:[box-shadow:var(--input-focus-ring)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className

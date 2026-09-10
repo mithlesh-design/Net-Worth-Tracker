@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-[color:var(--border-default)];
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border-default);
   }
 }
 
@@ -188,6 +190,9 @@
   --value-negative: var(--danger);
   --value-target: var(--brand-gold-600);
   --value-muted: var(--text-secondary);
+
+  /* Date icon */
+  --date-icon-filter: none;
 
   /* Misc */
   --scrollbar-color: #CCD6DD;
@@ -376,6 +381,9 @@
   --value-target: var(--brand-gold-500);
   --value-muted: var(--text-secondary);
 
+  /* Date icon */
+  --date-icon-filter: invert(1);
+
   /* Misc */
   --scrollbar-color: #2A3A45;
   --input-bg-field: var(--bg-tertiary);
@@ -498,26 +506,52 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--bg-secondary);
-  border: 2px solid var(--slider-thumb-border);
-  box-shadow: var(--shadow-xs);
+  border: 2.5px solid var(--slider-thumb-border);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform var(--motion-fast) var(--ease-standard) !important;
+  transition: transform var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard) !important;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm);
 }
 input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--bg-secondary);
-  border: 2px solid var(--slider-thumb-border);
-  box-shadow: var(--shadow-xs);
+  border: 2.5px solid var(--slider-thumb-border);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb:hover {
+  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DATE INPUT CALENDAR ICON
+   ═══════════════════════════════════════════════════════════════════ */
+
+input[type="date"] {
+  position: relative;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  filter: var(--date-icon-filter);
+  transition: opacity var(--motion-fast) var(--ease-standard);
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

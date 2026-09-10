@@ -1,41 +1,56 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STEP_LABELS = ["About You", "Income", "Protection", "Investments", "Review"];
 
 export default function WizardProgress({ currentStep, onStepClick }) {
   return (
-    <div className="max-w-[820px] mx-auto px-4 pt-4 pb-2 bg-[var(--bg-primary)]">
-      <div className="flex gap-2">
+    <div className="max-w-[820px] mx-auto px-4 pt-5 pb-3 bg-[var(--bg-primary)]">
+      <div className="flex items-center">
         {STEP_LABELS.map((label, i) => {
           const done = i < currentStep;
           const active = i === currentStep;
+          const isLast = i === STEP_LABELS.length - 1;
           return (
-            <button
-              key={label}
-              onClick={() => onStepClick(i)}
-              className="flex-1 flex flex-col items-center gap-1.5 group"
-            >
-              <div
-                className={cn(
-                  "w-full h-1 rounded-full transition-colors",
-                  done && "bg-[var(--wizard-complete)] opacity-70",
-                  active && "bg-[var(--wizard-active)]",
-                  !done && !active && "bg-[var(--wizard-track)]"
-                )}
-              />
-              <span
-                className={cn(
-                  "text-[0.6rem] font-medium leading-tight truncate max-w-full",
-                  active && "text-[var(--text-primary)]",
-                  done && "text-[var(--text-secondary)]",
-                  !active && !done && "text-[var(--text-muted)]"
-                )}
+            <div key={label} className={cn("flex items-center", !isLast && "flex-1")}>
+              <button
+                onClick={() => onStepClick(i)}
+                className="flex flex-col items-center gap-1.5 group"
               >
-                {label}
-              </span>
-            </button>
+                <div
+                  className={cn(
+                    "w-7 h-7 rounded-full flex items-center justify-center text-[0.65rem] font-bold transition-all duration-200",
+                    done && "bg-[var(--wizard-complete)] text-[var(--text-inverse)] shadow-sm",
+                    active && "bg-[var(--wizard-active)] text-[var(--text-inverse)] shadow-md ring-4 ring-[var(--accent-soft)]",
+                    !done && !active && "bg-[var(--wizard-track)] text-[var(--text-secondary)]"
+                  )}
+                >
+                  {done ? <Check size={13} strokeWidth={3} /> : i + 1}
+                </div>
+                <span
+                  className={cn(
+                    "text-[0.6rem] font-medium leading-tight whitespace-nowrap",
+                    active && "text-[var(--text-primary)] font-semibold",
+                    done && "text-[var(--text-secondary)]",
+                    !active && !done && "text-[var(--text-muted)]"
+                  )}
+                >
+                  {label}
+                </span>
+              </button>
+              {!isLast && (
+                <div
+                  className={cn(
+                    "flex-1 h-[2px] mx-2 mt-[-18px] rounded-full transition-colors duration-300",
+                    i < currentStep
+                      ? "bg-[var(--wizard-complete)]"
+                      : "bg-[var(--wizard-track)]"
+                  )}
+                />
+              )}
+            </div>
           );
         })}
       </div>
