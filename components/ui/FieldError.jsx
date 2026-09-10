@@ -1,19 +1,22 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
-import InfoStrip from "./InfoStrip";
+import { Alert } from "./alert";
+import { cn } from "@/lib/utils";
 
-/* Validation findings rendered in the existing strip styling. Errors use the
-   red token triad, warnings amber. No new colours. */
 export default function FieldError({ findings }) {
   if (!findings || findings.length === 0) return null;
   return (
     <div className="space-y-1.5">
       {findings.map((f, i) => (
-        <InfoStrip key={`${f.path}-${i}`} tone={f.severity === "warning" ? "amber" : "red"}
-          icon={<AlertTriangle size={10} className="mt-0.5 shrink-0" />}>
-          {f.message}
-        </InfoStrip>
+        <Alert
+          key={`${f.path}-${i}`}
+          variant={f.severity === "warning" ? "warning" : "danger"}
+          className="flex items-start gap-1.5 px-1 py-1.5 border-0 bg-transparent"
+        >
+          <AlertTriangle size={10} className="mt-0.5 shrink-0" />
+          <span className="flex-1">{f.message}</span>
+        </Alert>
       ))}
     </div>
   );
