@@ -1,47 +1,42 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { LogIn, LogOut, User, Save, FolderOpen, Trash2, ChevronDown, X } from "lucide-react";
-/* One hook for both the real and the preview session, so nothing in this
-   component branches on which one is active beyond the demo labelling. */
 import { useAppSession } from "@/components/DemoAuthProvider";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Alert } from "@/components/ui/alert";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
   const { data: session, status, isDemo, persisted, signOut } = useAppSession();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [showSaveInput, setShowSaveInput] = useState(false);
-  const menuRef = useRef(null);
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-        setProfilesOpen(false);
-        setShowSaveInput(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
 
   if (status === "loading") {
     return (
-      <div className="h-8 w-8 rounded-full animate-pulse" style={{ background: 'var(--bg-tertiary)' }} />
+      <div className="h-8 w-8 rounded-full animate-pulse bg-[var(--bg-tertiary)]" />
     );
   }
 
   if (!session) {
     return (
-      <button
-        onClick={() => signIn()}
-        className="flex items-center gap-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 px-3.5 py-1.5 text-xs font-bold text-white transition-colors shadow-sm"
-      >
+      <Button onClick={() => signIn()} size="sm" className="rounded-full gap-1.5 px-3.5 text-xs font-bold shadow-sm">
         <LogIn size={13} />
         Sign In
-      </button>
+      </Button>
     );
   }
 
@@ -51,78 +46,67 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
     : user.email?.[0]?.toUpperCase() || "U";
 
   return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => { setMenuOpen(!menuOpen); if (!menuOpen) onRefreshProfiles?.(); }}
-        className="flex items-center gap-2 rounded-full border pl-1 pr-3 py-1 transition-colors shadow-sm"
-        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)' }}
-      >
-        {user.image ? (
-          <img src={user.image} alt="" className="h-7 w-7 rounded-full" />
-        ) : (
-          <div className="h-7 w-7 rounded-full flex items-center justify-center text-[0.6rem] font-bold"
-            style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
-            {initials}
-          </div>
-        )}
-        <span className="text-xs font-medium max-w-[100px] truncate hidden sm:block" style={{ color: 'var(--text-secondary)' }}>
-          {user.name || user.email}
-        </span>
-        {isDemo && (
-          <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide hidden sm:block"
-            style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
-            Demo
-          </span>
-        )}
-        <ChevronDown size={12} style={{ color: 'var(--text-muted)' }} />
-      </button>
-
-      {menuOpen && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border shadow-xl z-50 overflow-hidden"
-          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', boxShadow: '0 8px 24px var(--shadow-color)' }}>
-          {/* User info */}
-          <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
-            <div className="flex items-center gap-1.5">
-              <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{user.name || "User"}</p>
-              {isDemo && (
-                <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide"
-                  style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
-                  Demo mode
-                </span>
-              )}
+    <DropdownMenu onOpenChange={(open) => { if (open) onRefreshProfiles?.(); }}>
+      <DropdownMenuTrigger asChild>
+        <button
+          className="flex items-center gap-2 rounded-full border pl-1 pr-3 py-1 transition-colors shadow-sm bg-[var(--bg-secondary)] border-[var(--border-primary)]"
+        >
+          {user.image ? (
+            <img src={user.image} alt="" className="h-7 w-7 rounded-full" />
+          ) : (
+            <div className="h-7 w-7 rounded-full flex items-center justify-center text-[0.6rem] font-bold bg-[var(--accent-soft)] text-[var(--accent)]">
+              {initials}
             </div>
-            <p className="text-[0.6rem] truncate" style={{ color: 'var(--text-muted)' }}>{user.email}</p>
-            {/* Said plainly rather than implied: nothing here reached a server. */}
-            {isDemo && !persisted && (
-              <p className="text-[0.55rem] mt-1" style={{ color: 'var(--info-red-text)' }}>
-                This browser blocked storage, so a refresh will sign you out.
-              </p>
-            )}
-          </div>
+          )}
+          <span className="text-xs font-medium max-w-[100px] truncate hidden sm:block text-[var(--text-secondary)]">
+            {user.name || user.email}
+          </span>
+          {isDemo && (
+            <Badge className="hidden sm:block text-[0.5rem] uppercase tracking-wide">Demo</Badge>
+          )}
+          <ChevronDown size={12} className="text-[var(--text-muted)]" />
+        </button>
+      </DropdownMenuTrigger>
 
-          {/* Save Profile */}
-          <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
-            {/* A failed save used to look exactly like a successful one: every
-                handler swallowed its error and none checked res.ok's else. */}
+      <DropdownMenuContent align="end" className="w-72">
+        {/* User info */}
+        <div className="px-3 py-2.5">
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-bold text-[var(--text-primary)]">{user.name || "User"}</p>
+            {isDemo && <Badge className="text-[0.5rem] uppercase tracking-wide">Demo mode</Badge>}
+          </div>
+          <p className="text-[0.6rem] truncate text-[var(--text-muted)]">{user.email}</p>
+          {isDemo && !persisted && (
+            <p className="text-[0.55rem] mt-1 text-[var(--info-red-text)]">
+              This browser blocked storage, so a refresh will sign you out.
+            </p>
+          )}
+        </div>
+
+        <DropdownMenuSeparator />
+
+        {/* Save Profile */}
+        <DropdownMenuGroup>
+          <div className="px-2 py-1.5">
             {saveState.status !== "idle" && saveState.message && (
-              <div className="mb-2 rounded-lg border px-2.5 py-1.5 text-[0.6rem]"
-                style={saveState.status === "error"
-                  ? { background: 'var(--info-red-bg)', borderColor: 'var(--info-red-border)', color: 'var(--info-red-text)' }
-                  : { background: 'var(--info-emerald-bg)', borderColor: 'var(--info-emerald-border)', color: 'var(--info-emerald-text)' }}>
+              <Alert
+                variant={saveState.status === "error" ? "danger" : "success"}
+                className="mb-2 px-2.5 py-1.5 text-[0.6rem]"
+              >
                 {saveState.message}
-              </div>
+              </Alert>
             )}
             {showSaveInput ? (
-              <div className="flex gap-2">
-                <input
+              <div className="flex gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
                   type="text"
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="Profile name..."
-                  className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs outline-none"
-                  style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-secondary)', color: 'var(--text-primary)' }}
+                  className="flex-1 h-8 text-xs"
                   autoFocus
                   onKeyDown={(e) => {
+                    e.stopPropagation();
                     if (e.key === "Enter" && saveName.trim()) {
                       onSaveProfile?.(saveName.trim());
                       setSaveName("");
@@ -130,58 +114,52 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                     }
                   }}
                 />
-                <button
-                  onClick={() => {
+                <Button
+                  size="sm"
+                  className="h-8 px-3 text-[0.6rem]"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     if (saveName.trim()) {
                       onSaveProfile?.(saveName.trim());
                       setSaveName("");
                       setShowSaveInput(false);
                     }
                   }}
-                  className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[0.6rem] font-bold text-white hover:bg-emerald-600 transition"
                 >
                   Save
-                </button>
-                <button onClick={() => setShowSaveInput(false)} style={{ color: 'var(--text-muted)' }}>
+                </Button>
+                <button onClick={() => setShowSaveInput(false)} className="text-[var(--text-muted)]">
                   <X size={14} />
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => setShowSaveInput(true)}
-                className="flex items-center gap-2 w-full rounded-lg px-2 py-2 text-xs transition"
-                style={{ color: 'var(--text-secondary)' }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <Save size={13} className="text-emerald-500" />
+              <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowSaveInput(true); }}>
+                <Save size={13} className="text-[var(--accent)]" />
                 Save Current Settings
-              </button>
+              </DropdownMenuItem>
             )}
           </div>
+        </DropdownMenuGroup>
 
-          {/* Saved Profiles */}
-          <div className="px-3 py-2 border-b" style={{ borderColor: 'var(--border-secondary)' }}>
+        <DropdownMenuSeparator />
+
+        {/* Saved Profiles */}
+        <DropdownMenuGroup>
+          <div className="px-2 py-1.5">
             <button
               onClick={() => setProfilesOpen(!profilesOpen)}
-              className="flex items-center justify-between w-full rounded-lg px-2 py-2 text-xs transition"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover-bg)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              className="flex items-center justify-between w-full rounded-lg px-2 py-2 text-xs transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
             >
               <span className="flex items-center gap-2">
-                <FolderOpen size={13} style={{ color: 'var(--info-blue-text)' }} />
+                <FolderOpen size={13} className="text-[var(--info-blue-text)]" />
                 Saved Profiles
-                <span className="rounded-full px-1.5 py-0.5 text-[0.55rem] font-bold"
-                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-muted)' }}>
-                  {profiles.length}
-                </span>
+                <Badge variant="outline" className="text-[0.55rem]">{profiles.length}</Badge>
               </span>
-              <ChevronDown size={12} className={`transition-transform ${profilesOpen ? "rotate-180" : ""}`} style={{ color: 'var(--text-muted)' }} />
+              <ChevronDown size={12} className={cn("transition-transform text-[var(--text-muted)]", profilesOpen && "rotate-180")} />
             </button>
 
             {profilesOpen && isDemo && (
-              <p className="mt-1 px-2 text-[0.55rem]" style={{ color: 'var(--text-muted)' }}>
+              <p className="mt-1 px-2 text-[0.55rem] text-[var(--text-muted)]">
                 Demo profiles are saved on this browser only.
               </p>
             )}
@@ -189,34 +167,25 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {profilesOpen && (
               <div className="mt-1 max-h-48 overflow-y-auto space-y-1">
                 {profiles.length === 0 ? (
-                  <p className="text-[0.6rem] text-center py-3" style={{ color: 'var(--text-muted)' }}>No saved profiles yet</p>
+                  <p className="text-[0.6rem] text-center py-3 text-[var(--text-muted)]">No saved profiles yet</p>
                 ) : (
                   profiles.map((p) => (
                     <div
                       key={p.id}
-                      className="flex items-center justify-between rounded-lg px-2.5 py-2 group transition"
-                      style={{ background: 'var(--bg-tertiary)' }}
+                      className="flex items-center justify-between rounded-lg px-2.5 py-2 group transition bg-[var(--bg-tertiary)]"
                     >
                       <button
-                        onClick={() => {
-                          onLoadProfile?.(p);
-                          setMenuOpen(false);
-                          setProfilesOpen(false);
-                        }}
+                        onClick={() => onLoadProfile?.(p)}
                         className="flex-1 text-left"
                       >
-                        <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
-                        <p className="text-[0.55rem]" style={{ color: 'var(--text-muted)' }}>
+                        <p className="text-xs font-semibold text-[var(--text-primary)]">{p.name}</p>
+                        <p className="text-[0.55rem] text-[var(--text-muted)]">
                           {new Date(p.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       </button>
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteProfile?.(p.id);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition p-1"
-                        style={{ color: 'var(--text-muted)' }}
+                        onClick={(e) => { e.stopPropagation(); onDeleteProfile?.(p.id); }}
+                        className="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition p-1 text-[var(--text-muted)]"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -226,22 +195,19 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
               </div>
             )}
           </div>
+        </DropdownMenuGroup>
 
-          {/* Sign Out */}
-          <div className="px-3 py-2">
-            <button
-              onClick={() => signOut()}
-              className="flex items-center gap-2 w-full rounded-lg px-2 py-2 text-xs transition"
-              style={{ color: 'var(--text-secondary)' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--info-red-bg)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              <LogOut size={13} className="text-rose-400" />
-              Sign Out
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+        <DropdownMenuSeparator />
+
+        {/* Sign Out */}
+        <DropdownMenuItem
+          onSelect={() => signOut()}
+          className="text-[var(--text-secondary)] focus:bg-[var(--info-red-bg)]"
+        >
+          <LogOut size={13} className="text-rose-400" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
