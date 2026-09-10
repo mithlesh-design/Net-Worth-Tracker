@@ -124,7 +124,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
                   onChange={(e) => updateOther(o.id, "name", e.target.value)}
                   className="text-xs font-bold bg-transparent outline-none flex-1 min-w-0"
                   style={{ color: nameMissing ? 'var(--info-red-text)' : 'var(--text-primary)' }} />
-                <span className="text-[0.6rem] font-bold text-emerald-500 shrink-0">
+                <span className="text-[0.6rem] font-bold shrink-0" style={{ color: 'var(--financial-projection)' }}>
                   {fmt(monthlyEquivalent(o.amount, o.frequency))}/mo
                 </span>
                 <button onClick={() => removeOther(o.id)} className="hover:text-rose-400 shrink-0"

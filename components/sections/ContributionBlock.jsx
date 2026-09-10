@@ -42,7 +42,7 @@ export default function ContributionBlock({
       <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full text-left px-3 py-2.5">
         <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{label}</span>
         <span className="flex items-center gap-2">
-          <span className="text-[0.6rem] font-bold text-emerald-500">{fmt(monthly)}/mo</span>
+          <span className="text-[0.6rem] font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(monthly)}/mo</span>
           <ChevronDown size={12} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             style={{ color: 'var(--text-muted)' }} />
         </span>

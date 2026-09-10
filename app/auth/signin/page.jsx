@@ -55,10 +55,11 @@ export default function SignInPage() {
           <ArrowLeft size={13} /> Back to Planner
         </Link>
 
-        <div className="rounded-3xl border p-8"
-          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', boxShadow: '0 2px 8px var(--shadow-color)' }}>
+        <div className="rounded-2xl border p-8"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-sm)' }}>
           <div className="flex items-center gap-2.5 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
+              style={{ background: 'var(--button-primary-bg)' }}>
               <Sparkles size={17} className="text-white" />
             </div>
             <div>
@@ -66,7 +67,7 @@ export default function SignInPage() {
                 <h1 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>Net Worth Tracker</h1>
                 {demo.enabled && (
                   <span className="rounded-full px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wide"
-                    style={{ background: 'var(--info-emerald-bg)', color: 'var(--badge-emerald-text)' }}>
+                    style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
                     Demo mode
                   </span>
                 )}
@@ -99,7 +100,7 @@ export default function SignInPage() {
             <div className="text-center py-4">
               <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
                 style={{ background: 'var(--info-emerald-bg)' }}>
-                <Mail size={20} className="text-emerald-500" />
+                <Mail size={20} style={{ color: 'var(--accent)' }} />
               </div>
               <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Check your email</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>We sent a magic link to <strong>{email}</strong></p>
@@ -124,7 +125,8 @@ export default function SignInPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 py-2.5 text-sm font-bold text-white transition shadow-sm flex items-center justify-center gap-2"
+                className="w-full rounded-xl py-2.5 text-sm font-bold transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}
               >
                 <Mail size={14} />
                 {loading ? (demo.enabled ? "Opening planner..." : "Sending...") : "Send Magic Link"}

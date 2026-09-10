@@ -11,8 +11,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
-      <body style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif" }}>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
+      <body style={{ fontFamily: "var(--font-sans)" }}>
         <SessionProvider>
           {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
               it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}

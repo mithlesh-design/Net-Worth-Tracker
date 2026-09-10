@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext({ theme: "dark", toggleTheme: () => {} });
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

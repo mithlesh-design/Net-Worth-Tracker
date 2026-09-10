@@ -12,11 +12,11 @@ export default function VerifyPage() {
           <ArrowLeft size={13} /> Back to Planner
         </Link>
 
-        <div className="rounded-3xl border p-8 text-center"
-          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-primary)', boxShadow: '0 2px 8px var(--shadow-color)' }}>
+        <div className="rounded-2xl border p-8 text-center"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-sm)' }}>
           <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background: 'var(--info-emerald-bg)' }}>
-            <Mail size={24} className="text-emerald-500" />
+            style={{ background: 'var(--accent-soft)' }}>
+            <Mail size={24} style={{ color: 'var(--accent)' }} />
           </div>
           <h2 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>Check your email</h2>
           <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>

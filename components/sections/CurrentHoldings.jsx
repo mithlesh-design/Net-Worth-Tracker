@@ -88,7 +88,8 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
             </div>
             <div className="flex gap-2 pt-0.5">
               <button onClick={reduceUnallocated}
-                className="rounded-lg px-2 py-1 text-[0.6rem] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition">
+                className="rounded-lg px-2 py-1 text-[0.6rem] font-bold transition"
+                style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}>
                 Reduce unallocated by {fmt(namedTotal)}
               </button>
               <button onClick={() => setField("holdings.unallocated", 0)}
