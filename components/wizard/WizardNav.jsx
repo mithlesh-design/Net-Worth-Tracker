@@ -15,7 +15,7 @@ export default function WizardNav({ currentStep, onBack, onNext, canSkipProtecti
 
   return (
     <div
-      className="flex items-center justify-between gap-4 pt-8 pb-4 mt-2"
+      className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 pt-8 pb-4 mt-2"
       style={{ borderTop: "1px solid var(--border-subtle)" }}
     >
       {!isFirst ? (
@@ -28,7 +28,7 @@ export default function WizardNav({ currentStep, onBack, onNext, canSkipProtecti
       )}
 
       {!isLast ? (
-        <Button onClick={onNext} size="lg" className="gap-2">
+        <Button onClick={onNext} size="lg" className="gap-2 w-full sm:w-auto">
           {nextLabel}
           <ArrowRight size={14} />
         </Button>
