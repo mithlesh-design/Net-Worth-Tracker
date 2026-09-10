@@ -1,18 +1,19 @@
 "use client";
 
-/* The `rounded-lg border px-3 py-2 text-[0.6rem]` strip repeated six times in
-   app/page.jsx, extracted with its markup unchanged. `tone` picks the existing
-   --info-{tone}-bg/border/text token triad. */
+import { cn } from "@/lib/utils";
+
 export default function InfoStrip({ tone = "blue", children, icon = null, className = "" }) {
   return (
-    <div className={`rounded-lg border px-3 py-2 text-[0.6rem] ${icon ? "flex items-start gap-1.5" : ""} ${className}`}
-      style={{
-        background: `var(--info-${tone}-bg)`,
-        borderColor: `var(--info-${tone}-border)`,
-        color: `var(--info-${tone}-text)`,
-      }}>
+    <div
+      className={cn(
+        "px-1 py-1.5 text-xs leading-relaxed",
+        icon && "flex items-start gap-1.5",
+        `text-[var(--info-${tone}-text)]`,
+        className
+      )}
+    >
       {icon}
-      <div className={icon ? "flex-1" : ""}>{children}</div>
+      <div className={cn(icon && "flex-1")}>{children}</div>
     </div>
   );
 }
