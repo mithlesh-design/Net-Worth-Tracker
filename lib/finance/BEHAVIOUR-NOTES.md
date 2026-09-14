@@ -159,3 +159,97 @@ Stated here and surfaced in the UI rather than left implicit.
   the tax is zero; one rupee more costs roughly ₹60,000. Real law grants
   marginal relief. Changing this requires verifying current rules against
   official sources and is out of scope here.
+
+## Goal gap and the Success Score (2026-09-14)
+
+### `plan.inflateGoals` — default `false`
+
+Goal amounts are entered in today's rupees. With the flag off the engine
+charges exactly that at the target age, which is what every saved profile was
+projected with; a ₹30 L education at 45 costs ₹30 L. With it on, `goalCostAt()`
+ages the amount to the target year (₹80.78 L at 6%) and both charge sites —
+`goalsDueAt` and `buildGoalLoanState` — read it, so a financed goal's down
+payment and the loan it implies are never priced in different years' rupees.
+`assetValue` inflates with it: a property bought later costs more precisely
+because property appreciated.
+
+`lib/finance/goalgap.mjs` calls the same helper, which is what stops the Goal
+Workspace and the Review step disagreeing about what a goal costs.
+
+### Goal-gap pricing uses `inflationRate`, or `appreciationRate` when set
+
+Never `+ lifestyleCreep` — creep inflates a discretionary standard of living,
+not the price of a degree. A goal carrying `appreciationRate > 0` is priced up
+at that rate instead. Not double-counting: the engine applies
+`appreciationRate` to the asset only *after* purchase (`loanYear`), never to
+the purchase price.
+
+### Per-goal funding is derived, never re-drawn
+
+`goalgap.mjs` obtains each goal's funded amount from an identity on the
+recorded row:
+
+    goalUnfunded = min(row.unfundedThisYear, row.goalCost)
+
+The engine draws `d1` (cash shortfall) then `d2` (goals) and records only their
+sum. If `d1` left anything unfunded the portfolio was already empty, so
+`unfundedThisYear >= goalCost`; if `d1` was funded then `unfundedThisYear` IS
+`d2.unfunded <= goalCost`. Exact in both branches.
+
+This is not merely tidier than splitting the engine's goal draw per goal — that
+would **change numbers**. `drawFromBuckets` is not additive when per-bucket exit
+tax rates differ within a tier: measured on a portfolio with crypto at 30% and
+everything else at 12.5%, one draw of ₹8,00,000 raises ₹9,26,316 gross while two
+draws of ₹4,00,000 raise ₹9,25,863 and leave different residual balances. The
+`v1-goals-heavy` fixture carries such an override so the snapshot catches anyone
+who tries.
+
+Same-age goals fund in `plan.goals` array order.
+
+### `runProjectionV1(plan, opts)` — `opts.returnFor`
+
+Optional. Called as `returnFor(bucket, yearIndex, { working, age })` and used
+**as-is**: the post-retirement cap is *not* applied on top.
+
+That exception matters. The deterministic engine applies
+`r = min(r, postRetireReturn)` after retirement — a cap, not an override, so a
+contractual PPF rate is not silently downgraded. Applying that same cap to a
+*random draw* is one-sided: a good year is clipped to the conservative
+assumption while a bad year falls through untouched. Measured, it drained every
+simulated retirement and scored the default profile at 15% when its own
+projection ends at ₹80.38 Cr and never depletes. The Success Score therefore
+applies the retirement adjustment to the **mean** before drawing, and scales
+volatility with it (a shift into safer assets is less volatile as well as
+lower-returning).
+
+`returnFor` is deliberately not threaded into `blendedReturn`, which feeds the
+FI bridge and each row's `returnRate`. In a simulated run those report the
+*planning* assumption, not the realised path.
+
+With no `opts`, every read falls through to `bucketReturn` plus the cap and the
+output is identical to before the parameter existed — asserted in
+`projection-opts.test.mjs`, and the v1 snapshots are byte-identical.
+
+### Success Score modelling choices
+
+- **Constant seed**, never derived from the plan. A plan-derived seed reshuffles
+  every path on every keystroke, so a 1% slider nudge moves the score in an
+  arbitrary direction — which reads as a broken app.
+- **One shock per year, shared across buckets**, scaled by each bucket's sigma.
+  Nine independent shocks would let buckets diversify each other down to
+  near-zero portfolio volatility, which is not how Indian equity, NPS and crypto
+  behave in a drawdown. Perfect correlation overstates the link and so widens
+  the distribution — the conservative error for a number people act on. Stated
+  in the UI.
+- **Log-normal, not normal**, with a `−s²/2` drift term so `E[1+r]` equals the
+  deterministic assumption. At crypto's sigma of 70 a plain normal puts roughly
+  8% of years below −100% and drives buckets negative, which `drawFromBuckets`
+  is not built to survive.
+- **Antithetic variates**: odd runs negate the previous run's shocks. Free
+  variance reduction; `runs` is forced even.
+- **Success criterion** is `depletionAge === null`, which already means "funded
+  every goal and never ran out" — `cumUnfunded` accumulates both the cash
+  shortfall and the goal shortfall.
+- The **median sits below** the deterministic projection by construction (the
+  median of a log-normal is below its mean). Both are returned so the UI can
+  show them side by side rather than looking like a bug.
