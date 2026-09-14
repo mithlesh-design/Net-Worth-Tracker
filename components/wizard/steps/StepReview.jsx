@@ -1,12 +1,14 @@
 "use client";
 
-import FinancialGoals from "@/components/sections/FinancialGoals";
 import MonthlySummary from "@/components/sections/MonthlySummary";
 import ProjectionChart from "@/components/sections/ProjectionChart";
 
-export default function StepGoalsReview({
-  plan, goals, addGoal, removeGoal, updateGoal,
-  findingsFor, age, lifeExpectancy,
+/* The final read-only step. Goal editing moved to the Goal Workspace: asking
+   someone to set goals and judge the result on the same screen meant they only
+   found out whether the plan funded them at the point where there was nothing
+   left to change. */
+export default function StepReview({
+  plan, findingsFor, age, lifeExpectancy,
   cplan, premiums, totalHoldings, simulation, totalMonthlyIncome,
   expectedXIRR, postRetireReturn, investmentStepUp, investSurplus, exitTaxRate,
   earliestRetireAge, goalPoints,
@@ -15,12 +17,6 @@ export default function StepGoalsReview({
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 space-y-5">
-          <FinancialGoals
-            plan={plan} goals={goals} addGoal={addGoal}
-            removeGoal={removeGoal} updateGoal={updateGoal}
-            findingsFor={findingsFor} age={age} lifeExpectancy={lifeExpectancy}
-            defaultOpen
-          />
           <MonthlySummary plan={plan} cplan={cplan} premiums={premiums}
             totalHoldings={totalHoldings} simulation={simulation}
             totalMonthlyIncome={totalMonthlyIncome} />
