@@ -5,12 +5,13 @@ import TaxWall from "@/components/sections/TaxWall";
 import MonthlyInvestments from "@/components/sections/MonthlyInvestments";
 import CurrentHoldings from "@/components/sections/CurrentHoldings";
 import MiniChart from "@/components/wizard/MiniChart";
+import SuccessScore from "@/components/sections/SuccessScore";
 
 /* The levers first, the data entry below them. The old Investments step opened
    on two long forms with no feedback at all, so the user filled in twenty
    fields before learning anything. Here the things that move the outcome are
-   at the top and the forms that feed them are collapsed underneath. The
-   Success Score becomes the hero above the levers next. */
+   at the top and the forms that feed them are collapsed underneath, with the
+   Success Score as the hero above everything. */
 export default function StepStrategyHub({
   plan, setField, findingsFor, cplan, makeId, simulation, totalHoldings,
   monthlyInvestment, setMonthlyInvestment,
@@ -19,7 +20,7 @@ export default function StepStrategyHub({
   investSurplus, setInvestSurplus,
   postRetireReturn, setPostRetireReturn,
   ratesAreCustom, blendedNow, resetAllRates,
-  earliestRetireAge,
+  earliestRetireAge, successScore, scoreStale, goalGap, lifeExpectancy,
 }) {
   return (
     <div className="space-y-6">
@@ -31,6 +32,13 @@ export default function StepStrategyHub({
           The assumptions driving your projection, and the portfolio behind them.
         </p>
       </div>
+
+      <SuccessScore
+        result={successScore}
+        stale={scoreStale}
+        hasGoals={!!goalGap?.hasGoals}
+        lifeExpectancy={lifeExpectancy}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7 space-y-4">

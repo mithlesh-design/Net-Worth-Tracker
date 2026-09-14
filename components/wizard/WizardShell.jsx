@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import WizardProgress from "./WizardProgress";
 import WizardNav from "./WizardNav";
-import { WIZARD_STEPS, STEP_COUNT } from "./wizardSteps";
+import { WIZARD_STEPS, STEP_COUNT, STEP_INDEX } from "./wizardSteps";
+import { useSuccessScore } from "@/hooks/useSuccessScore.mjs";
 
 export default function WizardShell(props) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -31,6 +32,13 @@ export default function WizardShell(props) {
   const step = WIZARD_STEPS[currentStep];
   const StepComponent = step.Component;
 
+  /* The Monte Carlo is the only expensive thing in the wizard (~40-60ms), and
+     it is shown on exactly one step. Gating it here means every other step and
+     the server render pay nothing — the wizard always mounts at step 0. */
+  const { score: successScore, stale: scoreStale } = useSuccessScore(props.plan, {
+    enabled: currentStep === STEP_INDEX.strategy,
+  });
+
   const animClass = animating
     ? direction === "forward"
       ? "wizard-step-enter"
@@ -51,7 +59,12 @@ export default function WizardShell(props) {
 
       <div className="flex-1 overflow-y-auto" ref={contentRef}>
         <div className={`${step.maxWidth} mx-auto px-4 py-6 sm:px-6 sm:py-8 space-y-1 ${animClass}`}>
-          <StepComponent {...props} currentStep={currentStep} />
+          <StepComponent
+            {...props}
+            currentStep={currentStep}
+            successScore={successScore}
+            scoreStale={scoreStale}
+          />
           <WizardNav
             isFirst={currentStep === 0}
             isLast={currentStep === STEP_COUNT - 1}
