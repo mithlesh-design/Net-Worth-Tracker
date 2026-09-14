@@ -2,19 +2,18 @@
 
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const STEP_LABELS = ["About You", "Income", "Protection", "Investments", "Review"];
+import { WIZARD_STEPS } from "./wizardSteps";
 
 export default function WizardProgress({ currentStep, onStepClick }) {
   return (
     <div className="max-w-[820px] mx-auto px-4 pt-5 pb-3 bg-[var(--bg-primary)]">
       <div className="flex items-center">
-        {STEP_LABELS.map((label, i) => {
+        {WIZARD_STEPS.map((step, i) => {
           const done = i < currentStep;
           const active = i === currentStep;
-          const isLast = i === STEP_LABELS.length - 1;
+          const isLast = i === WIZARD_STEPS.length - 1;
           return (
-            <div key={label} className={cn("flex items-center", !isLast && "flex-1")}>
+            <div key={step.id} className={cn("flex items-center", !isLast && "flex-1")}>
               <button
                 onClick={() => onStepClick(i)}
                 className="flex flex-col items-center gap-1.5 group"
@@ -29,6 +28,9 @@ export default function WizardProgress({ currentStep, onStepClick }) {
                 >
                   {done ? <Check size={13} strokeWidth={3} /> : i + 1}
                 </div>
+                {/* The rail is capped at 820px and the labels never wrap, so at
+                    375px each step gets ~68px — "Income & Expenses" would blow
+                    the layout. Short labels below the sm breakpoint. */}
                 <span
                   className={cn(
                     "text-[0.6rem] font-medium leading-tight whitespace-nowrap",
@@ -37,7 +39,8 @@ export default function WizardProgress({ currentStep, onStepClick }) {
                     !active && !done && "text-[var(--text-muted)]"
                   )}
                 >
-                  {label}
+                  <span className="sm:hidden">{step.short}</span>
+                  <span className="hidden sm:inline">{step.label}</span>
                 </span>
               </button>
               {!isLast && (

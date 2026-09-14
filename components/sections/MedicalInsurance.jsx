@@ -83,8 +83,15 @@ export default function MedicalInsurance({ plan, setField, findingsFor }) {
   const premiums = annualPremium(m);
   const covered = (m.self.enabled ? 1 : 0) + (m.parents.enabled ? 1 : 0);
 
+  /* The badge has to answer "is there anything in here?" without being opened
+     — this card is collapsed inside Income & Expenses now, not a step of its
+     own. */
   return (
-    <CollapsibleSection title="Medical Insurance" defaultOpen={false} badge={covered ? `${covered}` : null}>
+    <CollapsibleSection
+      title="Medical Insurance"
+      defaultOpen={false}
+      badge={covered ? `${covered} · ${fmt(premiums.total / 12)}/mo` : "None"}
+    >
       <PolicyBlock
         who="self" label="Do you have any Medical Insurance of your own?"
         cfg={m.self} setField={setField} findingsFor={findingsFor} sharedDisabled={false}

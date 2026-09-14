@@ -3,16 +3,13 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const TOTAL_STEPS = 5;
-
-export default function WizardNav({ currentStep, onBack, onNext, canSkipProtection }) {
-  const isFirst = currentStep === 0;
-  const isLast = currentStep === TOTAL_STEPS - 1;
-
-  let nextLabel = "Continue";
-  if (currentStep === 2 && canSkipProtection) nextLabel = "Skip this step";
-  if (currentStep === TOTAL_STEPS - 2) nextLabel = "See Results";
-
+/* Knows nothing about step indices or how many steps there are; wizardSteps.js
+   owns both. The old "Skip this step" branch is gone with the Protection step
+   itself — it was gated on plan.medical.hasCover / plan.life.hasCover, neither
+   of which exists in the schema, so it was unconditionally true. Protection is
+   now a collapsed card inside Income & Expenses that says on its own badge
+   whether it holds anything. */
+export default function WizardNav({ isFirst, isLast, nextLabel = "Continue", onBack, onNext }) {
   return (
     <div
       className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 pt-8 pb-4 mt-2"

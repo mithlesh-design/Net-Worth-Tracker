@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "personal": {
+    "fullName": "",
+    "dob": null
+  },
+  "currentAge": 28,
+  "lifeExpectancy": 80,
+  "retirementAge": 55,
+  "incomes": [
+    {
+      "id": 1,
+      "name": "Salary",
+      "role": "salary",
+      "amount": 150000,
+      "frequency": "monthly",
+      "basis": "gross",
+      "growthRate": 10,
+      "retireAge": 55
+    },
+    {
+      "id": 2,
+      "name": "Other Income",
+      "role": "other",
+      "amount": 0,
+      "frequency": "monthly",
+      "basis": "gross",
+      "growthRate": 0,
+      "retireAge": 55
+    }
+  ],
+  "expenses": {
+    "household": 50000,
+    "rent": 0
+  },
+  "inflationRate": 6,
+  "lifestyleCreep": 2,
+  "medicalInflation": 6,
+  "stopRentOnHomePurchase": false,
+  "medical": {
+    "self": {
+      "enabled": false,
+      "coverage": 0,
+      "premium": 0,
+      "premiumFrequency": "yearly"
+    },
+    "parents": {
+      "enabled": false,
+      "coverage": 0,
+      "premium": 0,
+      "premiumFrequency": "yearly",
+      "premiumMode": "separate"
+    }
+  },
+  "contributions": {
+    "mfSip": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "nps": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "ppf": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "epf": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": true
+    },
+    "epfEmployer": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": true
+    },
+    "rd": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "lic": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "other": []
+  },
+  "ppfOpenedYear": null,
+  "licInvestablePct": 0,
+  "holdings": {
+    "mf": 1200000,
+    "fd": 0,
+    "rd": 0,
+    "ppf": 300000,
+    "nps": 0,
+    "epf": 450000,
+    "stocks": 0,
+    "crypto": 800000,
+    "unallocated": 500000
+  },
+  "lifeInsurance": {
+    "value": 0,
+    "valueType": "sumAssured",
+    "surrenderValue": null
+  },
+  "legacy": {
+    "monthlyInvestment": 50000
+  },
+  "investmentStepUp": 10,
+  "expectedXIRR": 12,
+  "postRetireReturn": 7,
+  "exitTaxRate": 12.5,
+  "bucketOverrides": {
+    "crypto": {
+      "exitTax": 30
+    }
+  },
+  "investSurplus": true,
+  "surplusBucket": "mf",
+  "goals": [
+    {
+      "id": 1,
+      "name": "Buy Home",
+      "emoji": "home",
+      "age": 34,
+      "amount": 9000000,
+      "hasLoan": true,
+      "downPaymentPct": 20,
+      "loanRate": 8.5,
+      "loanTenure": 20,
+      "appreciationRate": 5,
+      "maintenancePct": 1
+    },
+    {
+      "id": 2,
+      "name": "Wedding",
+      "emoji": "wedding",
+      "age": 34,
+      "amount": 2500000,
+      "hasLoan": false,
+      "downPaymentPct": 100,
+      "loanRate": 9,
+      "loanTenure": 5,
+      "appreciationRate": 0,
+      "maintenancePct": 0
+    },
+    {
+      "id": 3,
+      "name": "Kid's Education",
+      "emoji": "education",
+      "age": 48,
+      "amount": 3000000,
+      "hasLoan": false,
+      "downPaymentPct": 100,
+      "loanRate": 9,
+      "loanTenure": 5,
+      "appreciationRate": 0,
+      "maintenancePct": 0
+    },
+    {
+      "id": 4,
+      "name": "Legacy Gift",
+      "emoji": "other",
+      "age": 92,
+      "amount": 5000000,
+      "hasLoan": false,
+      "downPaymentPct": 100,
+      "loanRate": 9,
+      "loanTenure": 5,
+      "appreciationRate": 0,
+      "maintenancePct": 0
+    }
+  ]
+}

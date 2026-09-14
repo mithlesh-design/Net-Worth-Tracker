@@ -16,7 +16,7 @@ export default function LifeInsurance({ plan, setField, findingsFor }) {
 
   return (
     <CollapsibleSection title="Life Insurance" defaultOpen={false}
-      badge={li.value > 0 ? fmt(li.value) : null}>
+      badge={li.value > 0 ? fmt(li.value) : "None"}>
 
       <SliderInput
         label="Life Insurance value (₹)"
