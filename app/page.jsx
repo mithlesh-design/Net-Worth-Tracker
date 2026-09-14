@@ -11,6 +11,7 @@ import logoLight from "@/components/Img/LIGHT.svg";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { calcIncomeTax } from "@/lib/finance/tax.mjs";
 import { runProjectionV1 } from "@/lib/finance/projection.mjs";
+import { computeGoalGap } from "@/lib/finance/goalgap.mjs";
 import { effectiveAge, isAgeDerived } from "@/lib/finance/age.mjs";
 import { annualPremium } from "@/lib/finance/insurance.mjs";
 import { buildContributionPlan } from "@/lib/finance/contributions.mjs";
@@ -231,13 +232,33 @@ export default function FinancialPlanner() {
      SIMULATION ENGINE
      ═══════════════════════════════════════════════════════════════════════ */
 
-  const simulation = useMemo(() => runProjectionV1(clampPlan(plan)), [plan]);
+  /* Hoisted so the clamp runs once rather than once per consumer, and so the
+     goal-gap pass is guaranteed to be reading the same plan the projection was
+     built from. */
+  const cleanPlan = useMemo(() => clampPlan(plan), [plan]);
+  const simulation = useMemo(() => runProjectionV1(cleanPlan), [cleanPlan]);
   const blendedNow = simulation.data[0]?.blendedReturn ?? plan.expectedXIRR;
 
-  const goalPoints = goals.map((g) => {
-    const dp = simulation.data.find((d) => d.age === g.age);
-    return dp ? { ...g, netWorth: dp.netWorth } : null;
-  }).filter(Boolean);
+  /* Read-only pass over the projection — O(rows + goals), no second engine
+     run. See lib/finance/goalgap.mjs. */
+  const goalGap = useMemo(
+    () => computeGoalGap(cleanPlan, simulation),
+    [cleanPlan, simulation]
+  );
+
+  /* Derived from goalGap rather than re-scanning the rows: it already knows
+     which goals the engine never charges (set past the planning horizon), so
+     they can be labelled instead of silently disappearing from the chart. */
+  const goalPoints = useMemo(
+    () => goalGap.goals
+      .filter((g) => g.status !== "outOfHorizon" && g.status !== "inThePast")
+      .map((g) => {
+        const dp = simulation.data.find((d) => d.age === g.age);
+        return dp ? { ...g, netWorth: dp.netWorth } : null;
+      })
+      .filter(Boolean),
+    [goalGap, simulation]
+  );
 
   /* ═══════════════════════════════════════════════════════════════════════
      RENDER
@@ -316,6 +337,7 @@ export default function FinancialPlanner() {
         removeGoal={removeGoal}
         updateGoal={updateGoal}
         goalPoints={goalPoints}
+        goalGap={goalGap}
       />
     </div>
   );

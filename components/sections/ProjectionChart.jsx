@@ -7,8 +7,8 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis, numToWordsIndian } from "@/lib/finance/format.mjs";
-
-const GOAL_EMOJIS = { home: "\u{1F3E0}", education: "\u{1F393}", car: "\u{1F697}", wedding: "\u{1F492}", travel: "\u2708\uFE0F", retirement: "\u{1F3D6}\uFE0F", other: "\u{1F3AF}" };
+import { goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
 function NetWorthTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
@@ -71,7 +71,7 @@ function GoalOverlay({ goals, projection, xScale, yScale }) {
             <circle cx={cx} cy={by} r={R} fill="var(--goal-marker-fill)" stroke="var(--chart-target)" strokeWidth={1.5} />
             <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
               <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, lineHeight: 1, userSelect: "none" }}>
-                {GOAL_EMOJIS[goal.emoji] || "\u{1F3AF}"}
+                {goalEmoji(goal.emoji)}
               </div>
             </foreignObject>
           </g>
@@ -86,35 +86,6 @@ function GoalOverlayCustomized(props) {
   const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
   if (!xAxis?.scale || !yAxis?.scale) return null;
   return <GoalOverlay goals={props.goals} projection={props.projection} xScale={xAxis.scale} yScale={yAxis.scale} />;
-}
-
-function useAnimatedDomain(targetMax, duration = 400) {
-  const [current, setCurrent] = useState(targetMax);
-  const animRef = useRef(null);
-  const prevRef = useRef(targetMax);
-
-  useEffect(() => {
-    const from = prevRef.current;
-    const to = targetMax;
-    if (Math.abs(from - to) < 1000) { setCurrent(to); prevRef.current = to; return; }
-    const start = performance.now();
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const animate = (now) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCurrent(from + (to - from) * eased);
-      if (progress < 1) {
-        animRef.current = requestAnimationFrame(animate);
-      } else {
-        prevRef.current = to;
-      }
-    };
-    animRef.current = requestAnimationFrame(animate);
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [targetMax, duration]);
-
-  return current;
 }
 
 export default function ProjectionChart({

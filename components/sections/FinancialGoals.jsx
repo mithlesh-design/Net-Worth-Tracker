@@ -4,8 +4,7 @@ import { X, Plus } from "lucide-react";
 import { CollapsibleSection, SliderInput, ToggleSwitch, FieldError } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { calcEMI } from "@/lib/finance/loans.mjs";
-
-const GOAL_EMOJIS = { home: "🏠", education: "🎓", car: "🚗", wedding: "💒", travel: "✈️", retirement: "🏖️", other: "🎯" };
+import { GOAL_EMOJIS, goalEmoji } from "@/lib/profile/goalTypes.mjs";
 
 export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updateGoal, findingsFor, age, lifeExpectancy, defaultOpen }) {
   const { exitTaxRate, currentAge } = plan;
@@ -21,7 +20,7 @@ export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updat
             style={{ background: 'var(--bg-tertiary)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-base">{GOAL_EMOJIS[g.emoji] || "🎯"}</span>
+                <span className="text-base">{goalEmoji(g.emoji)}</span>
                 <input type="text" value={g.name} onChange={(e) => updateGoal(g.id, "name", e.target.value)}
                   className="text-xs font-bold bg-transparent outline-none w-28" style={{ color: 'var(--text-primary)' }} />
               </div>
