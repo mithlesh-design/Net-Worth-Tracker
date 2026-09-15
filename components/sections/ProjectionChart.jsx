@@ -25,6 +25,7 @@ function NetWorthTooltip({ active, payload }) {
       <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
+        {d.rentalIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Rental income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.rentalIncome)}</span></div>}
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.annualExpense)}</span></div>
         {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance Premium</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.insurancePremium)}</span></div>}
         {d.totalEMI > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loan EMIs</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalEMI)}</span></div>}
@@ -38,12 +39,19 @@ function NetWorthTooltip({ active, payload }) {
         {d.contributionShortfall > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Contribution Shortfall</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.contributionShortfall)}</span></div>}
         {d.surplusSpent > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Surplus Spent</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.surplusSpent)}</span></div>}
         {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"\u2212"}{fmt(d.goalCostGross)}</span></div>}
-        {d.totalPropertyValue > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property Assets</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.totalPropertyValue)}</span></div>}
-        {d.totalLoanOutstanding > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loans</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalLoanOutstanding)}</span></div>}
-        {d.lockedNW > 0 && (
+        {/* Owned property is IN net worth; a home goal's property is not. One
+            "Property Assets" row covering both would imply they are treated
+            alike, which is the whole thing this split exists to prevent. */}
+        {d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property owned</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.illiquidNW)}</span></div>}
+        {d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property loan</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.propertyDebt)}</span></div>}
+        {d.totalPropertyValue - d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Future home (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalPropertyValue - d.illiquidNW)}</span></div>}
+        {d.totalLoanOutstanding - d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Home loan (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalLoanOutstanding - d.propertyDebt)}</span></div>}
+        {(d.lockedNW > 0 || d.illiquidNW > 0) && (
           <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Liquid / Locked</span>
-            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.liquidNW)} / {fmt(d.lockedNW)}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Liquid / Locked{d.illiquidNW > 0 ? " / Property" : ""}</span>
+            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>
+              {fmt(d.liquidNW)} / {fmt(d.lockedNW)}{d.illiquidNW > 0 ? ` / ${fmt(d.illiquidNW)}` : ""}
+            </span>
           </div>
         )}
         {d.unfundedThisYear > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Unfunded this year</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.unfundedThisYear)}</span></div>}

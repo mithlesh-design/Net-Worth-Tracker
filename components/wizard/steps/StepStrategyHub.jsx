@@ -4,6 +4,7 @@ import InvestmentStrategy from "@/components/sections/InvestmentStrategy";
 import TaxWall from "@/components/sections/TaxWall";
 import MonthlyInvestments from "@/components/sections/MonthlyInvestments";
 import CurrentHoldings from "@/components/sections/CurrentHoldings";
+import PropertyInvestments from "@/components/sections/PropertyInvestments";
 import MiniChart from "@/components/wizard/MiniChart";
 import SuccessScore from "@/components/sections/SuccessScore";
 
@@ -87,6 +88,10 @@ export default function StepStrategyHub({
         <CurrentHoldings
           plan={plan} setField={setField} findingsFor={findingsFor}
           totalHoldings={totalHoldings} startingPortfolio={simulation.openingPortfolio}
+        />
+        <PropertyInvestments
+          plan={plan} setField={setField} findingsFor={findingsFor}
+          makeId={makeId} simulation={simulation}
         />
         {/* Only once a spouse exists. An empty card for a person the user has
             not told us about is an advertisement, not a form. */}

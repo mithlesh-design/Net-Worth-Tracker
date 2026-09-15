@@ -47,6 +47,7 @@ export default function MonthlySummary({
 
   const liquid = simulation.data[0]?.liquidNW ?? 0;
   const locked = simulation.data[0]?.lockedNW ?? 0;
+  const illiquid = simulation.data[0]?.illiquidNW ?? 0;
   const startingPortfolio = simulation.openingPortfolio ?? totalHoldings;
 
   return (
@@ -68,7 +69,9 @@ export default function MonthlySummary({
           sub={surplus < 0 ? "planned outgoings exceed income" : "after all outgoings"}
           tone={surplus < 0 ? "warn" : "good"} />
         <Tile label="Starting Portfolio" value={fmt(startingPortfolio)}
-          sub={`${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
+          sub={illiquid > 0
+            ? `${fmt(liquid)} liquid · ${fmt(locked)} locked · ${fmt(illiquid)} property`
+            : `${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
       </div>
 
       {surplus < 0 && (
