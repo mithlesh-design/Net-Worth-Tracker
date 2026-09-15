@@ -143,8 +143,9 @@ Stated here and surfaced in the UI rather than left implicit.
   This is a simplification, not a tax rule.
 - **NPS is counted at 100% from age 60.** The mandatory annuity share is not
   modelled, so spendable corpus is overstated for NPS-heavy plans.
-- **Property is excluded from net worth**, as in v0, and a cash-bought home is
-  still not tracked as an asset at all.
+- **Goal property is excluded from net worth**, as in v0, and a cash-bought home
+  goal is still not tracked as an asset at all. Property you already own is a
+  different thing and IS counted — see "Owned property" below.
 - **The section 87A rebate cliff is unchanged from v0.** At ₹12,00,000 taxable
   the tax is zero; one rupee more costs roughly ₹60,000. Real law grants
   marginal relief. Changing this requires verifying current rules against
@@ -227,6 +228,89 @@ today's rupees. Over a long horizon this understates a real and fast-growing
 cost: a ₹30,000 premium that would have reached ₹8.5L/yr by age 85 at 6% now
 stays ₹30,000. The golden fixtures both disable medical cover, so the removal is
 numerically inert on them.
+
+## Owned property (2026-09-15)
+
+### `plan.properties[]` is counted in net worth; goal property still is not
+
+This reverses the v0/v1 rule for one case only, and the asymmetry is
+deliberate.
+
+`plan.properties[]` is what the user owns **today**. It opens the `property`
+bucket, is counted in `totalNW`, and its outstanding loan is subtracted.
+
+A home **goal** is a future purchase. Its `totalPropertyValue` and
+`totalLoanOutstanding` are still recorded and still excluded from net worth,
+exactly as before. Do not "fix" this to match: subtracting a goal's loan while
+its asset value stays excluded would push net worth *down* for planning to buy a
+house. The two halves are excluded together or not at all, and changing that is
+a separate piece of work.
+
+### De-duplication is structural, not advisory
+
+Properties are owned from age 0; goals are bought at a future age. The two
+describe disjoint periods, so the same asset cannot occupy both — provided the
+user does not enter their future home in both places. The UI says so at the
+point of entry and warns when a future home goal and a property coexist.
+
+The alternatives were worse. A `linkedGoalId` creates two sources of truth for
+price, rate and tenure plus a dangling reference on every goal deletion; fuzzy
+duplicate detection is untestable and leaves the doubled number on screen while
+apologising for it.
+
+**Deferred:** rolling a completed home goal's value into the illiquid bucket at
+`goal.age`. That is the honest fix both for "a cash-bought home is not tracked"
+and for the asymmetry above, and it removes the user's reason to re-enter a goal
+as a property. It belongs in its own release where the delta can be attributed.
+
+### Property appreciates at the bucket rate, not a per-item rate
+
+There is no per-property appreciation field. Property grows through the engine's
+normal growth step at `BUCKET_DEFS.property.defaultReturn` (5%, overridable via
+`bucketOverrides.property`), which means it also takes a volatility draw in the
+Success Score. A per-item rate applied directly in `propertyYear` would bypass
+that and model a house as risk-free, flattering every property-heavy plan.
+
+### Gross value, debt subtracted separately
+
+`B.property` holds the **gross** value; `owned.debt` is subtracted from
+`totalNW`. Netting them into a single equity figure would make the growth step
+appreciate the *equity* at the property rate — wrong, because the asset
+appreciates while the loan amortises on its own schedule.
+
+A heavily mortgaged property can therefore produce a negative `netWorthRaw` in
+early years. `netWorth` already clamps at 0 for the chart; `netWorthRaw` carries
+the truth.
+
+### Where each figure lands in the waterfall
+
+| figure | cash flow | `recurringSpend` (the FI test) | net worth |
+|---|---|---|---|
+| value | — | — | **counted** (illiquid) |
+| loan outstanding | — | — | **subtracted** |
+| EMI | charged | **excluded** — it terminates | — |
+| maintenance | charged | **included** — you maintain it forever | — |
+| rental income | added | — | — |
+
+EMIs run from year 0, the opposite of `loanYear`: an owned property's loan is
+already being serviced, so there is no purchase year to defer past.
+
+Rent grows at `inflationRate` only, never `+ lifestyleCreep` — what a tenant
+pays is not a choice about how the owner lives. It is not gated on `working`,
+because the property is held through retirement and for many plans that is the
+point of owning it.
+
+### Rental income is not taxed
+
+Consistent with every other income source after v2, which has no tax model. Real
+rental income is taxed at slab rates after a 30% standard deduction, so the UI
+labels the field "after tax" rather than letting the user enter a gross rent.
+
+### Property does not bring FI forward
+
+The FI test reads `liquidNW + lockedNW` and excludes `illiquidNW`, and
+`blendedReturn` excludes illiquid buckets from both numerator and divisor. See
+the comments at both sites; both look like oversights and are not.
 
 ## Goal gap and the Success Score (2026-09-14)
 
