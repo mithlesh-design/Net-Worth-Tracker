@@ -73,10 +73,26 @@ export default function SpouseIncome({
             sub={`${fmt(spouseMonthlyIncome * 12)}/yr take-home`}
           />
 
+          <div className="rounded-xl border p-4 space-y-2"
+            style={{ background: "var(--surface-muted)", borderColor: "var(--border-subtle)" }}>
+            <ToggleSwitch
+              value={!!plan.combineSpouse}
+              onChange={(v) => setField("combineSpouse", v)}
+              label="Include them in my projection"
+            />
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {plan.combineSpouse
+                ? <>Their income and holdings are part of every projection and
+                    score. Turning this off leaves the figures above untouched.</>
+                : <>Recorded, but not counted anywhere yet. Turn this on to add
+                    their income and holdings to your projection.</>}
+            </p>
+          </div>
+
           <InfoStrip tone="amber">
-            Recorded, but not yet in your projection. Combining the two is a
-            separate choice — and household expenses are a single figure on this
-            page, so check yours already covers both of you before you make it.
+            Household expenses are a single figure on this page. Check yours
+            already covers both of you — combining two incomes against one
+            person's expenses overstates what is left over each month.
           </InfoStrip>
         </div>
       )}
