@@ -6,6 +6,7 @@ import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldEr
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { calcIncomeTax } from "@/lib/finance/tax.mjs";
 import { effectiveAge } from "@/lib/finance/age.mjs";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function IncomeSources({ plan, incomes, updateIncome, addIncome, removeIncome, findingsFor, totalMonthlyIncome, defaultOpen }) {
   const { currentAge } = plan;
@@ -36,7 +37,7 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
               className="text-xs font-bold bg-transparent outline-none w-28" style={{ color: 'var(--text-primary)' }} />
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(toAnnual(inc.amount, inc.frequency))}/yr</span>
-              {incomes.length > 1 && <button onClick={() => removeIncome(inc.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={12} /></button>}
+              {incomes.length > 1 && <button onClick={() => removeIncome(inc.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
             </div>
           </div>
           <SliderInput label={`Amount (${inc.frequency})`} value={inc.amount} onChange={(v) => updateIncome(inc.id, "amount", v)}
@@ -97,7 +98,7 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
       ) : (
         <button onClick={() => setShowAddIncome(true)} className="w-full rounded-lg border border-dashed py-3 flex items-center justify-center gap-1.5 text-xs font-semibold transition"
           style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}>
-          <Plus size={13} /> Add Income Source
+          <Plus size={ICON_SIZE.sm} /> Add Income Source
         </button>
       )}
       <div className="mt-5 space-y-2">

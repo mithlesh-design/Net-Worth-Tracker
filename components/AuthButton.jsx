@@ -18,6 +18,7 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
   const { data: session, status, isDemo, persisted, signOut } = useAppSession();
@@ -34,7 +35,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
   if (!session) {
     return (
       <Button onClick={() => signIn()} size="sm" className="rounded-full gap-1.5 px-3.5 text-xs font-bold shadow-sm">
-        <LogIn size={13} />
+        <LogIn size={ICON_SIZE.sm} />
         Sign In
       </Button>
     );
@@ -64,7 +65,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           {isDemo && (
             <Badge className="hidden sm:block text-[0.5rem] uppercase tracking-wide">Demo</Badge>
           )}
-          <ChevronDown size={12} className="text-[var(--text-muted)]" />
+          <ChevronDown size={ICON_SIZE.xs} className="text-[var(--text-muted)]" />
         </button>
       </DropdownMenuTrigger>
 
@@ -129,12 +130,12 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                   Save
                 </Button>
                 <button onClick={() => setShowSaveInput(false)} className="text-[var(--text-muted)]">
-                  <X size={14} />
+                  <X size={ICON_SIZE.sm} />
                 </button>
               </div>
             ) : (
               <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowSaveInput(true); }}>
-                <Save size={13} className="text-[var(--accent)]" />
+                <Save size={ICON_SIZE.sm} className="text-[var(--accent)]" />
                 Save Current Settings
               </DropdownMenuItem>
             )}
@@ -151,11 +152,11 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
               className="flex items-center justify-between w-full rounded-lg px-2 py-2 text-xs transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
             >
               <span className="flex items-center gap-2">
-                <FolderOpen size={13} className="text-[var(--info-blue-text)]" />
+                <FolderOpen size={ICON_SIZE.sm} className="text-[var(--info-blue-text)]" />
                 Saved Profiles
                 <Badge variant="outline" className="text-[0.55rem]">{profiles.length}</Badge>
               </span>
-              <ChevronDown size={12} className={cn("transition-transform text-[var(--text-muted)]", profilesOpen && "rotate-180")} />
+              <ChevronDown size={ICON_SIZE.xs} className={cn("transition-transform text-[var(--text-muted)]", profilesOpen && "rotate-180")} />
             </button>
 
             {profilesOpen && isDemo && (
@@ -187,7 +188,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                         onClick={(e) => { e.stopPropagation(); onDeleteProfile?.(p.id); }}
                         className="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition p-1 text-[var(--text-muted)]"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={ICON_SIZE.xs} />
                       </button>
                     </div>
                   ))
@@ -204,7 +205,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           onSelect={() => signOut()}
           className="text-[var(--text-secondary)] focus:bg-[var(--info-red-bg)]"
         >
-          <LogOut size={13} className="text-rose-400" />
+          <LogOut size={ICON_SIZE.sm} className="text-rose-400" />
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>

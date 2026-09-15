@@ -7,6 +7,7 @@ import {
 } from "@/components/ui";
 import { fmt, monthlyEquivalent, toAnnual } from "@/lib/finance/format.mjs";
 import { BUCKET_DEFS } from "@/lib/finance/assumptions.mjs";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 const FREQUENCIES = ["monthly", "quarterly", "yearly"];
 
@@ -43,7 +44,7 @@ export default function ContributionBlock({
         <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{label}</span>
         <span className="flex items-center gap-2">
           <span className="text-[0.6rem] font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(monthly)}/mo</span>
-          <ChevronDown size={12} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          <ChevronDown size={ICON_SIZE.xs} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             style={{ color: 'var(--text-muted)' }} />
         </span>
       </button>

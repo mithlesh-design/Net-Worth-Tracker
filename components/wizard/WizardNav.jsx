@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* Knows nothing about step indices or how many steps there are; wizardSteps.js
    owns both. The old "Skip this step" branch is gone with the Protection step
@@ -17,7 +18,7 @@ export default function WizardNav({ isFirst, isLast, nextLabel = "Continue", onB
     >
       {!isFirst ? (
         <Button variant="outline" onClick={onBack} className="gap-2">
-          <ArrowLeft size={14} />
+          <ArrowLeft size={ICON_SIZE.sm} />
           Back
         </Button>
       ) : (
@@ -27,7 +28,7 @@ export default function WizardNav({ isFirst, isLast, nextLabel = "Continue", onB
       {!isLast ? (
         <Button onClick={onNext} size="lg" className="gap-2 w-full sm:w-auto">
           {nextLabel}
-          <ArrowRight size={14} />
+          <ArrowRight size={ICON_SIZE.sm} />
         </Button>
       ) : (
         <div />

@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { Card } from "./card";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsible";
 import { cn } from "@/lib/utils";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function CollapsibleSection({ title, children, defaultOpen = true, badge = null }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -22,7 +23,7 @@ export default function CollapsibleSection({ title, children, defaultOpen = true
               )}
             </div>
             <ChevronDown
-              size={14}
+              size={ICON_SIZE.sm}
               className={cn(
                 "transition-transform duration-200 text-[var(--text-muted)]",
                 open && "rotate-180"

@@ -5,7 +5,8 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis } from "@/lib/finance/format.mjs";
-import { goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import GoalIcon from "@/components/ui/GoalIcon";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
 function GoalGapTooltip({ active, payload, goalGap }) {
@@ -46,7 +47,9 @@ function GoalGapTooltip({ active, payload, goalGap }) {
         <div className="mt-2 pt-2 border-t space-y-1" style={{ borderColor: 'var(--border-subtle)' }}>
           {dueHere.map((g) => (
             <div key={g.id} className="flex justify-between gap-6">
-              <span style={{ color: 'var(--text-secondary)' }}>{goalEmoji(g.emoji)} {g.name}</span>
+              <span className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                <GoalIcon type={g.emoji} size={ICON_SIZE.xs} />{g.name}
+              </span>
               <span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"−"}{fmt(g.requiredInflated)}</span>
             </div>
           ))}
@@ -104,8 +107,8 @@ function GoalPins({ goals, series, xScale, yScale }) {
               strokeWidth={1.5}
             />
             <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
-              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, lineHeight: 1, userSelect: "none" }}>
-                {goalEmoji(goal.emoji)}
+              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: unfunded ? "var(--chart-negative)" : "var(--chart-target)" }}>
+                <GoalIcon type={goal.emoji} size={ICON_SIZE.sm} />
               </div>
             </foreignObject>
           </g>

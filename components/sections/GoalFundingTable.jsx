@@ -2,7 +2,8 @@
 
 import { SectionCard } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
-import { goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import GoalIcon from "@/components/ui/GoalIcon";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 const STATUS = {
   funded: { label: "On track", color: "var(--success)" },
@@ -20,9 +21,9 @@ function GoalRow({ goal, inflateGoals }) {
   return (
     <div className="py-3 border-b last:border-b-0" style={{ borderColor: "var(--border-subtle)" }}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
-          <span className="mr-1.5">{goalEmoji(goal.emoji)}</span>
-          {goal.name}
+        <span className="text-sm font-medium truncate inline-flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
+          <GoalIcon type={goal.emoji} size={ICON_SIZE.sm} style={{ color: "var(--text-muted)" }} />
+          <span className="truncate">{goal.name}</span>
         </span>
         <span className="text-[0.65rem] font-semibold whitespace-nowrap" style={{ color: s.color }}>
           {s.label}

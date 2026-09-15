@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { AlertTriangle, ArrowUpRight } from "lucide-react";
+import { TriangleAlert, ArrowUpRight } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis, numToWordsIndian } from "@/lib/finance/format.mjs";
-import { goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import GoalIcon from "@/components/ui/GoalIcon";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
 function NetWorthTooltip({ active, payload }) {
@@ -19,7 +20,7 @@ function NetWorthTooltip({ active, payload }) {
       <div className="flex items-center gap-2 mb-2">
         <span className="font-black" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
         {d.isRetired && <span className="text-xs font-semibold" style={{ color: 'var(--warning)' }}>Retired</span>}
-        {d.deficit && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><AlertTriangle size={8} />Deficit</span>}
+        {d.deficit && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
       </div>
       <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
@@ -70,8 +71,8 @@ function GoalOverlay({ goals, projection, xScale, yScale }) {
             <circle cx={cx} cy={cy} r={3.5} fill="var(--chart-target)" />
             <circle cx={cx} cy={by} r={R} fill="var(--goal-marker-fill)" stroke="var(--chart-target)" strokeWidth={1.5} />
             <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
-              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, lineHeight: 1, userSelect: "none" }}>
-                {goalEmoji(goal.emoji)}
+              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--chart-target)" }}>
+                <GoalIcon type={goal.emoji} size={ICON_SIZE.sm} />
               </div>
             </foreignObject>
           </g>
@@ -118,7 +119,7 @@ export default function ProjectionChart({
           )}
           {constrainedYears > 0 && (
             <span className="text-sm font-semibold flex items-center gap-1" style={{ color: 'var(--danger)' }}>
-              <AlertTriangle size={12} /> {constrainedYears} yrs deficit
+              <TriangleAlert size={ICON_SIZE.xs} /> {constrainedYears} yrs deficit
             </span>
           )}
         </div>
@@ -133,12 +134,12 @@ export default function ProjectionChart({
               <span className="text-2xl font-black tabular-nums sm:text-3xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
               {lastPoint && lastPoint.netWorthRaw > simulation.openingPortfolio && (
                 <span className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--success)' }}>
-                  <ArrowUpRight size={14} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
+                  <ArrowUpRight size={ICON_SIZE.sm} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
                 </span>
               )}
               {lastPoint && lastPoint.netWorthRaw <= 0 && (
                 <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--danger)' }}>
-                  <AlertTriangle size={14} /> Depleted
+                  <TriangleAlert size={ICON_SIZE.sm} /> Depleted
                 </span>
               )}
             </div>
@@ -197,7 +198,7 @@ export default function ProjectionChart({
         {(constrainedYears > 0 || shortfallYears > 0 || simulation.depletionAge) && (
           <div className="mt-4 border-l-2 pl-4 py-2 flex items-start gap-2"
             style={{ borderColor: 'var(--danger-border)' }}>
-            <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--danger)' }} />
+            <TriangleAlert size={ICON_SIZE.sm} className="mt-0.5 shrink-0" style={{ color: 'var(--danger)' }} />
             <div className="text-xs space-y-1" style={{ color: 'var(--danger)' }}>
               {constrainedYears > 0 && (
                 <div>

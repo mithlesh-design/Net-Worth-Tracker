@@ -23,6 +23,7 @@ import { getProfileStore } from "@/lib/profile/store.mjs";
 
 import WizardShell from "@/components/wizard/WizardShell";
 import { Button } from "@/components/ui/button";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN COMPONENT
@@ -283,7 +284,7 @@ export default function FinancialPlanner() {
             className="w-9 h-9 text-[var(--text-muted)]"
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === "dark" ? <Sun size={ICON_SIZE.md} /> : <Moon size={ICON_SIZE.md} />}
           </Button>
           <AuthButton
             onSaveProfile={saveProfile}
