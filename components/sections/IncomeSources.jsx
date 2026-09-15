@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { X, Plus } from "lucide-react";
-import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldError } from "@/components/ui";
+import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldError, InfoStrip } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
-import { calcIncomeTax } from "@/lib/finance/tax.mjs";
 import { effectiveAge } from "@/lib/finance/age.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
@@ -13,22 +12,21 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
   const age = effectiveAge(plan);
 
   const [showAddIncome, setShowAddIncome] = useState(false);
-  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", basis: "gross", role: "other", growthRate: 5, retireAge: 55 });
-
-  const grossAnnual = incomes.filter((i) => i.basis !== "takehome")
-    .reduce((s, i) => s + toAnnual(i.amount, i.frequency), 0);
-  const takeHomeAnnual = incomes.filter((i) => i.basis === "takehome")
-    .reduce((s, i) => s + toAnnual(i.amount, i.frequency), 0);
-  const taxOnGross = calcIncomeTax(grossAnnual);
+  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5, retireAge: 55 });
 
   const handleAdd = () => {
     addIncome(newInc);
     setShowAddIncome(false);
-    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", basis: "gross", role: "other", growthRate: 5, retireAge: 55 });
+    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5, retireAge: 55 });
   };
 
   return (
     <CollapsibleSection title="Income Sources" badge={`${incomes.length}`} defaultOpen={defaultOpen}>
+      <InfoStrip tone="blue">
+        Enter <strong>take-home</strong> pay — what actually reaches your bank, after
+        tax and EPF. Growth applies to that figure, so your effective tax rate is
+        held constant for the whole projection.
+      </InfoStrip>
       {incomes.map((inc) => (
         <div key={inc.id} className="rounded-lg p-4 space-y-3"
           style={{ background: 'var(--bg-tertiary)' }}>
@@ -48,20 +46,6 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
             value={inc.frequency}
             onChange={(v) => updateIncome(inc.id, "frequency", v)}
           />
-          <SegmentedControl
-            label="This amount is"
-            options={[
-              { value: "gross", label: "Gross (CTC)" },
-              { value: "takehome", label: "Take-home" },
-            ]}
-            value={inc.basis ?? "gross"}
-            onChange={(v) => updateIncome(inc.id, "basis", v)}
-          />
-          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            {inc.basis === "takehome"
-              ? "What reaches your bank. Not taxed again, and growth applies to a net figure, so the effective tax rate is held constant."
-              : "Before income tax and EPF."}
-          </p>
           <SliderInput
             label={inc.role === "salary" ? "Average Salary Growth (annual)" : "Annual Growth"}
             value={inc.growthRate} onChange={(v) => updateIncome(inc.id, "growthRate", v)}
@@ -104,16 +88,7 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
       <div className="mt-5 space-y-2">
         <DerivedStat label="Total Monthly Income" value={`${fmt(totalMonthlyIncome)}/mo`} />
         <DerivedStat label="Total Annual Income" value={fmt(totalMonthlyIncome * 12)}
-          sub="before income tax" tone="muted" />
-      </div>
-
-      <div className="px-1 py-1.5 text-xs leading-relaxed space-y-1"
-        style={{ color: 'var(--info-blue-text)' }}>
-        <div className="font-bold">Income Tax (New Regime 2024-25)</div>
-        <div>Gross: {fmt(grossAnnual)} → Tax: {fmt(taxOnGross)} → Post-tax: {fmt(grossAnnual - taxOnGross)}/yr</div>
-        {takeHomeAnnual > 0 && (
-          <div>Take-home sources: {fmt(takeHomeAnnual)}/yr, not taxed again.</div>
-        )}
+          sub="take-home" tone="muted" />
       </div>
     </CollapsibleSection>
   );

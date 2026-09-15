@@ -9,7 +9,6 @@ import logoDark from "@/components/Img/DARK.svg";
 import logoLight from "@/components/Img/LIGHT.svg";
 
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
-import { calcIncomeTax } from "@/lib/finance/tax.mjs";
 import { runProjectionV1 } from "@/lib/finance/projection.mjs";
 import { computeGoalGap } from "@/lib/finance/goalgap.mjs";
 import { effectiveAge, isAgeDerived } from "@/lib/finance/age.mjs";

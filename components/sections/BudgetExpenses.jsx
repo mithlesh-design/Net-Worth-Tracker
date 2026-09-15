@@ -31,8 +31,6 @@ export default function BudgetExpenses({ plan, setField, findingsFor, premiums, 
 
       <SliderInput label="Inflation Rate" value={inflationRate} onChange={(v) => setField("inflationRate", v)} min={0} max={15} step={0.5} suffix="%" />
       <SliderInput label="Lifestyle Creep" value={lifestyleCreep} onChange={(v) => setField("lifestyleCreep", v)} min={0} max={10} step={0.5} suffix="%" />
-      <SliderInput label="Medical Inflation" value={plan.medicalInflation}
-        onChange={(v) => setField("medicalInflation", v)} min={0} max={20} step={0.5} suffix="%" />
 
       {plan.expenses.rent > 0 && (
         <div className="mt-5">

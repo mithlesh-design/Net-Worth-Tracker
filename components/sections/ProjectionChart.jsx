@@ -24,9 +24,7 @@ function NetWorthTooltip({ active, payload }) {
       </div>
       <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Gross Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.grossIncome)}</span></div>
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income Tax</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.incomeTax)}</span></div>
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Post-Tax Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.postTaxIncome)}</span></div>
+        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.annualExpense)}</span></div>
         {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance Premium</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.insurancePremium)}</span></div>}
         {d.totalEMI > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loan EMIs</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalEMI)}</span></div>}

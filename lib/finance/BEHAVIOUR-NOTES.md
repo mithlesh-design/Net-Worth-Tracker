@@ -24,24 +24,16 @@ Corpus at 55 is *higher* because EMIs now start a year after purchase (change 4)
 
 ## The changes
 
-### 1. Tax is computed on the aggregate gross pool
+### 1. Tax is computed on the aggregate gross pool — SUPERSEDED in v2
 
 v0 called `calcIncomeTax` on the summed income of every source, which was
-correct only because every source was implicitly gross. v1 adds a per-source
-`basis` of gross or take-home, and partitions before taxing:
+correct only because every source was implicitly gross. v1 added a per-source
+`basis` of gross or take-home and partitioned before taxing, in one slab pass
+over the summed gross pool.
 
-```
-tax = calcIncomeTax(sum of gross sources)      // one slab pass
-postTax = (gross - tax) + sum of take-home sources
-```
-
-It must stay one call on the sum. `calcIncomeTax` grants the ₹75,000 standard
-deduction, the nil slab and the rebate once per call, so summing it per source
-grants all three once per source. Two ₹12L gross sources would report **zero**
-tax instead of roughly ₹2.6L.
-
-Migration sets `basis: "gross"` on every v0 income, which reproduces v0
-behaviour exactly.
+v2 removes the tax model entirely. See "Income is take-home only" below. The
+one-call-on-the-sum rule still governs `calcIncomeTax` itself, which survives
+for the v1 → v2 migration and the frozen v0 engine.
 
 ### 2. Expense shortfalls are grossed up for exit tax
 
@@ -153,12 +145,88 @@ Stated here and surfaced in the UI rather than left implicit.
   modelled, so spendable corpus is overstated for NPS-heavy plans.
 - **Property is excluded from net worth**, as in v0, and a cash-bought home is
   still not tracked as an asset at all.
-- **A take-home income source grows at its stated rate**, which implies a frozen
-  effective tax rate over the horizon.
 - **The section 87A rebate cliff is unchanged from v0.** At ₹12,00,000 taxable
   the tax is zero; one rupee more costs roughly ₹60,000. Real law grants
   marginal relief. Changing this requires verifying current rules against
   official sources and is out of scope here.
+
+## Income is take-home only (2026-09-15, schema v2)
+
+### There is no tax model
+
+`incomes[].basis` is gone. Every amount is what reaches the bank, and the engine
+charges nothing against it. `row.grossIncome`, `row.incomeTax` and
+`row.postTaxIncome` are replaced by a single `row.income`: with no tax the last
+two were a constant zero and a duplicate of the first, and "gross" named a
+distinction that no longer exists.
+
+`calcIncomeTax` is retained. It is used by the v1 → v2 migration and by the
+frozen v0 engine, and nowhere else.
+
+### The migration rewrites stored salaries
+
+A v1 gross amount carried across unchanged would be read as money reaching the
+bank, inflating the profile by its own tax bill. `migrateV1toV2` therefore runs
+one slab pass over the summed gross pool — the same single call v1 made — and
+scales every gross source by `keep = (pool - tax) / pool`.
+
+Scaling by one scalar is the pro-rata distribution: the weights are the
+annualised amounts, so sharing out `pool - tax` by those weights and converting
+back to each source's own frequency reduces to `amount * keep`.
+
+The default profile converts ₹1,50,000/mo to **₹1,37,433/mo**
+(`keep = 0.9162222`). Sources whose figure does not actually move — a zero row,
+or any row when the whole pool falls under the rebate — are not flagged, so the
+UI does not warn about a number that did not change.
+
+The conversion reads no age and no date. `effectiveAge()` derives from
+`personal.dob` and today, so consulting it would convert the same stored JSON
+differently after a birthday, and the round-trip idempotence check would begin
+failing on a date rather than on a code change. `retireAge` is ignored for the
+same reason.
+
+### Consequence: the effective tax rate is frozen, and plans get more optimistic
+
+This is the significant behavioural change in v2, and it is inherent in dropping
+the tax model rather than a flaw in the conversion.
+
+v1 regrew a **gross** salary each year and re-ran the slabs on it, so a rising
+earner climbed brackets and their effective rate rose with them. v2 grows the
+converted **take-home** figure at the same rate, holding the year-0 effective
+rate for the whole horizon.
+
+The conversion is therefore exact in year 0 and diverges monotonically after it.
+For the default profile — ₹18L gross growing at 10% — modelled income runs:
+
+| age | v1 effective rate | v2 income ÷ v1 post-tax income |
+|-----|-------------------|--------------------------------|
+| 28  | 8.4%              | 1.000 |
+| 40  | 23.4%             | 1.196 |
+| 55  | 29.3%             | 1.297 |
+| 85  | 31.1%             | 1.330 |
+
+Net worth amplifies this, because the extra cash compounds into investments:
+**+21% at age 40, +34% at 55, +96% at 85**, and FI arrives two years earlier
+(43 → 41). The golden snapshots record exactly this.
+
+The gap is widest for high-growth, high-income earners and negligible for
+someone already entering take-home figures or growing slowly. Anyone whose real
+salary growth outpaces their bracket creep is now over-projected.
+
+### The rebate cliff is frozen into stored data
+
+The section 87A cliff was already in the engine (below). v2 bakes it into the
+saved amount: a ₹12,75,000 pool converts unchanged, while ₹12,76,000 loses
+₹62,556. Same rule as before, but now applied once and persisted rather than
+recomputed each year.
+
+### Insurance premiums no longer inflate
+
+`plan.medicalInflation` is gone and `insurancePremium` is charged flat, in
+today's rupees. Over a long horizon this understates a real and fast-growing
+cost: a ₹30,000 premium that would have reached ₹8.5L/yr by age 85 at 6% now
+stays ₹30,000. The golden fixtures both disable medical cover, so the removal is
+numerically inert on them.
 
 ## Goal gap and the Success Score (2026-09-14)
 

@@ -32,9 +32,8 @@ export default function MonthlySummary({
 
   const today = simulation.data[0];
   const emiMonthly = today ? today.totalEMI / 12 : 0;
-  const taxMonthly = today ? today.incomeTax / 12 : 0;
 
-  const surplus = totalMonthlyIncome - taxMonthly - living - premiumMonthly
+  const surplus = totalMonthlyIncome - living - premiumMonthly
                 - emiMonthly - contributionsMonthly;
 
   const liquid = simulation.data[0]?.liquidNW ?? 0;
