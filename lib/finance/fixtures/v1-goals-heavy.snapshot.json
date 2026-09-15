@@ -6,6 +6,7 @@
       "netWorthRaw": 4299196,
       "liquidNW": 3549196,
       "lockedNW": 750000,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 2249196,
         "stocks": 0,
@@ -15,7 +16,8 @@
         "epf": 450000,
         "nps": 0,
         "lic": 0,
-        "unallocated": 500000
+        "unallocated": 500000,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -48,6 +50,7 @@
       "netWorthRaw": 5949640,
       "liquidNW": 5141215,
       "lockedNW": 808425,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 3685215,
         "stocks": 0,
@@ -57,7 +60,8 @@
         "epf": 487125,
         "nps": 0,
         "lic": 0,
-        "unallocated": 560000
+        "unallocated": 560000,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -90,6 +94,7 @@
       "netWorthRaw": 7925273,
       "liquidNW": 7053848,
       "lockedNW": 871425,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 5423128,
         "stocks": 0,
@@ -99,7 +104,8 @@
         "epf": 527313,
         "nps": 0,
         "lic": 0,
-        "unallocated": 627200
+        "unallocated": 627200,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -132,6 +138,7 @@
       "netWorthRaw": 10278923,
       "liquidNW": 9339563,
       "lockedNW": 939360,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 7513156,
         "stocks": 0,
@@ -141,7 +148,8 @@
         "epf": 570816,
         "nps": 0,
         "lic": 0,
-        "unallocated": 702464
+        "unallocated": 702464,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -174,6 +182,7 @@
       "netWorthRaw": 13071224,
       "liquidNW": 12058605,
       "lockedNW": 1012619,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 10013029,
         "stocks": 0,
@@ -183,7 +192,8 @@
         "epf": 617908,
         "nps": 0,
         "lic": 0,
-        "unallocated": 786760
+        "unallocated": 786760,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -216,6 +226,7 @@
       "netWorthRaw": 16371708,
       "liquidNW": 15280087,
       "lockedNW": 1091621,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 12989043,
         "stocks": 0,
@@ -225,7 +236,8 @@
         "epf": 668886,
         "nps": 0,
         "lic": 0,
-        "unallocated": 881171
+        "unallocated": 881171,
+        "property": 0
       },
       "totalPropertyValue": 0,
       "totalLoanOutstanding": 0,
@@ -258,6 +270,7 @@
       "netWorthRaw": 15153616,
       "liquidNW": 13976797,
       "lockedNW": 1176819,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 12176885,
         "stocks": 0,
@@ -267,7 +280,8 @@
         "epf": 724069,
         "nps": 0,
         "lic": 0,
-        "unallocated": 731559
+        "unallocated": 731559,
+        "property": 0
       },
       "totalPropertyValue": 9000000,
       "totalLoanOutstanding": 0,
@@ -300,6 +314,7 @@
       "netWorthRaw": 18263935,
       "liquidNW": 16995236,
       "lockedNW": 1268700,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 14979334,
         "stocks": 0,
@@ -309,7 +324,8 @@
         "epf": 783805,
         "nps": 0,
         "lic": 0,
-        "unallocated": 819346
+        "unallocated": 819346,
+        "property": 0
       },
       "totalPropertyValue": 9450000,
       "totalLoanOutstanding": 7056703,
@@ -342,6 +358,7 @@
       "netWorthRaw": 21978071,
       "liquidNW": 20610280,
       "lockedNW": 1367791,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 18352469,
         "stocks": 0,
@@ -351,7 +368,8 @@
         "epf": 848469,
         "nps": 0,
         "lic": 0,
-        "unallocated": 917668
+        "unallocated": 917668,
+        "property": 0
       },
       "totalPropertyValue": 9922500,
       "totalLoanOutstanding": 6900741,
@@ -384,6 +402,7 @@
       "netWorthRaw": 26393504,
       "liquidNW": 24918843,
       "lockedNW": 1474661,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 22390095,
         "stocks": 0,
@@ -393,7 +412,8 @@
         "epf": 918467,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1027788
+        "unallocated": 1027788,
+        "property": 0
       },
       "totalPropertyValue": 10418625,
       "totalLoanOutstanding": 6730993,
@@ -426,6 +446,7 @@
       "netWorthRaw": 31622069,
       "liquidNW": 30032144,
       "lockedNW": 1589925,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 27199947,
         "stocks": 0,
@@ -435,7 +456,8 @@
         "epf": 994241,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1151122
+        "unallocated": 1151122,
+        "property": 0
       },
       "totalPropertyValue": 10939556,
       "totalLoanOutstanding": 6546240,
@@ -468,6 +490,7 @@
       "netWorthRaw": 37791945,
       "liquidNW": 36077702,
       "lockedNW": 1714243,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 32905641,
         "stocks": 0,
@@ -477,7 +500,8 @@
         "epf": 1076266,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1289257
+        "unallocated": 1289257,
+        "property": 0
       },
       "totalPropertyValue": 11486534,
       "totalLoanOutstanding": 6345157,
@@ -510,6 +534,7 @@
       "netWorthRaw": 45049931,
       "liquidNW": 43201599,
       "lockedNW": 1848332,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 39648891,
         "stocks": 0,
@@ -519,7 +544,8 @@
         "epf": 1165058,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1443968
+        "unallocated": 1443968,
+        "property": 0
       },
       "totalPropertyValue": 12060861,
       "totalLoanOutstanding": 6126300,
@@ -552,6 +578,7 @@
       "netWorthRaw": 53564012,
       "liquidNW": 51571051,
       "lockedNW": 1992961,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 47592018,
         "stocks": 0,
@@ -561,7 +588,8 @@
         "epf": 1261175,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1617244
+        "unallocated": 1617244,
+        "property": 0
       },
       "totalPropertyValue": 12663904,
       "totalLoanOutstanding": 5888099,
@@ -594,6 +622,7 @@
       "netWorthRaw": 63526274,
       "liquidNW": 61377309,
       "lockedNW": 2148965,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 56920793,
         "stocks": 0,
@@ -603,7 +632,8 @@
         "epf": 1365222,
         "nps": 0,
         "lic": 0,
-        "unallocated": 1811313
+        "unallocated": 1811313,
+        "property": 0
       },
       "totalPropertyValue": 13297099,
       "totalLoanOutstanding": 5628842,
@@ -636,6 +666,7 @@
       "netWorthRaw": 75156209,
       "liquidNW": 72838967,
       "lockedNW": 2317242,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 67847668,
         "stocks": 0,
@@ -645,7 +676,8 @@
         "epf": 1477852,
         "nps": 0,
         "lic": 0,
-        "unallocated": 2028671
+        "unallocated": 2028671,
+        "property": 0
       },
       "totalPropertyValue": 13961954,
       "totalLoanOutstanding": 5346669,
@@ -678,6 +710,7 @@
       "netWorthRaw": 88704450,
       "liquidNW": 86205689,
       "lockedNW": 2498761,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 80615434,
         "stocks": 0,
@@ -687,7 +720,8 @@
         "epf": 1599775,
         "nps": 0,
         "lic": 0,
-        "unallocated": 2272111
+        "unallocated": 2272111,
+        "property": 0
       },
       "totalPropertyValue": 14660052,
       "totalLoanOutstanding": 5039555,
@@ -720,6 +754,7 @@
       "netWorthRaw": 104457014,
       "liquidNW": 101762443,
       "lockedNW": 2694570,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 95501358,
         "stocks": 0,
@@ -729,7 +764,8 @@
         "epf": 1731757,
         "nps": 0,
         "lic": 0,
-        "unallocated": 2544765
+        "unallocated": 2544765,
+        "property": 0
       },
       "totalPropertyValue": 15393054,
       "totalLoanOutstanding": 4705295,
@@ -762,6 +798,7 @@
       "netWorthRaw": 122740092,
       "liquidNW": 119834292,
       "lockedNW": 2905800,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 112821876,
         "stocks": 0,
@@ -771,7 +808,8 @@
         "epf": 1874627,
         "nps": 0,
         "lic": 0,
-        "unallocated": 2850136
+        "unallocated": 2850136,
+        "property": 0
       },
       "totalPropertyValue": 16162707,
       "totalLoanOutstanding": 4341489,
@@ -804,6 +842,7 @@
       "netWorthRaw": 143925481,
       "liquidNW": 140791811,
       "lockedNW": 3133670,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 132937906,
         "stocks": 0,
@@ -813,7 +852,8 @@
         "epf": 2029283,
         "nps": 0,
         "lic": 0,
-        "unallocated": 3192153
+        "unallocated": 3192153,
+        "property": 0
       },
       "totalPropertyValue": 16970842,
       "totalLoanOutstanding": 3945526,
@@ -846,6 +886,7 @@
       "netWorthRaw": 164981040,
       "liquidNW": 161601542,
       "lockedNW": 3379498,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 153015000,
         "stocks": 0,
@@ -855,7 +896,8 @@
         "epf": 2196699,
         "nps": 0,
         "lic": 0,
-        "unallocated": 3500947
+        "unallocated": 3500947,
+        "property": 0
       },
       "totalPropertyValue": 17819384,
       "totalLoanOutstanding": 3514564,
@@ -888,6 +930,7 @@
       "netWorthRaw": 192885691,
       "liquidNW": 189240987,
       "lockedNW": 3644704,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 179624059,
         "stocks": 0,
@@ -897,7 +940,8 @@
         "epf": 2377927,
         "nps": 0,
         "lic": 0,
-        "unallocated": 3921060
+        "unallocated": 3921060,
+        "property": 0
       },
       "totalPropertyValue": 18710354,
       "totalLoanOutstanding": 3045509,
@@ -930,6 +974,7 @@
       "netWorthRaw": 225097456,
       "liquidNW": 221166632,
       "lockedNW": 3930824,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 210395673,
         "stocks": 0,
@@ -939,7 +984,8 @@
         "epf": 2574106,
         "nps": 0,
         "lic": 0,
-        "unallocated": 4391587
+        "unallocated": 4391587,
+        "property": 0
       },
       "totalPropertyValue": 19645871,
       "totalLoanOutstanding": 2534993,
@@ -972,6 +1018,7 @@
       "netWorthRaw": 262234583,
       "liquidNW": 257995068,
       "lockedNW": 4239515,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 245931595,
         "stocks": 0,
@@ -981,7 +1028,8 @@
         "epf": 2786470,
         "nps": 0,
         "lic": 0,
-        "unallocated": 4918578
+        "unallocated": 4918578,
+        "property": 0
       },
       "totalPropertyValue": 20628165,
       "totalLoanOutstanding": 1979352,
@@ -1014,6 +1062,7 @@
       "netWorthRaw": 305000078,
       "liquidNW": 300427513,
       "lockedNW": 4572565,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 286916422,
         "stocks": 0,
@@ -1023,7 +1072,8 @@
         "epf": 3016353,
         "nps": 0,
         "lic": 0,
-        "unallocated": 5508807
+        "unallocated": 5508807,
+        "property": 0
       },
       "totalPropertyValue": 21659573,
       "totalLoanOutstanding": 1374598,
@@ -1056,6 +1106,7 @@
       "netWorthRaw": 354192963,
       "liquidNW": 349261058,
       "lockedNW": 4931905,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 334128637,
         "stocks": 0,
@@ -1065,7 +1116,8 @@
         "epf": 3265203,
         "nps": 0,
         "lic": 0,
-        "unallocated": 6169864
+        "unallocated": 6169864,
+        "property": 0
       },
       "totalPropertyValue": 22742552,
       "totalLoanOutstanding": 716389,
@@ -1098,6 +1150,7 @@
       "netWorthRaw": 410721006,
       "liquidNW": 405401386,
       "lockedNW": 5319620,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 388453074,
         "stocks": 0,
@@ -1107,7 +1160,8 @@
         "epf": 3534582,
         "nps": 0,
         "lic": 0,
-        "unallocated": 6910248
+        "unallocated": 6910248,
+        "property": 0
       },
       "totalPropertyValue": 23879679,
       "totalLoanOutstanding": 0,
@@ -1140,6 +1194,7 @@
       "netWorthRaw": 433671712,
       "liquidNW": 427979718,
       "lockedNW": 5691993,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 410121680,
         "stocks": 0,
@@ -1149,7 +1204,8 @@
         "epf": 3782003,
         "nps": 0,
         "lic": 0,
-        "unallocated": 7295714
+        "unallocated": 7295714,
+        "property": 0
       },
       "totalPropertyValue": 25073663,
       "totalLoanOutstanding": 0,
@@ -1182,6 +1238,7 @@
       "netWorthRaw": 457773762,
       "liquidNW": 451683329,
       "lockedNW": 6090433,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 432872980,
         "stocks": 0,
@@ -1191,7 +1248,8 @@
         "epf": 4046743,
         "nps": 0,
         "lic": 0,
-        "unallocated": 7700440
+        "unallocated": 7700440,
+        "property": 0
       },
       "totalPropertyValue": 26327346,
       "totalLoanOutstanding": 0,
@@ -1224,6 +1282,7 @@
       "netWorthRaw": 483071779,
       "liquidNW": 476555016,
       "lockedNW": 6516763,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 456748399,
         "stocks": 0,
@@ -1233,7 +1292,8 @@
         "epf": 4330015,
         "nps": 0,
         "lic": 0,
-        "unallocated": 8125163
+        "unallocated": 8125163,
+        "property": 0
       },
       "totalPropertyValue": 27643714,
       "totalLoanOutstanding": 0,
@@ -1266,6 +1326,7 @@
       "netWorthRaw": 509610654,
       "liquidNW": 502637717,
       "lockedNW": 6972937,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 481789524,
         "stocks": 0,
@@ -1275,7 +1336,8 @@
         "epf": 4633116,
         "nps": 0,
         "lic": 0,
-        "unallocated": 8570623
+        "unallocated": 8570623,
+        "property": 0
       },
       "totalPropertyValue": 29025899,
       "totalLoanOutstanding": 0,
@@ -1308,6 +1370,7 @@
       "netWorthRaw": 537435339,
       "liquidNW": 529974297,
       "lockedNW": 7461042,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 508037907,
         "stocks": 0,
@@ -1317,7 +1380,8 @@
         "epf": 4957434,
         "nps": 0,
         "lic": 0,
-        "unallocated": 9037560
+        "unallocated": 9037560,
+        "property": 0
       },
       "totalPropertyValue": 30477194,
       "totalLoanOutstanding": 0,
@@ -1350,6 +1414,7 @@
       "netWorthRaw": 566590605,
       "liquidNW": 558607289,
       "lockedNW": 7983315,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 535534817,
         "stocks": 0,
@@ -1359,7 +1424,8 @@
         "epf": 5304454,
         "nps": 0,
         "lic": 0,
-        "unallocated": 9526706
+        "unallocated": 9526706,
+        "property": 0
       },
       "totalPropertyValue": 32001054,
       "totalLoanOutstanding": 0,
@@ -1392,6 +1458,7 @@
       "netWorthRaw": 597120764,
       "liquidNW": 588578616,
       "lockedNW": 8542147,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 564320970,
         "stocks": 0,
@@ -1401,7 +1468,8 @@
         "epf": 5675766,
         "nps": 0,
         "lic": 0,
-        "unallocated": 10038787
+        "unallocated": 10038787,
+        "property": 0
       },
       "totalPropertyValue": 33601107,
       "totalLoanOutstanding": 0,
@@ -1434,6 +1502,7 @@
       "netWorthRaw": 629069353,
       "liquidNW": 619929255,
       "lockedNW": 9140098,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 594436220,
         "stocks": 0,
@@ -1443,7 +1512,8 @@
         "epf": 6073070,
         "nps": 0,
         "lic": 0,
-        "unallocated": 10574512
+        "unallocated": 10574512,
+        "property": 0
       },
       "totalPropertyValue": 35281162,
       "totalLoanOutstanding": 0,
@@ -1476,6 +1546,7 @@
       "netWorthRaw": 662478769,
       "liquidNW": 652698864,
       "lockedNW": 9779904,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 625919191,
         "stocks": 0,
@@ -1485,7 +1556,8 @@
         "epf": 6498185,
         "nps": 0,
         "lic": 0,
-        "unallocated": 11134567
+        "unallocated": 11134567,
+        "property": 0
       },
       "totalPropertyValue": 37045220,
       "totalLoanOutstanding": 0,
@@ -1518,6 +1590,7 @@
       "netWorthRaw": 697389857,
       "liquidNW": 686925360,
       "lockedNW": 10464498,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 658806880,
         "stocks": 0,
@@ -1527,7 +1600,8 @@
         "epf": 6953058,
         "nps": 0,
         "lic": 0,
-        "unallocated": 11719611
+        "unallocated": 11719611,
+        "property": 0
       },
       "totalPropertyValue": 38897481,
       "totalLoanOutstanding": 0,
@@ -1560,6 +1634,7 @@
       "netWorthRaw": 733841443,
       "liquidNW": 722644430,
       "lockedNW": 11197013,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 693134192,
         "stocks": 0,
@@ -1569,7 +1644,8 @@
         "epf": 7439772,
         "nps": 0,
         "lic": 0,
-        "unallocated": 12330264
+        "unallocated": 12330264,
+        "property": 0
       },
       "totalPropertyValue": 40842355,
       "totalLoanOutstanding": 0,
@@ -1602,6 +1678,7 @@
       "netWorthRaw": 771869797,
       "liquidNW": 759888994,
       "lockedNW": 11980803,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 728933422,
         "stocks": 0,
@@ -1611,7 +1688,8 @@
         "epf": 7960556,
         "nps": 0,
         "lic": 0,
-        "unallocated": 12967102
+        "unallocated": 12967102,
+        "property": 0
       },
       "totalPropertyValue": 42884473,
       "totalLoanOutstanding": 0,
@@ -1644,6 +1722,7 @@
       "netWorthRaw": 811508046,
       "liquidNW": 798688587,
       "lockedNW": 12819460,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 766233664,
         "stocks": 0,
@@ -1653,7 +1732,8 @@
         "epf": 8517794,
         "nps": 0,
         "lic": 0,
-        "unallocated": 13630641
+        "unallocated": 13630641,
+        "property": 0
       },
       "totalPropertyValue": 45028697,
       "totalLoanOutstanding": 0,
@@ -1686,6 +1766,7 @@
       "netWorthRaw": 852785491,
       "liquidNW": 839068669,
       "lockedNW": 13716822,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 805060154,
         "stocks": 0,
@@ -1695,7 +1776,8 @@
         "epf": 9114040,
         "nps": 0,
         "lic": 0,
-        "unallocated": 14321331
+        "unallocated": 14321331,
+        "property": 0
       },
       "totalPropertyValue": 47280132,
       "totalLoanOutstanding": 0,
@@ -1728,6 +1810,7 @@
       "netWorthRaw": 895726854,
       "liquidNW": 881049854,
       "lockedNW": 14676999,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 845433529,
         "stocks": 0,
@@ -1737,7 +1820,8 @@
         "epf": 9752023,
         "nps": 0,
         "lic": 0,
-        "unallocated": 15039539
+        "unallocated": 15039539,
+        "property": 0
       },
       "totalPropertyValue": 49644138,
       "totalLoanOutstanding": 0,
@@ -1770,6 +1854,7 @@
       "netWorthRaw": 940351429,
       "liquidNW": 924647040,
       "lockedNW": 15704389,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 887368992,
         "stocks": 0,
@@ -1779,7 +1864,8 @@
         "epf": 10434664,
         "nps": 0,
         "lic": 0,
-        "unallocated": 15785535
+        "unallocated": 15785535,
+        "property": 0
       },
       "totalPropertyValue": 52126345,
       "totalLoanOutstanding": 0,
@@ -1812,6 +1898,7 @@
       "netWorthRaw": 986672135,
       "liquidNW": 969868438,
       "lockedNW": 16803697,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 930875385,
         "stocks": 0,
@@ -1821,7 +1908,8 @@
         "epf": 11165091,
         "nps": 0,
         "lic": 0,
-        "unallocated": 16559477
+        "unallocated": 16559477,
+        "property": 0
       },
       "totalPropertyValue": 54732662,
       "totalLoanOutstanding": 0,
@@ -1854,6 +1942,7 @@
       "netWorthRaw": 1034694446,
       "liquidNW": 1016714490,
       "lockedNW": 17979955,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 975954146,
         "stocks": 0,
@@ -1863,7 +1952,8 @@
         "epf": 11946647,
         "nps": 0,
         "lic": 0,
-        "unallocated": 17361389
+        "unallocated": 17361389,
+        "property": 0
       },
       "totalPropertyValue": 57469296,
       "totalLoanOutstanding": 0,
@@ -1896,6 +1986,7 @@
       "netWorthRaw": 1084415213,
       "liquidNW": 1065176661,
       "lockedNW": 19238552,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1022598152,
         "stocks": 0,
@@ -1905,7 +1996,8 @@
         "epf": 12782913,
         "nps": 0,
         "lic": 0,
-        "unallocated": 18191146
+        "unallocated": 18191146,
+        "property": 0
       },
       "totalPropertyValue": 60342760,
       "totalLoanOutstanding": 0,
@@ -1938,6 +2030,7 @@
       "netWorthRaw": 1135821341,
       "liquidNW": 1115236090,
       "lockedNW": 20585251,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1070790423,
         "stocks": 0,
@@ -1947,7 +2040,8 @@
         "epf": 13677717,
         "nps": 0,
         "lic": 0,
-        "unallocated": 19048446
+        "unallocated": 19048446,
+        "property": 0
       },
       "totalPropertyValue": 63359898,
       "totalLoanOutstanding": 0,
@@ -1980,6 +2074,7 @@
       "netWorthRaw": 1188888314,
       "liquidNW": 1166862095,
       "lockedNW": 22026218,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1120502684,
         "stocks": 0,
@@ -1989,7 +2084,8 @@
         "epf": 14635157,
         "nps": 0,
         "lic": 0,
-        "unallocated": 19932784
+        "unallocated": 19932784,
+        "property": 0
       },
       "totalPropertyValue": 66527893,
       "totalLoanOutstanding": 0,
@@ -2022,6 +2118,7 @@
       "netWorthRaw": 1243578561,
       "liquidNW": 1220010507,
       "lockedNW": 23568054,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1171693764,
         "stocks": 0,
@@ -2031,7 +2128,8 @@
         "epf": 15659618,
         "nps": 0,
         "lic": 0,
-        "unallocated": 20843430
+        "unallocated": 20843430,
+        "property": 0
       },
       "totalPropertyValue": 69854288,
       "totalLoanOutstanding": 0,
@@ -2064,6 +2162,7 @@
       "netWorthRaw": 1299839641,
       "liquidNW": 1274621824,
       "lockedNW": 25217817,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1224307818,
         "stocks": 0,
@@ -2073,7 +2172,8 @@
         "epf": 16755791,
         "nps": 0,
         "lic": 0,
-        "unallocated": 21779389
+        "unallocated": 21779389,
+        "property": 0
       },
       "totalPropertyValue": 73347002,
       "totalLoanOutstanding": 0,
@@ -2106,6 +2206,7 @@
       "netWorthRaw": 1357602225,
       "liquidNW": 1330619160,
       "lockedNW": 26983065,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1278272356,
         "stocks": 0,
@@ -2115,7 +2216,8 @@
         "epf": 17928696,
         "nps": 0,
         "lic": 0,
-        "unallocated": 22739372
+        "unallocated": 22739372,
+        "property": 0
       },
       "totalPropertyValue": 77014353,
       "totalLoanOutstanding": 0,
@@ -2148,6 +2250,7 @@
       "netWorthRaw": 1416777858,
       "liquidNW": 1387905979,
       "lockedNW": 28871879,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1333496053,
         "stocks": 0,
@@ -2157,7 +2260,8 @@
         "epf": 19183705,
         "nps": 0,
         "lic": 0,
-        "unallocated": 23721754
+        "unallocated": 23721754,
+        "property": 0
       },
       "totalPropertyValue": 80865070,
       "totalLoanOutstanding": 0,
@@ -2190,6 +2294,7 @@
       "netWorthRaw": 1477256487,
       "liquidNW": 1446363577,
       "lockedNW": 30892911,
+      "illiquidNW": 0,
       "buckets": {
         "mf": 1389866331,
         "stocks": 0,
@@ -2199,7 +2304,8 @@
         "epf": 20526564,
         "nps": 0,
         "lic": 0,
-        "unallocated": 24724533
+        "unallocated": 24724533,
+        "property": 0
       },
       "totalPropertyValue": 84908324,
       "totalLoanOutstanding": 0,
