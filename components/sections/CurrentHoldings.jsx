@@ -22,11 +22,25 @@ const FIELDS = [
 
 const NAMED = FIELDS.map((f) => f.key);
 
-export default function CurrentHoldings({ plan, setField, findingsFor, totalHoldings, startingPortfolio }) {
-  const h = plan.holdings;
+/* Parameterised by basePath so the spouse's holdings reuse it. Everything here
+   is a value TODAY for one person. */
+export default function CurrentHoldings({
+  plan, setField, findingsFor, totalHoldings, startingPortfolio,
+  basePath = "holdings",
+  title = "Current Holdings",
+  showStartingPortfolioNote = true,
+}) {
+  const h = basePath.split(".").reduce((o, k) => o?.[k], plan) ?? {};
   const namedTotal = NAMED.reduce((s, k) => s + (Number(h[k]) || 0), 0);
   const unallocated = Number(h.unallocated) || 0;
   const fdrd = (Number(h.fd) || 0) + (Number(h.rd) || 0);
+
+  /* Same rule as openingBuckets(): a sum assured is a death benefit, not
+     wealth, so only a surrender/cash value counts. */
+  const li = plan.lifeInsurance ?? {};
+  const licCash = showStartingPortfolioNote
+    ? (li.valueType === "surrenderValue" ? Number(li.value) || 0 : Number(li.surrenderValue) || 0)
+    : 0;
 
   const liquid = Object.entries(h).reduce((s, [k, v]) => {
     const b = HOLDING_BUCKET[k];
@@ -40,10 +54,10 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
   const needsReconciliation = unallocated > 0 && namedTotal > 0;
 
   const reduceUnallocated = () =>
-    setField("holdings.unallocated", Math.max(0, unallocated - namedTotal));
+    setField(`${basePath}.unallocated`, Math.max(0, unallocated - namedTotal));
 
   return (
-    <CollapsibleSection title="Current Holdings" defaultOpen={false}
+    <CollapsibleSection title={title} defaultOpen={false}
       badge={totalHoldings > 0 ? fmt(totalHoldings) : null}>
 
       {FIELDS.map((f) => (
@@ -51,9 +65,9 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
           <SliderInput
             label={f.label}
             value={h[f.key] ?? 0}
-            onChange={(v) => setField(`holdings.${f.key}`, v)}
+            onChange={(v) => setField(`${basePath}.${f.key}`, v)}
             min={0} max={50000000} step={10000} prefix="₹" showWords
-            warn={findingsFor(`holdings.${f.key}`).length > 0}
+            warn={findingsFor(`${basePath}.${f.key}`).length > 0}
           />
           <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
             {f.hint ?? "Value today."}
@@ -70,7 +84,7 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
         <SliderInput
           label="Other / unallocated assets (₹)"
           value={unallocated}
-          onChange={(v) => setField("holdings.unallocated", v)}
+          onChange={(v) => setField(`${basePath}.unallocated`, v)}
           min={0} max={50000000} step={10000} prefix="₹" showWords
         />
         <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -92,7 +106,7 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
                 style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}>
                 Reduce unallocated by {fmt(namedTotal)}
               </button>
-              <button onClick={() => setField("holdings.unallocated", 0)}
+              <button onClick={() => setField(`${basePath}.unallocated`, 0)}
                 className="rounded-lg border px-2 py-1 text-[0.6rem] font-bold transition"
                 style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}>
                 Clear it
@@ -110,23 +124,37 @@ export default function CurrentHoldings({ plan, setField, findingsFor, totalHold
         />
         {/* An eligible life insurance cash value is an asset but is entered on
             its own card, so name it here rather than leaving the starting
-            portfolio larger than this total for no visible reason. */}
-        {startingPortfolio != null && startingPortfolio !== totalHoldings && (
+            portfolio larger than this total for no visible reason.
+
+            Computed from plan.lifeInsurance directly, NOT as
+            startingPortfolio - totalHoldings. The opening portfolio now carries
+            things this card does not list — a combined spouse's holdings, and
+            later owned property — so the difference would quietly label all of
+            them "life insurance". */}
+        {showStartingPortfolioNote && startingPortfolio != null && (
           <>
-            <DerivedStat label="Life insurance cash value"
-              value={fmt(startingPortfolio - totalHoldings)}
-              sub="from the Life Insurance card" tone="muted" />
-            <DerivedStat label="Starting Portfolio" value={fmt(startingPortfolio)} />
+            {licCash > 0 && (
+              <DerivedStat label="Life insurance cash value" value={fmt(licCash)}
+                sub="from the Life Insurance card" tone="muted" />
+            )}
+            {startingPortfolio !== totalHoldings && (
+              <DerivedStat label="Starting Portfolio" value={fmt(startingPortfolio)}
+                sub={startingPortfolio !== totalHoldings + licCash
+                  ? "includes assets entered elsewhere"
+                  : undefined} />
+            )}
           </>
         )}
       </div>
 
-      <InfoStrip tone="blue">
-        This total is your starting portfolio. PPF, EPF and NPS are tracked separately
-        because they cannot fund goals before they unlock.
-      </InfoStrip>
+      {showStartingPortfolioNote && (
+        <InfoStrip tone="blue">
+          This total is your starting portfolio. PPF, EPF and NPS are tracked separately
+          because they cannot fund goals before they unlock.
+        </InfoStrip>
+      )}
 
-      <FieldError findings={findingsFor("holdings")} />
+      <FieldError findings={findingsFor(basePath)} />
     </CollapsibleSection>
   );
 }

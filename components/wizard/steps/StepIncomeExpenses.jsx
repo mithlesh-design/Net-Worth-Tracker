@@ -1,6 +1,7 @@
 "use client";
 
 import IncomeSources from "@/components/sections/IncomeSources";
+import SpouseIncome from "@/components/sections/SpouseIncome";
 import BudgetExpenses from "@/components/sections/BudgetExpenses";
 import MedicalInsurance from "@/components/sections/MedicalInsurance";
 import LifeInsurance from "@/components/sections/LifeInsurance";
@@ -8,6 +9,8 @@ import LifeInsurance from "@/components/sections/LifeInsurance";
 export default function StepIncomeExpenses({
   plan, incomes, updateIncome, addIncome, removeIncome,
   findingsFor, totalMonthlyIncome, setField, premiums, homeGoalAge,
+  spouseIncomes, updateSpouseIncome, addSpouseIncome, removeSpouseIncome,
+  spouseMonthlyIncome,
 }) {
   const hasMedical = plan.medical?.self?.enabled || plan.medical?.parents?.enabled;
   const hasLife = (plan.lifeInsurance?.value ?? 0) > 0;
@@ -19,6 +22,15 @@ export default function StepIncomeExpenses({
         addIncome={addIncome} removeIncome={removeIncome}
         findingsFor={findingsFor} totalMonthlyIncome={totalMonthlyIncome}
         defaultOpen
+      />
+      {/* Between the primary income and the shared expense figure, which is
+          where someone reading top-down would expect a second earner — and
+          immediately before the household expenses that the two of them share. */}
+      <SpouseIncome
+        plan={plan} setField={setField} findingsFor={findingsFor}
+        spouseIncomes={spouseIncomes} updateSpouseIncome={updateSpouseIncome}
+        addSpouseIncome={addSpouseIncome} removeSpouseIncome={removeSpouseIncome}
+        spouseMonthlyIncome={spouseMonthlyIncome}
       />
       <BudgetExpenses
         plan={plan} setField={setField} findingsFor={findingsFor}

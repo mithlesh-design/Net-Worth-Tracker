@@ -86,6 +86,20 @@ export default function FinancialPlanner() {
   const removeIncome = (id) => setField("incomes", incomes.filter((i) => i.id !== id));
   const updateIncome = (id, key, val) => updateListItem("incomes", id, key, val);
 
+  /* ── Spouse income CRUD ──
+     Mirrors the three above rather than going through a generic factory: two
+     lists with different default item shapes do not earn the indirection.
+     updateListItem already walks dotted paths, so "spouse.incomes" needs no
+     change there. */
+  const spouseIncomes = plan.spouse?.incomes ?? [];
+  const addSpouseIncome = (newInc) => {
+    setField("spouse.incomes", [...spouseIncomes, { ...newInc, id: makeId() }]);
+  };
+  const removeSpouseIncome = (id) =>
+    setField("spouse.incomes", spouseIncomes.filter((i) => i.id !== id));
+  const updateSpouseIncome = (id, key, val) =>
+    updateListItem("spouse.incomes", id, key, val);
+
   /* ── Goal CRUD ── */
   const addGoal = () => {
     setField("goals", [...goals, {
@@ -101,6 +115,11 @@ export default function FinancialPlanner() {
   const age = effectiveAge(plan);
   const ageIsDerived = isAgeDerived(plan);
   const totalMonthlyIncome = incomes.reduce((s, i) => s + toAnnual(i.amount, i.frequency) / 12, 0);
+  /* The spouse card's own total. Deliberately separate from totalMonthlyIncome,
+     which stays primary-only: the Review tiles read the engine's figure instead,
+     so the two can never disagree with the chart. */
+  const spouseMonthlyIncome = spouseIncomes.reduce(
+    (s, i) => s + toAnnual(i.amount, i.frequency) / 12, 0);
   const earliestRetireAge = plan.retirementAge;
   const findings = useMemo(() => validate(plan), [plan]);
   const findingsFor = useCallback(
@@ -111,6 +130,11 @@ export default function FinancialPlanner() {
   const totalHoldings = useMemo(
     () => Object.values(plan.holdings).reduce((s, v) => s + (Number(v) || 0), 0),
     [plan.holdings]);
+  /* The spouse card's own badge. totalHoldings stays primary-only — see the note
+     on spouseMonthlyIncome. */
+  const spouseHoldingsTotal = useMemo(
+    () => Object.values(plan.spouse?.holdings ?? {}).reduce((s, v) => s + (Number(v) || 0), 0),
+    [plan.spouse]);
   const homeGoalAge = useMemo(() => {
     const ages = goals.filter((g) => g.emoji === "home").map((g) => g.age);
     return ages.length ? Math.min(...ages) : null;
@@ -311,6 +335,12 @@ export default function FinancialPlanner() {
         addIncome={addIncome}
         removeIncome={removeIncome}
         totalMonthlyIncome={totalMonthlyIncome}
+        spouseIncomes={spouseIncomes}
+        updateSpouseIncome={updateSpouseIncome}
+        addSpouseIncome={addSpouseIncome}
+        removeSpouseIncome={removeSpouseIncome}
+        spouseMonthlyIncome={spouseMonthlyIncome}
+        spouseHoldingsTotal={spouseHoldingsTotal}
         premiums={premiums}
         homeGoalAge={homeGoalAge}
         simulation={simulation}

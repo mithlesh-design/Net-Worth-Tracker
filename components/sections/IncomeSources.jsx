@@ -7,7 +7,20 @@ import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { effectiveAge } from "@/lib/finance/age.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
-export default function IncomeSources({ plan, incomes, updateIncome, addIncome, removeIncome, findingsFor, totalMonthlyIncome, defaultOpen }) {
+/* Renders one person's income list. Parameterised rather than duplicated for
+   the spouse: after the gross/take-home control went away the only things that
+   differ are the section title, the findings path prefix and whether the last
+   row can be deleted. A copy would drift — see the TOTAL_STEPS note in
+   wizardSteps.js for what that costs here. */
+export default function IncomeSources({
+  plan, incomes, updateIncome, addIncome, removeIncome, findingsFor,
+  totalMonthlyIncome, defaultOpen,
+  title = "Income Sources",
+  pathPrefix = "incomes",
+  /* The primary list must keep at least one row; a spouse's may be emptied. */
+  minItems = 1,
+  showHint = true,
+}) {
   const { currentAge } = plan;
   const age = effectiveAge(plan);
 
@@ -21,12 +34,14 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
   };
 
   return (
-    <CollapsibleSection title="Income Sources" badge={`${incomes.length}`} defaultOpen={defaultOpen}>
-      <InfoStrip tone="blue">
-        Enter <strong>take-home</strong> pay — what actually reaches your bank, after
-        tax and EPF. Growth applies to that figure, so your effective tax rate is
-        held constant for the whole projection.
-      </InfoStrip>
+    <CollapsibleSection title={title} badge={`${incomes.length}`} defaultOpen={defaultOpen}>
+      {showHint && (
+        <InfoStrip tone="blue">
+          Enter <strong>take-home</strong> pay — what actually reaches the bank, after
+          tax and EPF. Growth applies to that figure, so the effective tax rate is
+          held constant for the whole projection.
+        </InfoStrip>
+      )}
       {incomes.map((inc) => (
         <div key={inc.id} className="rounded-lg p-4 space-y-3"
           style={{ background: 'var(--bg-tertiary)' }}>
@@ -35,7 +50,7 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
               className="text-xs font-bold bg-transparent outline-none w-28" style={{ color: 'var(--text-primary)' }} />
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(toAnnual(inc.amount, inc.frequency))}/yr</span>
-              {incomes.length > 1 && <button onClick={() => removeIncome(inc.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
+              {incomes.length > minItems && <button onClick={() => removeIncome(inc.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
             </div>
           </div>
           <SliderInput label={`Amount (${inc.frequency})`} value={inc.amount} onChange={(v) => updateIncome(inc.id, "amount", v)}
@@ -51,7 +66,7 @@ export default function IncomeSources({ plan, incomes, updateIncome, addIncome, 
             value={inc.growthRate} onChange={(v) => updateIncome(inc.id, "growthRate", v)}
             min={0} max={25} step={0.5} suffix="%" />
           <SliderInput label="Retire Age" value={inc.retireAge} onChange={(v) => updateIncome(inc.id, "retireAge", v)} min={age} max={75} suffix=" yrs" />
-          <FieldError findings={findingsFor(`incomes.${incomes.indexOf(inc)}`)} />
+          <FieldError findings={findingsFor(`${pathPrefix}.${incomes.indexOf(inc)}`)} />
         </div>
       ))}
       {showAddIncome ? (

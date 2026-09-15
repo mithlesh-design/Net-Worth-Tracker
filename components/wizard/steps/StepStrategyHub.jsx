@@ -21,7 +21,9 @@ export default function StepStrategyHub({
   postRetireReturn, setPostRetireReturn,
   ratesAreCustom, blendedNow, resetAllRates,
   earliestRetireAge, successScore, scoreStale, goalGap, lifeExpectancy,
+  spouseHoldingsTotal,
 }) {
+  const spouseOn = !!plan.spouse?.enabled;
   return (
     <div className="space-y-6">
       <div>
@@ -86,6 +88,20 @@ export default function StepStrategyHub({
           plan={plan} setField={setField} findingsFor={findingsFor}
           totalHoldings={totalHoldings} startingPortfolio={simulation.openingPortfolio}
         />
+        {/* Only once a spouse exists. An empty card for a person the user has
+            not told us about is an advertisement, not a form. */}
+        {spouseOn && (
+          <CurrentHoldings
+            plan={plan} setField={setField} findingsFor={findingsFor}
+            totalHoldings={spouseHoldingsTotal}
+            basePath="spouse.holdings"
+            title={plan.spouse?.name ? `${plan.spouse.name}'s Holdings` : "Their Holdings"}
+            /* No life insurance block or starting-portfolio framing for a
+               spouse: both belong to the primary's own cards. */
+            startingPortfolio={null}
+            showStartingPortfolioNote={false}
+          />
+        )}
       </div>
     </div>
   );
