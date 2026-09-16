@@ -1,15 +1,16 @@
 "use client";
 
 import IncomeSources from "@/components/sections/IncomeSources";
+import SpouseIncome from "@/components/sections/SpouseIncome";
 import BudgetExpenses from "@/components/sections/BudgetExpenses";
 import MedicalInsurance from "@/components/sections/MedicalInsurance";
 import LifeInsurance from "@/components/sections/LifeInsurance";
-import MiniChart from "@/components/wizard/MiniChart";
 
 export default function StepIncomeExpenses({
   plan, incomes, updateIncome, addIncome, removeIncome,
   findingsFor, totalMonthlyIncome, setField, premiums, homeGoalAge,
-  simulation,
+  spouseIncomes, updateSpouseIncome, addSpouseIncome, removeSpouseIncome,
+  spouseMonthlyIncome,
 }) {
   const hasMedical = plan.medical?.self?.enabled || plan.medical?.parents?.enabled;
   const hasLife = (plan.lifeInsurance?.value ?? 0) > 0;
@@ -22,6 +23,15 @@ export default function StepIncomeExpenses({
         findingsFor={findingsFor} totalMonthlyIncome={totalMonthlyIncome}
         defaultOpen
       />
+      {/* Between the primary income and the shared expense figure, which is
+          where someone reading top-down would expect a second earner — and
+          immediately before the household expenses that the two of them share. */}
+      <SpouseIncome
+        plan={plan} setField={setField} findingsFor={findingsFor}
+        spouseIncomes={spouseIncomes} updateSpouseIncome={updateSpouseIncome}
+        addSpouseIncome={addSpouseIncome} removeSpouseIncome={removeSpouseIncome}
+        spouseMonthlyIncome={spouseMonthlyIncome}
+      />
       <BudgetExpenses
         plan={plan} setField={setField} findingsFor={findingsFor}
         premiums={premiums} homeGoalAge={homeGoalAge}
@@ -31,8 +41,8 @@ export default function StepIncomeExpenses({
       {/* Protection, folded in from the step it used to occupy. Both cards
           already default to collapsed, so they arrive out of the way — but
           never hidden, because the premium is a real line in the cash-flow
-          waterfall the chart below is drawing. The sub-heading stops the step
-          reading as four undifferentiated cards. */}
+          waterfall. The sub-heading stops the step reading as four
+          undifferentiated cards. */}
       <div className="pt-2 space-y-4">
         <div className="flex items-baseline justify-between gap-3 px-1">
           <h3
@@ -50,13 +60,6 @@ export default function StepIncomeExpenses({
         <MedicalInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
         <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
       </div>
-
-      <MiniChart
-        simulation={simulation}
-        currentAge={plan.currentAge}
-        lifeExpectancy={plan.lifeExpectancy}
-        retirementAge={plan.retirementAge}
-      />
     </div>
   );
 }

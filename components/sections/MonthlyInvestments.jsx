@@ -9,6 +9,7 @@ import ContributionBlock from "./ContributionBlock";
 import { fmt, monthlyEquivalent, toAnnual } from "@/lib/finance/format.mjs";
 import { PPF_ANNUAL_CAP } from "@/lib/finance/assumptions.mjs";
 import { NAMED_CONTRIBUTIONS } from "@/lib/profile/schema.mjs";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 const FREQUENCIES = ["monthly", "quarterly", "yearly"];
 
@@ -128,7 +129,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
                   {fmt(monthlyEquivalent(o.amount, o.frequency))}/mo
                 </span>
                 <button onClick={() => removeOther(o.id)} className="hover:text-rose-400 shrink-0"
-                  style={{ color: 'var(--text-muted)' }}><X size={12} /></button>
+                  style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>
               </div>
               <SliderInput label={`Amount (${o.frequency})`} value={o.amount}
                 onChange={(v) => updateOther(o.id, "amount", v)}

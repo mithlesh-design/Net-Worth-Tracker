@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Sparkles, Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useDemoAuth } from "@/components/DemoAuthProvider";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ export default function SignInPage() {
       <div className="w-full max-w-sm">
         <Link href="/" className="inline-flex items-center gap-1.5 text-xs mb-6 transition"
           style={{ color: 'var(--text-muted)' }}>
-          <ArrowLeft size={13} /> Back to Planner
+          <ArrowLeft size={ICON_SIZE.sm} /> Back to Planner
         </Link>
 
         <div className="rounded-2xl border p-8"
@@ -60,7 +61,7 @@ export default function SignInPage() {
           <div className="flex items-center gap-2.5 mb-6">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
               style={{ background: 'var(--button-primary-bg)' }}>
-              <Sparkles size={17} className="text-white" />
+              <Sparkles size={ICON_SIZE.md} className="text-white" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -100,7 +101,7 @@ export default function SignInPage() {
             <div className="text-center py-4">
               <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
                 style={{ background: 'var(--info-emerald-bg)' }}>
-                <Mail size={20} style={{ color: 'var(--accent)' }} />
+                <Mail size={ICON_SIZE.lg} style={{ color: 'var(--accent)' }} />
               </div>
               <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Check your email</p>
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>We sent a magic link to <strong>{email}</strong></p>
@@ -128,7 +129,7 @@ export default function SignInPage() {
                 className="w-full rounded-xl py-2.5 text-sm font-bold transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
                 style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}
               >
-                <Mail size={14} />
+                <Mail size={ICON_SIZE.sm} />
                 {loading ? (demo.enabled ? "Opening planner..." : "Sending...") : "Send Magic Link"}
               </button>
             </form>

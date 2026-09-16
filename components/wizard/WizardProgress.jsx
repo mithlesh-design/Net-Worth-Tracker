@@ -3,6 +3,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WIZARD_STEPS } from "./wizardSteps";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function WizardProgress({ currentStep, onStepClick }) {
   return (
@@ -26,7 +27,7 @@ export default function WizardProgress({ currentStep, onStepClick }) {
                     !done && !active && "bg-[var(--wizard-track)] text-[var(--text-secondary)]"
                   )}
                 >
-                  {done ? <Check size={13} strokeWidth={3} /> : i + 1}
+                  {done ? <Check size={ICON_SIZE.sm} /> : i + 1}
                 </div>
                 {/* The rail is capped at 820px and the labels never wrap, so at
                     375px each step gets ~68px — "Income & Expenses" would blow

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { AlertTriangle, ArrowUpRight } from "lucide-react";
+import { TriangleAlert, ArrowUpRight } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis, numToWordsIndian } from "@/lib/finance/format.mjs";
-import { goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import GoalIcon from "@/components/ui/GoalIcon";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
 function NetWorthTooltip({ active, payload }) {
@@ -19,13 +20,12 @@ function NetWorthTooltip({ active, payload }) {
       <div className="flex items-center gap-2 mb-2">
         <span className="font-black" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
         {d.isRetired && <span className="text-xs font-semibold" style={{ color: 'var(--warning)' }}>Retired</span>}
-        {d.deficit && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><AlertTriangle size={8} />Deficit</span>}
+        {d.deficit && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
       </div>
       <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Gross Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.grossIncome)}</span></div>
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income Tax</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.incomeTax)}</span></div>
-        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Post-Tax Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.postTaxIncome)}</span></div>
+        <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
+        {d.rentalIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Rental income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.rentalIncome)}</span></div>}
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.annualExpense)}</span></div>
         {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance Premium</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.insurancePremium)}</span></div>}
         {d.totalEMI > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loan EMIs</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalEMI)}</span></div>}
@@ -39,12 +39,19 @@ function NetWorthTooltip({ active, payload }) {
         {d.contributionShortfall > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Contribution Shortfall</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.contributionShortfall)}</span></div>}
         {d.surplusSpent > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Surplus Spent</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.surplusSpent)}</span></div>}
         {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"\u2212"}{fmt(d.goalCostGross)}</span></div>}
-        {d.totalPropertyValue > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property Assets</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.totalPropertyValue)}</span></div>}
-        {d.totalLoanOutstanding > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loans</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalLoanOutstanding)}</span></div>}
-        {d.lockedNW > 0 && (
+        {/* Owned property is IN net worth; a home goal's property is not. One
+            "Property Assets" row covering both would imply they are treated
+            alike, which is the whole thing this split exists to prevent. */}
+        {d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property owned</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.illiquidNW)}</span></div>}
+        {d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property loan</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.propertyDebt)}</span></div>}
+        {d.totalPropertyValue - d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Future home (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalPropertyValue - d.illiquidNW)}</span></div>}
+        {d.totalLoanOutstanding - d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Home loan (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalLoanOutstanding - d.propertyDebt)}</span></div>}
+        {(d.lockedNW > 0 || d.illiquidNW > 0) && (
           <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Liquid / Locked</span>
-            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.liquidNW)} / {fmt(d.lockedNW)}</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Liquid / Locked{d.illiquidNW > 0 ? " / Property" : ""}</span>
+            <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>
+              {fmt(d.liquidNW)} / {fmt(d.lockedNW)}{d.illiquidNW > 0 ? ` / ${fmt(d.illiquidNW)}` : ""}
+            </span>
           </div>
         )}
         {d.unfundedThisYear > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Unfunded this year</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.unfundedThisYear)}</span></div>}
@@ -70,8 +77,8 @@ function GoalOverlay({ goals, projection, xScale, yScale }) {
             <circle cx={cx} cy={cy} r={3.5} fill="var(--chart-target)" />
             <circle cx={cx} cy={by} r={R} fill="var(--goal-marker-fill)" stroke="var(--chart-target)" strokeWidth={1.5} />
             <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
-              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, lineHeight: 1, userSelect: "none" }}>
-                {goalEmoji(goal.emoji)}
+              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--chart-target)" }}>
+                <GoalIcon type={goal.emoji} size={ICON_SIZE.sm} />
               </div>
             </foreignObject>
           </g>
@@ -118,7 +125,7 @@ export default function ProjectionChart({
           )}
           {constrainedYears > 0 && (
             <span className="text-sm font-semibold flex items-center gap-1" style={{ color: 'var(--danger)' }}>
-              <AlertTriangle size={12} /> {constrainedYears} yrs deficit
+              <TriangleAlert size={ICON_SIZE.xs} /> {constrainedYears} yrs deficit
             </span>
           )}
         </div>
@@ -133,12 +140,12 @@ export default function ProjectionChart({
               <span className="text-2xl font-black tabular-nums sm:text-3xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
               {lastPoint && lastPoint.netWorthRaw > simulation.openingPortfolio && (
                 <span className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--success)' }}>
-                  <ArrowUpRight size={14} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
+                  <ArrowUpRight size={ICON_SIZE.sm} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
                 </span>
               )}
               {lastPoint && lastPoint.netWorthRaw <= 0 && (
                 <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--danger)' }}>
-                  <AlertTriangle size={14} /> Depleted
+                  <TriangleAlert size={ICON_SIZE.sm} /> Depleted
                 </span>
               )}
             </div>
@@ -197,7 +204,7 @@ export default function ProjectionChart({
         {(constrainedYears > 0 || shortfallYears > 0 || simulation.depletionAge) && (
           <div className="mt-4 border-l-2 pl-4 py-2 flex items-start gap-2"
             style={{ borderColor: 'var(--danger-border)' }}>
-            <AlertTriangle size={14} className="mt-0.5 shrink-0" style={{ color: 'var(--danger)' }} />
+            <TriangleAlert size={ICON_SIZE.sm} className="mt-0.5 shrink-0" style={{ color: 'var(--danger)' }} />
             <div className="text-xs space-y-1" style={{ color: 'var(--danger)' }}>
               {constrainedYears > 0 && (
                 <div>

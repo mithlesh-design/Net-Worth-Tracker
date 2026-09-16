@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "personal": {
     "fullName": "",
     "dob": null
@@ -12,11 +12,11 @@
       "id": 1,
       "name": "Salary",
       "role": "salary",
-      "amount": 150000,
+      "amount": 137433,
       "frequency": "monthly",
-      "basis": "gross",
       "growthRate": 10,
-      "retireAge": 55
+      "retireAge": 55,
+      "convertedFromGross": true
     },
     {
       "id": 2,
@@ -24,7 +24,6 @@
       "role": "other",
       "amount": 0,
       "frequency": "monthly",
-      "basis": "gross",
       "growthRate": 0,
       "retireAge": 55
     }
@@ -35,7 +34,6 @@
   },
   "inflationRate": 6,
   "lifestyleCreep": 2,
-  "medicalInflation": 6,
   "stopRentOnHomePurchase": false,
   "medical": {
     "self": {

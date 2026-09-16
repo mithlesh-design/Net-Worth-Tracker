@@ -4,6 +4,7 @@ import { ShieldCheck } from "lucide-react";
 import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { ASSUMPTIONS_AS_OF } from "@/lib/finance/assumptions.mjs";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function InvestmentStrategy({
   plan, setField, cplan, simulation, totalHoldings,
@@ -69,7 +70,7 @@ export default function InvestmentStrategy({
       </div>
       <div className="rounded-lg border px-3 py-2 text-[0.6rem] flex items-center gap-1.5"
         style={{ background: 'var(--info-blue-bg)', borderColor: 'var(--info-blue-border)', color: 'var(--info-blue-text)' }}>
-        <ShieldCheck size={10} /> Returns switch to {postRetireReturn}% at age {earliestRetireAge}
+        <ShieldCheck size={ICON_SIZE.xs} /> Returns switch to {postRetireReturn}% at age {earliestRetireAge}
       </div>
     </CollapsibleSection>
   );

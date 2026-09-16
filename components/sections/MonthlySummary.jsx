@@ -2,6 +2,7 @@
 
 import { SectionCard, InfoStrip } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
+import { spouseIsCombined } from "@/lib/finance/projection.mjs";
 
 function Tile({ label, value, sub, tone = "default" }) {
   const color = {
@@ -32,20 +33,28 @@ export default function MonthlySummary({
 
   const today = simulation.data[0];
   const emiMonthly = today ? today.totalEMI / 12 : 0;
-  const taxMonthly = today ? today.incomeTax / 12 : 0;
 
-  const surplus = totalMonthlyIncome - taxMonthly - living - premiumMonthly
+  /* Income comes from the engine, not from the totalMonthlyIncome prop, which
+     is primary-only and basis-blind. Two reasons: it follows combineSpouse
+     automatically, so these tiles can never disagree with the chart beside
+     them; and it honours each source's own retireAge, which the prop's flat
+     reduce over plan.incomes does not. Same pattern as emiMonthly above. */
+  const incomeMonthly = today ? today.income / 12 : totalMonthlyIncome;
+  const combined = spouseIsCombined(plan);
+
+  const surplus = incomeMonthly - living - premiumMonthly
                 - emiMonthly - contributionsMonthly;
 
   const liquid = simulation.data[0]?.liquidNW ?? 0;
   const locked = simulation.data[0]?.lockedNW ?? 0;
+  const illiquid = simulation.data[0]?.illiquidNW ?? 0;
   const startingPortfolio = simulation.openingPortfolio ?? totalHoldings;
 
   return (
     <SectionCard title="Monthly Summary">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Tile label="Monthly Income" value={fmt(totalMonthlyIncome)}
-          sub={`${fmt(totalMonthlyIncome * 12)}/yr`} tone="good" />
+        <Tile label="Monthly Income" value={fmt(incomeMonthly)}
+          sub={`${fmt(incomeMonthly * 12)}/yr${combined ? " · both of you" : ""}`} tone="good" />
         <Tile label="Living Expenses" value={fmt(living)}
           sub={`household ${fmt(plan.expenses.household)} · rent ${fmt(plan.expenses.rent)}`} />
         <Tile label="Insurance Premium" value={fmt(premiumMonthly)}
@@ -60,7 +69,9 @@ export default function MonthlySummary({
           sub={surplus < 0 ? "planned outgoings exceed income" : "after all outgoings"}
           tone={surplus < 0 ? "warn" : "good"} />
         <Tile label="Starting Portfolio" value={fmt(startingPortfolio)}
-          sub={`${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
+          sub={illiquid > 0
+            ? `${fmt(liquid)} liquid · ${fmt(locked)} locked · ${fmt(illiquid)} property`
+            : `${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
       </div>
 
       {surplus < 0 && (

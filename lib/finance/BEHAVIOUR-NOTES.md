@@ -24,24 +24,16 @@ Corpus at 55 is *higher* because EMIs now start a year after purchase (change 4)
 
 ## The changes
 
-### 1. Tax is computed on the aggregate gross pool
+### 1. Tax is computed on the aggregate gross pool — SUPERSEDED in v2
 
 v0 called `calcIncomeTax` on the summed income of every source, which was
-correct only because every source was implicitly gross. v1 adds a per-source
-`basis` of gross or take-home, and partitions before taxing:
+correct only because every source was implicitly gross. v1 added a per-source
+`basis` of gross or take-home and partitioned before taxing, in one slab pass
+over the summed gross pool.
 
-```
-tax = calcIncomeTax(sum of gross sources)      // one slab pass
-postTax = (gross - tax) + sum of take-home sources
-```
-
-It must stay one call on the sum. `calcIncomeTax` grants the ₹75,000 standard
-deduction, the nil slab and the rebate once per call, so summing it per source
-grants all three once per source. Two ₹12L gross sources would report **zero**
-tax instead of roughly ₹2.6L.
-
-Migration sets `basis: "gross"` on every v0 income, which reproduces v0
-behaviour exactly.
+v2 removes the tax model entirely. See "Income is take-home only" below. The
+one-call-on-the-sum rule still governs `calcIncomeTax` itself, which survives
+for the v1 → v2 migration and the frozen v0 engine.
 
 ### 2. Expense shortfalls are grossed up for exit tax
 
@@ -151,14 +143,174 @@ Stated here and surfaced in the UI rather than left implicit.
   This is a simplification, not a tax rule.
 - **NPS is counted at 100% from age 60.** The mandatory annuity share is not
   modelled, so spendable corpus is overstated for NPS-heavy plans.
-- **Property is excluded from net worth**, as in v0, and a cash-bought home is
-  still not tracked as an asset at all.
-- **A take-home income source grows at its stated rate**, which implies a frozen
-  effective tax rate over the horizon.
+- **Goal property is excluded from net worth**, as in v0, and a cash-bought home
+  goal is still not tracked as an asset at all. Property you already own is a
+  different thing and IS counted — see "Owned property" below.
 - **The section 87A rebate cliff is unchanged from v0.** At ₹12,00,000 taxable
   the tax is zero; one rupee more costs roughly ₹60,000. Real law grants
   marginal relief. Changing this requires verifying current rules against
   official sources and is out of scope here.
+
+## Income is take-home only (2026-09-15, schema v2)
+
+### There is no tax model
+
+`incomes[].basis` is gone. Every amount is what reaches the bank, and the engine
+charges nothing against it. `row.grossIncome`, `row.incomeTax` and
+`row.postTaxIncome` are replaced by a single `row.income`: with no tax the last
+two were a constant zero and a duplicate of the first, and "gross" named a
+distinction that no longer exists.
+
+`calcIncomeTax` is retained. It is used by the v1 → v2 migration and by the
+frozen v0 engine, and nowhere else.
+
+### The migration rewrites stored salaries
+
+A v1 gross amount carried across unchanged would be read as money reaching the
+bank, inflating the profile by its own tax bill. `migrateV1toV2` therefore runs
+one slab pass over the summed gross pool — the same single call v1 made — and
+scales every gross source by `keep = (pool - tax) / pool`.
+
+Scaling by one scalar is the pro-rata distribution: the weights are the
+annualised amounts, so sharing out `pool - tax` by those weights and converting
+back to each source's own frequency reduces to `amount * keep`.
+
+The default profile converts ₹1,50,000/mo to **₹1,37,433/mo**
+(`keep = 0.9162222`). Sources whose figure does not actually move — a zero row,
+or any row when the whole pool falls under the rebate — are not flagged, so the
+UI does not warn about a number that did not change.
+
+The conversion reads no age and no date. `effectiveAge()` derives from
+`personal.dob` and today, so consulting it would convert the same stored JSON
+differently after a birthday, and the round-trip idempotence check would begin
+failing on a date rather than on a code change. `retireAge` is ignored for the
+same reason.
+
+### Consequence: the effective tax rate is frozen, and plans get more optimistic
+
+This is the significant behavioural change in v2, and it is inherent in dropping
+the tax model rather than a flaw in the conversion.
+
+v1 regrew a **gross** salary each year and re-ran the slabs on it, so a rising
+earner climbed brackets and their effective rate rose with them. v2 grows the
+converted **take-home** figure at the same rate, holding the year-0 effective
+rate for the whole horizon.
+
+The conversion is therefore exact in year 0 and diverges monotonically after it.
+For the default profile — ₹18L gross growing at 10% — modelled income runs:
+
+| age | v1 effective rate | v2 income ÷ v1 post-tax income |
+|-----|-------------------|--------------------------------|
+| 28  | 8.4%              | 1.000 |
+| 40  | 23.4%             | 1.196 |
+| 55  | 29.3%             | 1.297 |
+| 85  | 31.1%             | 1.330 |
+
+Net worth amplifies this, because the extra cash compounds into investments:
+**+21% at age 40, +34% at 55, +96% at 85**, and FI arrives two years earlier
+(43 → 41). The golden snapshots record exactly this.
+
+The gap is widest for high-growth, high-income earners and negligible for
+someone already entering take-home figures or growing slowly. Anyone whose real
+salary growth outpaces their bracket creep is now over-projected.
+
+### The rebate cliff is frozen into stored data
+
+The section 87A cliff was already in the engine (below). v2 bakes it into the
+saved amount: a ₹12,75,000 pool converts unchanged, while ₹12,76,000 loses
+₹62,556. Same rule as before, but now applied once and persisted rather than
+recomputed each year.
+
+### Insurance premiums no longer inflate
+
+`plan.medicalInflation` is gone and `insurancePremium` is charged flat, in
+today's rupees. Over a long horizon this understates a real and fast-growing
+cost: a ₹30,000 premium that would have reached ₹8.5L/yr by age 85 at 6% now
+stays ₹30,000. The golden fixtures both disable medical cover, so the removal is
+numerically inert on them.
+
+## Owned property (2026-09-15)
+
+### `plan.properties[]` is counted in net worth; goal property still is not
+
+This reverses the v0/v1 rule for one case only, and the asymmetry is
+deliberate.
+
+`plan.properties[]` is what the user owns **today**. It opens the `property`
+bucket, is counted in `totalNW`, and its outstanding loan is subtracted.
+
+A home **goal** is a future purchase. Its `totalPropertyValue` and
+`totalLoanOutstanding` are still recorded and still excluded from net worth,
+exactly as before. Do not "fix" this to match: subtracting a goal's loan while
+its asset value stays excluded would push net worth *down* for planning to buy a
+house. The two halves are excluded together or not at all, and changing that is
+a separate piece of work.
+
+### De-duplication is structural, not advisory
+
+Properties are owned from age 0; goals are bought at a future age. The two
+describe disjoint periods, so the same asset cannot occupy both — provided the
+user does not enter their future home in both places. The UI says so at the
+point of entry and warns when a future home goal and a property coexist.
+
+The alternatives were worse. A `linkedGoalId` creates two sources of truth for
+price, rate and tenure plus a dangling reference on every goal deletion; fuzzy
+duplicate detection is untestable and leaves the doubled number on screen while
+apologising for it.
+
+**Deferred:** rolling a completed home goal's value into the illiquid bucket at
+`goal.age`. That is the honest fix both for "a cash-bought home is not tracked"
+and for the asymmetry above, and it removes the user's reason to re-enter a goal
+as a property. It belongs in its own release where the delta can be attributed.
+
+### Property appreciates at the bucket rate, not a per-item rate
+
+There is no per-property appreciation field. Property grows through the engine's
+normal growth step at `BUCKET_DEFS.property.defaultReturn` (5%, overridable via
+`bucketOverrides.property`), which means it also takes a volatility draw in the
+Success Score. A per-item rate applied directly in `propertyYear` would bypass
+that and model a house as risk-free, flattering every property-heavy plan.
+
+### Gross value, debt subtracted separately
+
+`B.property` holds the **gross** value; `owned.debt` is subtracted from
+`totalNW`. Netting them into a single equity figure would make the growth step
+appreciate the *equity* at the property rate — wrong, because the asset
+appreciates while the loan amortises on its own schedule.
+
+A heavily mortgaged property can therefore produce a negative `netWorthRaw` in
+early years. `netWorth` already clamps at 0 for the chart; `netWorthRaw` carries
+the truth.
+
+### Where each figure lands in the waterfall
+
+| figure | cash flow | `recurringSpend` (the FI test) | net worth |
+|---|---|---|---|
+| value | — | — | **counted** (illiquid) |
+| loan outstanding | — | — | **subtracted** |
+| EMI | charged | **excluded** — it terminates | — |
+| maintenance | charged | **included** — you maintain it forever | — |
+| rental income | added | — | — |
+
+EMIs run from year 0, the opposite of `loanYear`: an owned property's loan is
+already being serviced, so there is no purchase year to defer past.
+
+Rent grows at `inflationRate` only, never `+ lifestyleCreep` — what a tenant
+pays is not a choice about how the owner lives. It is not gated on `working`,
+because the property is held through retirement and for many plans that is the
+point of owning it.
+
+### Rental income is not taxed
+
+Consistent with every other income source after v2, which has no tax model. Real
+rental income is taxed at slab rates after a 30% standard deduction, so the UI
+labels the field "after tax" rather than letting the user enter a gross rent.
+
+### Property does not bring FI forward
+
+The FI test reads `liquidNW + lockedNW` and excludes `illiquidNW`, and
+`blendedReturn` excludes illiquid buckets from both numerator and divisor. See
+the comments at both sites; both look like oversights and are not.
 
 ## Goal gap and the Success Score (2026-09-14)
 

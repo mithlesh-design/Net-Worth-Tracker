@@ -2,6 +2,7 @@ import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import { DemoAuthProvider } from "@/components/DemoAuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import IconProvider from "@/components/IconProvider";
 
 export const metadata = {
   title: "Networth Planner — Financial Independence & Property Planner",
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
           {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
               it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}
           <DemoAuthProvider>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              <IconProvider>{children}</IconProvider>
+            </ThemeProvider>
           </DemoAuthProvider>
         </SessionProvider>
       </body>

@@ -4,10 +4,22 @@ import { X, Plus } from "lucide-react";
 import { CollapsibleSection, SliderInput, ToggleSwitch, FieldError } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { calcEMI } from "@/lib/finance/loans.mjs";
-import { GOAL_EMOJIS, goalEmoji } from "@/lib/profile/goalTypes.mjs";
+import { GOAL_TYPES, goalShortLabel, goalNameForType } from "@/lib/profile/goalTypes.mjs";
+import GoalIcon from "@/components/ui/GoalIcon";
+import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updateGoal, findingsFor, age, lifeExpectancy, defaultOpen }) {
   const { exitTaxRate, currentAge } = plan;
+
+  /* Picking a type retitles the goal as well as swapping its emoji — otherwise
+     the seeded "Buy Home" stays "Buy Home" after a switch to Car. Both writes
+     go through setPlan's updater, so they compose. A title the user typed is
+     left alone. */
+  const setGoalType = (g, type) => {
+    const name = goalNameForType(g.name, type);
+    if (name !== g.name) updateGoal(g.id, "name", name);
+    updateGoal(g.id, "emoji", type);
+  };
 
   return (
     <CollapsibleSection title="Financial Goals" badge={`${goals.length}`} defaultOpen={defaultOpen}>
@@ -18,23 +30,36 @@ export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updat
         return (
           <div key={g.id} className="rounded-lg p-4 space-y-3"
             style={{ background: 'var(--bg-tertiary)' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-base">{goalEmoji(g.emoji)}</span>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                  style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
+                  <GoalIcon type={g.emoji} size={ICON_SIZE.md} />
+                </span>
                 <input type="text" value={g.name} onChange={(e) => updateGoal(g.id, "name", e.target.value)}
-                  className="text-xs font-bold bg-transparent outline-none w-28" style={{ color: 'var(--text-primary)' }} />
+                  aria-label="Goal name"
+                  className="text-sm font-semibold bg-transparent outline-none min-w-0 flex-1" style={{ color: 'var(--text-primary)' }} />
               </div>
-              <button onClick={() => removeGoal(g.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={12} /></button>
+              <button onClick={() => removeGoal(g.id)} aria-label={`Remove ${g.name}`}
+                className="shrink-0 rounded-md p-1 transition-colors" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.sm} /></button>
             </div>
 
             <div>
               <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>Type</label>
               <div className="flex gap-1.5 flex-wrap">
-                {Object.entries(GOAL_EMOJIS).map(([k, v]) => (
-                  <button key={k} onClick={() => updateGoal(g.id, "emoji", k)}
-                    className="h-8 w-8 rounded-lg text-sm flex items-center justify-center transition"
-                    style={g.emoji === k ? { background: 'var(--bg-secondary)', outline: '1px solid var(--accent)' } : { background: 'var(--bg-tertiary)' }}>{v}</button>
-                ))}
+                {GOAL_TYPES.map((k) => {
+                  const selected = g.emoji === k;
+                  return (
+                    <button key={k} type="button" onClick={() => setGoalType(g, k)} aria-pressed={selected}
+                      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
+                      style={selected
+                        ? { background: 'var(--accent)', color: 'var(--accent-contrast)', border: '1px solid var(--accent)' }
+                        : { background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-default)' }}>
+                      <GoalIcon type={k} size={ICON_SIZE.sm} />
+                      {goalShortLabel(k)}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -76,7 +101,7 @@ export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updat
       })}
       <button onClick={addGoal} className="w-full rounded-lg border border-dashed py-3 flex items-center justify-center gap-1.5 text-xs font-semibold transition"
         style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}>
-        <Plus size={13} /> Add Goal
+        <Plus size={ICON_SIZE.sm} /> Add Goal
       </button>
     </CollapsibleSection>
   );
