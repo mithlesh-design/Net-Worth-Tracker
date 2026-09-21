@@ -2,7 +2,7 @@
 
 import { SectionCard, InfoStrip } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
-import { spouseIsCombined } from "@/lib/finance/projection.mjs";
+import { includedPeople } from "@/lib/household/members.mjs";
 
 function Tile({ label, value, sub, tone = "default" }) {
   const color = {
@@ -40,7 +40,7 @@ export default function MonthlySummary({
      them; and it honours each source's own retireAge, which the prop's flat
      reduce over plan.incomes does not. Same pattern as emiMonthly above. */
   const incomeMonthly = today ? today.income / 12 : totalMonthlyIncome;
-  const combined = spouseIsCombined(plan);
+  const combined = includedPeople(plan).length > 1;
 
   const surplus = incomeMonthly - living - premiumMonthly
                 - emiMonthly - contributionsMonthly;
