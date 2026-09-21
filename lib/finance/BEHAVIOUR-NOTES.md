@@ -88,6 +88,10 @@ contribution stop and the unlock check alike.
 Also: `[].every()` is `true`, so a profile with no income sources was retired
 from its starting age in v0.
 
+Since schema v3 this is one explicit age **per person**: each household member
+has their own `retirementAge`, and the household counts as retired only once
+everyone included has stopped working. See "Household members" below.
+
 ### 7. Post-retirement return is a cap, not an override
 
 `r = min(bucketReturn, postRetireReturn)`. A contractual PPF or EPF rate is not
@@ -360,8 +364,10 @@ Same-age goals fund in `plan.goals` array order.
 
 ### `runProjectionV1(plan, opts)` — `opts.returnFor`
 
-Optional. Called as `returnFor(bucket, yearIndex, { working, age })` and used
-**as-is**: the post-retirement cap is *not* applied on top.
+Optional. Called as `returnFor(bucket, yearIndex, { working, age, plan })` and
+used **as-is**: the post-retirement cap is *not* applied on top. In a household
+every bucket belongs to one person, and `working`, `age` and `plan` are that
+person's — the Success Score draws each bucket around its owner's assumptions.
 
 That exception matters. The deterministic engine applies
 `r = min(r, postRetireReturn)` after retirement — a cap, not an override, so a
@@ -405,3 +411,70 @@ output is identical to before the parameter existed — asserted in
 - The **median sits below** the deterministic projection by construction (the
   median of a log-normal is below its mean). Both are returned so the UI can
   show them side by side rather than looking like a bug.
+
+## Household members (2026-09-21, schema v3)
+
+`plan.spouse` and `plan.combineSpouse` are replaced by `plan.members[]` and
+`plan.household = { includeSelf, selfCostShare }`. You stay at the top level;
+each member carries the same person fields (`PERSON_KEYS` in
+`lib/household/members.mjs`) plus `relationship`, `included` and `costShare`.
+
+### One ledger per included person, one pooled cash flow
+
+- **Buckets are per person.** Yours keep bare names (`mf`); a member's are
+  prefixed with their id (`7:mf`). Each grows at its owner's rate, takes the
+  post-retirement cap when its owner stops working, and unlocks on its owner's
+  age — a 56-year-old parent's EPF opens when *they* turn 58. Rows sum buckets
+  by instrument, so their shape is unchanged.
+- **Cash is pooled.** Everyone's income meets the household's costs. Payroll
+  contributions are credited to their owner while that person works; cash
+  contributions are scaled back together when the pooled cash cannot fund them
+  all.
+- **Leftover cash is split by what each person brought in** that year (pay plus
+  rent), and each share follows its owner's own "invest surplus" setting while
+  they work. With nothing brought in it is split evenly.
+- **Shortfalls and goals draw pro-rata across everyone's eligible buckets**, each
+  at its owner's exit tax. `drawFromBuckets` takes an optional `ctx.tierOf` for
+  the prefixed keys.
+
+With you alone, `B` is the exact object the single-person engine built, in the
+same key order, and every step reduces to the same arithmetic (each share is
+`x / x`, exactly 1). The golden snapshots are byte-identical.
+
+### Excluding someone removes their money, never the household's bills
+
+The household projection charges expenses, premiums and goals **in full**
+whoever is included. Switching a person off answers "can the rest of us carry
+the household without their money?" — the same meaning the v2 spouse toggle
+had. At least one person must stay included; the UI enforces it, and an engine
+handed nobody reports every cost as unfunded rather than inventing a payer.
+
+### Individual tabs carry a cost share
+
+`memberPlan(plan, id)` is one person's money against **their share** of the
+costs (`costShare`, 0–100): living costs, premiums and goal amounts are scaled,
+and goal ages move onto that person's own age. You start at 100% and new
+members at 0%, so no tab changes until the user splits costs. Shares are a view
+over the individual tabs only; a total other than 100% is a warning. The tabs
+therefore do not sum to the household figure, and are not meant to.
+
+### The v2 spouse migrates without moving the projection
+
+v2 folded a combined spouse's holdings into *your* buckets, so they grew at your
+rates, unlocked on your dates and stopped contributing at your retirement age.
+The migrated member takes a copy of each of those assumptions (rates, exit tax,
+overrides, retirement age, PPF opening year) and no age of its own —
+`currentAge: null` resolves to yours, flagged `ageAssumed` so validation asks
+the user to confirm it. `household-equivalence.test.mjs` holds the result to a
+snapshot taken from the v2 engine: every row figure identical to the rupee, the
+same FI and depletion ages, the same Success Score.
+
+### Simplifications
+
+- **Household expenses are one figure.** Cost shares divide it for the
+  individual tabs; it cannot be itemised per person.
+- **Life insurance is yours only**, and medical cover belongs to the household.
+- **Goals have no owner.** They are charged to the household in full, and to
+  each tab by cost share.
+- **One planning horizon.** The household runs on your age to your
+  `lifeExpectancy`; a member's own tab runs their age to the same number.
