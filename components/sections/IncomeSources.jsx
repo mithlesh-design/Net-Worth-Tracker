@@ -7,17 +7,17 @@ import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { effectiveAge } from "@/lib/finance/age.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
-/* Renders one person's income list. Parameterised rather than duplicated for
-   the spouse: after the gross/take-home control went away the only things that
-   differ are the section title, the findings path prefix and whether the last
-   row can be deleted. A copy would drift — see the TOTAL_STEPS note in
+/* Renders one person's income list — yours, or a household member's.
+   Parameterised rather than duplicated: after the gross/take-home control went
+   away the only things that differ are the section title, the findings path
+   prefix and whether the last row can be deleted. A copy would drift — see the TOTAL_STEPS note in
    wizardSteps.js for what that costs here. */
 export default function IncomeSources({
   plan, incomes, updateIncome, addIncome, removeIncome, findingsFor,
   totalMonthlyIncome, defaultOpen,
   title = "Income Sources",
   pathPrefix = "incomes",
-  /* The primary list must keep at least one row; a spouse's may be emptied. */
+  /* Your list must keep at least one row; a member's may be emptied. */
   minItems = 1,
   showHint = true,
 }) {

@@ -12,6 +12,7 @@ export { default as DateField } from "./DateField";
 export { default as YesNoField } from "./YesNoField";
 export { default as DerivedStat } from "./DerivedStat";
 export { default as FieldError } from "./FieldError";
+export { default as PersonAvatar } from "./PersonAvatar";
 
 // shadcn primitives (available for direct use)
 export { Button, buttonVariants } from "./button";

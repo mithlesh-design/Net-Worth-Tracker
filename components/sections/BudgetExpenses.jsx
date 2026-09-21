@@ -2,8 +2,9 @@
 
 import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat, FieldError } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
+import { people, personLabel, hasMembers, SELF } from "@/lib/household/members.mjs";
 
-export default function BudgetExpenses({ plan, setField, findingsFor, premiums, homeGoalAge, defaultOpen }) {
+export default function BudgetExpenses({ plan, setField, findingsFor, premiums, homeGoalAge, defaultOpen, scopeFor }) {
   const monthlyExpense = plan.expenses.household + plan.expenses.rent;
   const { inflationRate, lifestyleCreep } = plan;
 
@@ -50,6 +51,43 @@ export default function BudgetExpenses({ plan, setField, findingsFor, premiums, 
       <InfoStrip tone="amber">
         Expenses grow at <strong>{(inflationRate + lifestyleCreep).toFixed(1)}%</strong>/yr
       </InfoStrip>
+
+      {hasMembers(plan) && <CostSplit plan={plan} setField={setField} scopeFor={scopeFor} findingsFor={findingsFor} />}
     </CollapsibleSection>
+  );
+}
+
+/* Who carries these costs on their OWN Strategy Hub tab. It sits beside the
+   costs it divides rather than on each member's card, so the whole split and
+   its total are visible in one place.
+
+   The household projection on Review ignores it: whoever is included, the
+   household's costs count in full. */
+function CostSplit({ plan, setField, scopeFor, findingsFor }) {
+  const everyone = people(plan);
+  const total = everyone.reduce((s, p) => s + (Number(p.costShare) || 0), 0);
+  const setShare = (id, v) => (id === SELF
+    ? setField("household.selfCostShare", v)
+    : scopeFor(id).setField("costShare", v));
+
+  return (
+    <div className="mt-2 space-y-3 border-t pt-4 border-[var(--border-subtle)]">
+      <div>
+        <div className="text-xs font-semibold text-[var(--text-primary)]">Who covers these costs</div>
+        <p className="text-xs mt-0.5 text-[var(--text-muted)]">
+          Each person&rsquo;s own Strategy Hub tab carries their share of expenses,
+          premiums and goals. Household totals on Review always count them in full.
+        </p>
+      </div>
+      {everyone.map((p) => (
+        <SliderInput key={p.id}
+          label={p.id === SELF ? "You" : personLabel(plan, p.id)}
+          value={p.costShare} onChange={(v) => setShare(p.id, v)}
+          min={0} max={100} step={5} suffix="%" />
+      ))}
+      <DerivedStat label="Total" value={`${Math.round(total)}%`}
+        tone={Math.abs(total - 100) > 0.5 ? "warn" : "default"} />
+      <FieldError findings={findingsFor("household.costShares")} />
+    </div>
   );
 }

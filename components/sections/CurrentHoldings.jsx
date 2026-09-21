@@ -22,8 +22,9 @@ const FIELDS = [
 
 const NAMED = FIELDS.map((f) => f.key);
 
-/* Parameterised by basePath so the spouse's holdings reuse it. Everything here
-   is a value TODAY for one person. */
+/* Everything here is a value TODAY for one person. A household member's card
+   is this same component handed their person-scoped plan and setField, so
+   "holdings" always means the holdings of whoever the card is for. */
 export default function CurrentHoldings({
   plan, setField, findingsFor, totalHoldings, startingPortfolio,
   basePath = "holdings",
@@ -128,9 +129,8 @@ export default function CurrentHoldings({
 
             Computed from plan.lifeInsurance directly, NOT as
             startingPortfolio - totalHoldings. The opening portfolio now carries
-            things this card does not list — a combined spouse's holdings, and
-            later owned property — so the difference would quietly label all of
-            them "life insurance". */}
+            things this card does not list — owned property, for one — so the
+            difference would quietly label all of it "life insurance". */}
         {showStartingPortfolioNote && startingPortfolio != null && (
           <>
             {licCash > 0 && (
