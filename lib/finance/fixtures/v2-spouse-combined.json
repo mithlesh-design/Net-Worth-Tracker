@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 2,
+  "personal": {
+    "fullName": "",
+    "dob": null
+  },
+  "currentAge": 32,
+  "lifeExpectancy": 85,
+  "retirementAge": 55,
+  "incomes": [
+    {
+      "id": 1,
+      "name": "Salary",
+      "role": "salary",
+      "amount": 120000,
+      "frequency": "monthly",
+      "growthRate": 8,
+      "retireAge": 55
+    },
+    {
+      "id": 2,
+      "name": "Consulting",
+      "role": "other",
+      "amount": 300000,
+      "frequency": "yearly",
+      "growthRate": 4,
+      "retireAge": 50
+    }
+  ],
+  "spouse": {
+    "enabled": true,
+    "name": "Priya",
+    "incomes": [
+      {
+        "id": 11,
+        "name": "Salary",
+        "role": "salary",
+        "amount": 70000,
+        "frequency": "monthly",
+        "growthRate": 7,
+        "retireAge": 58
+      },
+      {
+        "id": 12,
+        "name": "Freelance",
+        "role": "other",
+        "amount": 200000,
+        "frequency": "yearly",
+        "growthRate": 5,
+        "retireAge": 50
+      }
+    ],
+    "holdings": {
+      "mf": 800000,
+      "fd": 200000,
+      "rd": 0,
+      "ppf": 300000,
+      "nps": 150000,
+      "epf": 450000,
+      "stocks": 100000,
+      "crypto": 0,
+      "unallocated": 0
+    }
+  },
+  "expenses": {
+    "household": 90000,
+    "rent": 25000
+  },
+  "inflationRate": 6,
+  "lifestyleCreep": 2,
+  "stopRentOnHomePurchase": true,
+  "medical": {
+    "self": {
+      "enabled": true,
+      "coverage": 1000000,
+      "premium": 25000,
+      "premiumFrequency": "yearly"
+    },
+    "parents": {
+      "enabled": false,
+      "coverage": 0,
+      "premium": 0,
+      "premiumFrequency": "yearly",
+      "premiumMode": "separate"
+    }
+  },
+  "contributions": {
+    "mfSip": {
+      "amount": 30000,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "nps": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "ppf": {
+      "amount": 12500,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "epf": {
+      "amount": 8000,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": true
+    },
+    "epfEmployer": {
+      "amount": 8000,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": true
+    },
+    "rd": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "lic": {
+      "amount": 0,
+      "frequency": "monthly",
+      "annualReturn": null,
+      "stepUp": 10,
+      "fundedFromPayroll": false
+    },
+    "other": [
+      {
+        "id": 31,
+        "name": "Gold fund",
+        "amount": 5000,
+        "frequency": "monthly",
+        "annualReturn": null,
+        "stepUp": 5,
+        "fundedFromPayroll": false
+      }
+    ]
+  },
+  "ppfOpenedYear": null,
+  "licInvestablePct": 0,
+  "holdings": {
+    "mf": 1500000,
+    "fd": 300000,
+    "rd": 0,
+    "ppf": 400000,
+    "nps": 0,
+    "epf": 900000,
+    "stocks": 0,
+    "crypto": 50000,
+    "unallocated": 0
+  },
+  "lifeInsurance": {
+    "value": 0,
+    "valueType": "sumAssured",
+    "surrenderValue": null
+  },
+  "legacy": {
+    "monthlyInvestment": 0
+  },
+  "investmentStepUp": 10,
+  "expectedXIRR": 12,
+  "postRetireReturn": 7,
+  "exitTaxRate": 12.5,
+  "bucketOverrides": {
+    "crypto": {
+      "exitTax": 30
+    }
+  },
+  "investSurplus": true,
+  "surplusBucket": "mf",
+  "inflateGoals": true,
+  "combineSpouse": true,
+  "properties": [
+    {
+      "id": 21,
+      "name": "Flat",
+      "value": 6000000,
+      "rentalIncome": 20000,
+      "maintenancePct": 1,
+      "loanOutstanding": 2500000,
+      "loanRate": 8.75,
+      "loanRemainingYears": 12
+    }
+  ],
+  "goals": [
+    {
+      "id": 1,
+      "name": "Buy Home",
+      "emoji": "home",
+      "age": 36,
+      "amount": 12000000,
+      "hasLoan": true,
+      "downPaymentPct": 20,
+      "loanRate": 8.5,
+      "loanTenure": 20,
+      "appreciationRate": 5,
+      "maintenancePct": 1
+    },
+    {
+      "id": 2,
+      "name": "Car",
+      "emoji": "car",
+      "age": 40,
+      "amount": 1200000,
+      "hasLoan": false,
+      "downPaymentPct": 100,
+      "loanRate": 9,
+      "loanTenure": 5,
+      "appreciationRate": 0,
+      "maintenancePct": 0
+    },
+    {
+      "id": 3,
+      "name": "Kid's Education",
+      "emoji": "education",
+      "age": 48,
+      "amount": 4000000,
+      "hasLoan": false,
+      "downPaymentPct": 100,
+      "loanRate": 9,
+      "loanTenure": 5,
+      "appreciationRate": 0,
+      "maintenancePct": 0
+    }
+  ]
+}
