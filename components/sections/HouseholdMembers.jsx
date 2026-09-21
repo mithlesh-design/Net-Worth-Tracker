@@ -130,6 +130,7 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
             options={RELATIONSHIP_ORDER.map((r) => ({ value: r, label: r === "other" ? "Other" : RELATIONSHIPS[r].short }))}
             value={m.relationship}
             onChange={(v) => scope.setField("relationship", v)}
+            wrap
           />
           <TextField
             label="Name (optional)"
