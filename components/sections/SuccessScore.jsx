@@ -12,7 +12,9 @@ function tierOf(score) {
   return { color: "var(--danger)", label: "Needs attention" };
 }
 
-function SuccessScore({ result, stale, hasGoals, lifeExpectancy }) {
+/* `caption` says whose money the score is about once there is more than one
+   person to be about. The score is always the household's. */
+function SuccessScore({ result, stale, hasGoals, lifeExpectancy, caption = null }) {
   if (!result) return null;
 
   const {
@@ -32,6 +34,7 @@ function SuccessScore({ result, stale, hasGoals, lifeExpectancy }) {
           Add your holdings, income or monthly investments and this will estimate your
           chance of funding your plan.
         </p>
+        {caption && <Caption>{caption}</Caption>}
       </div>
     );
   }
@@ -56,6 +59,7 @@ function SuccessScore({ result, stale, hasGoals, lifeExpectancy }) {
           <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
             {stale ? "Updating…" : tier.label}
           </p>
+          {caption && <Caption>{caption}</Caption>}
         </div>
         <div className="text-right">
           {/* Never a bare integer. At 200 runs the sampling error is about
@@ -128,6 +132,12 @@ function SuccessScore({ result, stale, hasGoals, lifeExpectancy }) {
         </InfoStrip>
       </div>
     </div>
+  );
+}
+
+function Caption({ children }) {
+  return (
+    <p className="text-xs mt-1.5" style={{ color: "var(--text-subtle)" }}>{children}</p>
   );
 }
 

@@ -90,15 +90,9 @@ export default function FinancialPlanner() {
     investmentStepUp, expectedXIRR, investSurplus, postRetireReturn,
     exitTaxRate, goals,
   } = plan;
-  const monthlyInvestment = plan.legacy.monthlyInvestment;
 
   const setCurrentAge = (v) => setField("currentAge", v);
   const setLifeExpectancy = (v) => setField("lifeExpectancy", v);
-  const setInvestmentStepUp = (v) => setField("investmentStepUp", v);
-  const setExpectedXIRR = (v) => setField("expectedXIRR", v);
-  const setInvestSurplus = (v) => setField("investSurplus", v);
-  const setPostRetireReturn = (v) => setField("postRetireReturn", v);
-  const setMonthlyInvestment = (v) => setField("legacy.monthlyInvestment", v);
 
   /* Monotonic ids. Date.now() collides on a fast double-click. */
   const nextId = useRef(Date.now());
@@ -169,24 +163,6 @@ export default function FinancialPlanner() {
     const ages = goals.filter((g) => g.emoji === "home").map((g) => g.age);
     return ages.length ? Math.min(...ages) : null;
   }, [goals]);
-
-  const ratesAreCustom = useMemo(() => {
-    const overrides = Object.values(plan.bucketOverrides ?? {});
-    if (overrides.some((o) => o?.annualReturn != null)) return true;
-    return Object.values(plan.contributions ?? {}).some(
-      (c) => c && !Array.isArray(c) && c.annualReturn != null);
-  }, [plan.bucketOverrides, plan.contributions]);
-  const resetAllRates = () => {
-    setPlan((prev) => {
-      const next = structuredClone(prev);
-      next.bucketOverrides = {};
-      for (const [k, c] of Object.entries(next.contributions)) {
-        if (c && !Array.isArray(c)) c.annualReturn = null;
-      }
-      next.contributions.other = next.contributions.other.map((o) => ({ ...o, annualReturn: null }));
-      return next;
-    });
-  };
 
   /* ══════════════════════════════════════════════════════════════════════
      PROFILE SAVE / LOAD (requires auth)
@@ -291,7 +267,6 @@ export default function FinancialPlanner() {
      built from. */
   const cleanPlan = useMemo(() => clampPlan(plan), [plan]);
   const simulation = useMemo(() => runProjectionV1(cleanPlan), [cleanPlan]);
-  const blendedNow = simulation.data[0]?.blendedReturn ?? plan.expectedXIRR;
 
   /* Read-only pass over the projection — O(rows + goals), no second engine
      run. See lib/finance/goalgap.mjs. */
@@ -375,19 +350,10 @@ export default function FinancialPlanner() {
         cplan={cplan}
         makeId={makeId}
         totalHoldings={totalHoldings}
-        monthlyInvestment={monthlyInvestment}
-        setMonthlyInvestment={setMonthlyInvestment}
         expectedXIRR={expectedXIRR}
-        setExpectedXIRR={setExpectedXIRR}
         investmentStepUp={investmentStepUp}
-        setInvestmentStepUp={setInvestmentStepUp}
         investSurplus={investSurplus}
-        setInvestSurplus={setInvestSurplus}
         postRetireReturn={postRetireReturn}
-        setPostRetireReturn={setPostRetireReturn}
-        ratesAreCustom={ratesAreCustom}
-        blendedNow={blendedNow}
-        resetAllRates={resetAllRates}
         earliestRetireAge={earliestRetireAge}
         exitTaxRate={exitTaxRate}
         goals={goals}

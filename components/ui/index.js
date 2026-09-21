@@ -28,3 +28,4 @@ export { Separator } from "./separator";
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./tooltip";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuGroup } from "./dropdown-menu";
 export { Progress } from "./progress";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
