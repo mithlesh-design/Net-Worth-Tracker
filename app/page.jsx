@@ -13,7 +13,6 @@ import { runProjectionV1 } from "@/lib/finance/projection.mjs";
 import { computeGoalGap } from "@/lib/finance/goalgap.mjs";
 import { effectiveAge, isAgeDerived } from "@/lib/finance/age.mjs";
 import { annualPremium } from "@/lib/finance/insurance.mjs";
-import { buildContributionPlan } from "@/lib/finance/contributions.mjs";
 import { newMember, personPrefix, MAX_MEMBERS } from "@/lib/household/members.mjs";
 import { migrate } from "@/lib/profile/migrate.mjs";
 import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
@@ -154,7 +153,6 @@ export default function FinancialPlanner() {
       prefix,
     };
   }, [plan, setPersonField, updatePersonListItem, findingsFor]);
-  const cplan = useMemo(() => buildContributionPlan(plan), [plan]);
   const premiums = useMemo(() => annualPremium(plan.medical), [plan.medical]);
   const totalHoldings = useMemo(
     () => Object.values(plan.holdings).reduce((s, v) => s + (Number(v) || 0), 0),
@@ -347,7 +345,6 @@ export default function FinancialPlanner() {
         premiums={premiums}
         homeGoalAge={homeGoalAge}
         simulation={simulation}
-        cplan={cplan}
         makeId={makeId}
         totalHoldings={totalHoldings}
         expectedXIRR={expectedXIRR}

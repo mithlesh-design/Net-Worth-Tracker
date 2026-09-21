@@ -98,7 +98,7 @@ function GoalOverlayCustomized(props) {
 export default function ProjectionChart({
   plan, simulation, age, lifeExpectancy,
   expectedXIRR, postRetireReturn, investmentStepUp, investSurplus, exitTaxRate,
-  earliestRetireAge, goalPoints,
+  earliestRetireAge, goalPoints, household = null,
 }) {
   const currentAge = age;
   const lastPoint = simulation.data[simulation.data.length - 1];
@@ -116,7 +116,11 @@ export default function ProjectionChart({
         <div>
           <h2 className="text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: 'var(--text-primary)' }}>Net Worth Over Time</h2>
           <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-            {expectedXIRR}% XIRR · {postRetireReturn}% post-retire · +{investmentStepUp}%/yr step-up · {exitTaxRate}% tax · {investSurplus ? "invest" : "spend"} surplus
+            {/* One person's assumptions would misdescribe a household whose
+                members each carry their own; name who is in it instead. */}
+            {household
+              ? <>Household: {household} · each on their own return and tax assumptions</>
+              : <>{expectedXIRR}% XIRR · {postRetireReturn}% post-retire · +{investmentStepUp}%/yr step-up · {exitTaxRate}% tax · {investSurplus ? "invest" : "spend"} surplus</>}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
