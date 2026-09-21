@@ -1,7 +1,7 @@
 "use client";
 
 import IncomeSources from "@/components/sections/IncomeSources";
-import SpouseIncome from "@/components/sections/SpouseIncome";
+import HouseholdMembers from "@/components/sections/HouseholdMembers";
 import BudgetExpenses from "@/components/sections/BudgetExpenses";
 import MedicalInsurance from "@/components/sections/MedicalInsurance";
 import LifeInsurance from "@/components/sections/LifeInsurance";
@@ -9,8 +9,7 @@ import LifeInsurance from "@/components/sections/LifeInsurance";
 export default function StepIncomeExpenses({
   plan, incomes, updateIncome, addIncome, removeIncome,
   findingsFor, totalMonthlyIncome, setField, premiums, homeGoalAge,
-  spouseIncomes, updateSpouseIncome, addSpouseIncome, removeSpouseIncome,
-  spouseMonthlyIncome,
+  scopeFor, addMember, removeMember, makeId,
 }) {
   const hasMedical = plan.medical?.self?.enabled || plan.medical?.parents?.enabled;
   const hasLife = (plan.lifeInsurance?.value ?? 0) > 0;
@@ -21,20 +20,19 @@ export default function StepIncomeExpenses({
         plan={plan} incomes={incomes} updateIncome={updateIncome}
         addIncome={addIncome} removeIncome={removeIncome}
         findingsFor={findingsFor} totalMonthlyIncome={totalMonthlyIncome}
+        title="Your Income"
         defaultOpen
       />
-      {/* Between the primary income and the shared expense figure, which is
-          where someone reading top-down would expect a second earner — and
-          immediately before the household expenses that the two of them share. */}
-      <SpouseIncome
-        plan={plan} setField={setField} findingsFor={findingsFor}
-        spouseIncomes={spouseIncomes} updateSpouseIncome={updateSpouseIncome}
-        addSpouseIncome={addSpouseIncome} removeSpouseIncome={removeSpouseIncome}
-        spouseMonthlyIncome={spouseMonthlyIncome}
+      {/* Between your income and the shared expense figure: where someone
+          reading top-down expects other earners, and immediately before the
+          costs the household shares. The only place members are created. */}
+      <HouseholdMembers
+        plan={plan} scopeFor={scopeFor}
+        addMember={addMember} removeMember={removeMember} makeId={makeId}
       />
       <BudgetExpenses
         plan={plan} setField={setField} findingsFor={findingsFor}
-        premiums={premiums} homeGoalAge={homeGoalAge}
+        premiums={premiums} homeGoalAge={homeGoalAge} scopeFor={scopeFor}
         defaultOpen
       />
 

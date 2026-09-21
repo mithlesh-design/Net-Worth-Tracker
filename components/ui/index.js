@@ -12,6 +12,7 @@ export { default as DateField } from "./DateField";
 export { default as YesNoField } from "./YesNoField";
 export { default as DerivedStat } from "./DerivedStat";
 export { default as FieldError } from "./FieldError";
+export { default as PersonAvatar } from "./PersonAvatar";
 
 // shadcn primitives (available for direct use)
 export { Button, buttonVariants } from "./button";
@@ -27,3 +28,4 @@ export { Separator } from "./separator";
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./tooltip";
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuGroup } from "./dropdown-menu";
 export { Progress } from "./progress";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";

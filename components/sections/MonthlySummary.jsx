@@ -2,7 +2,6 @@
 
 import { SectionCard, InfoStrip } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
-import { spouseIsCombined } from "@/lib/finance/projection.mjs";
 
 function Tile({ label, value, sub, tone = "default" }) {
   const color = {
@@ -22,25 +21,31 @@ function Tile({ label, value, sub, tone = "default" }) {
   );
 }
 
+/* `household` names who is included ("You, Priya"), or is null when you are
+   planning alone. */
 export default function MonthlySummary({
-  plan, cplan, premiums, totalHoldings, simulation, totalMonthlyIncome,
+  plan, premiums, totalHoldings, simulation, totalMonthlyIncome, household = null,
 }) {
   const living = plan.expenses.household + plan.expenses.rent;
   const premiumMonthly = premiums.total / 12;
-  const contributionsMonthly = cplan.detailedMonthly > 0
-    ? cplan.detailedMonthly
-    : plan.legacy.monthlyInvestment;
 
   const today = simulation.data[0];
   const emiMonthly = today ? today.totalEMI / 12 : 0;
 
+  /* From the engine, for the same reason as income below: it is everyone
+     included, each on their own detailed-or-SIP basis, and stops for anyone
+     already retired. A figure built from your own contribution plan would
+     leave every member out. */
+  const contributionsMonthly = today ? today.plannedContribution / 12 : 0;
+  const payrollMonthly = today ? today.payrollContribution / 12 : 0;
+  const cashMonthly = today ? today.targetInvestment / 12 : 0;
+
   /* Income comes from the engine, not from the totalMonthlyIncome prop, which
-     is primary-only and basis-blind. Two reasons: it follows combineSpouse
-     automatically, so these tiles can never disagree with the chart beside
-     them; and it honours each source's own retireAge, which the prop's flat
-     reduce over plan.incomes does not. Same pattern as emiMonthly above. */
+     is yours alone. Two reasons: it follows who is included in the household,
+     so these tiles can never disagree with the chart beside them; and it
+     honours each source's own retireAge, which the prop's flat reduce over
+     plan.incomes does not. Same pattern as emiMonthly above. */
   const incomeMonthly = today ? today.income / 12 : totalMonthlyIncome;
-  const combined = spouseIsCombined(plan);
 
   const surplus = incomeMonthly - living - premiumMonthly
                 - emiMonthly - contributionsMonthly;
@@ -54,15 +59,15 @@ export default function MonthlySummary({
     <SectionCard title="Monthly Summary">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Tile label="Monthly Income" value={fmt(incomeMonthly)}
-          sub={`${fmt(incomeMonthly * 12)}/yr${combined ? " · both of you" : ""}`} tone="good" />
+          sub={`${fmt(incomeMonthly * 12)}/yr${household ? ` · ${household}` : ""}`} tone="good" />
         <Tile label="Living Expenses" value={fmt(living)}
           sub={`household ${fmt(plan.expenses.household)} · rent ${fmt(plan.expenses.rent)}`} />
         <Tile label="Insurance Premium" value={fmt(premiumMonthly)}
           sub="monthly equivalent" />
         <Tile label="Planned Contributions" value={fmt(contributionsMonthly)}
-          sub={cplan.useDetailed
-            ? `${fmt(cplan.payrollMonthly)} payroll · ${fmt(cplan.cashMonthly)} cash`
-            : "aggregate SIP target"} />
+          sub={payrollMonthly > 0
+            ? `${fmt(payrollMonthly)} payroll · ${fmt(cashMonthly)} cash`
+            : "from take-home cash"} />
         <Tile
           label={surplus < 0 ? "Monthly Shortfall" : "Remaining Surplus"}
           value={fmt(Math.abs(surplus))}

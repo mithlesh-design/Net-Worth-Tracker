@@ -6,7 +6,10 @@ import {
 } from "recharts";
 import { fmtAxis } from "@/lib/finance/format.mjs";
 
-export default function MiniChart({ simulation, currentAge, lifeExpectancy, retirementAge }) {
+export default function MiniChart({
+  simulation, currentAge, lifeExpectancy, retirementAge,
+  title = "Preview: Net Worth Projection",
+}) {
   if (!simulation?.data?.length) return null;
 
   return (
@@ -14,7 +17,7 @@ export default function MiniChart({ simulation, currentAge, lifeExpectancy, reti
       style={{ background: 'var(--chart-surface)', borderColor: 'var(--border-default)' }}>
       <div className="text-xs font-medium mb-2"
         style={{ color: 'var(--text-muted)' }}>
-        Preview: Net Worth Projection
+        {title}
       </div>
       <div className="h-[180px]">
         <ResponsiveContainer width="100%" height="100%">
