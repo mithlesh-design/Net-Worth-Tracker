@@ -168,6 +168,7 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
             /* A parent or child may have no income at all. */
             minItems={0}
             showHint={false}
+            retirementAgeSource="this card, above"
             defaultOpen
           />
           {incomes.length === 0 && (

@@ -13,6 +13,7 @@ import { runProjectionV1 } from "@/lib/finance/projection.mjs";
 import { computeGoalGap } from "@/lib/finance/goalgap.mjs";
 import { effectiveAge, isAgeDerived } from "@/lib/finance/age.mjs";
 import { annualPremium } from "@/lib/finance/insurance.mjs";
+import { householdPolicyEvents } from "@/lib/finance/lifePolicies.mjs";
 import { newMember, personPrefix, MAX_MEMBERS } from "@/lib/household/members.mjs";
 import { migrate } from "@/lib/profile/migrate.mjs";
 import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
@@ -54,7 +55,11 @@ export default function FinancialPlanner() {
   /* ── Theme ── */
   const { theme, toggleTheme } = useTheme();
 
-  const [plan, setPlan] = useState(() => migrate(FIRST_RUN_V0));
+  /* A new user starts from the v0 first-run profile, through the migration
+     chain. That chain pins inflateGoals off for v0 profiles, which were
+     projected at today's prices; a NEW user gets the current default, future
+     rupees, so the plan pays the future cost the goal form shows. */
+  const [plan, setPlan] = useState(() => ({ ...migrate(FIRST_RUN_V0), inflateGoals: true }));
 
   /* Writes one field by dotted path, e.g. setField("expenses.rent", 12000). */
   const setField = useCallback((path, value) => {
@@ -119,16 +124,19 @@ export default function FinancialPlanner() {
     ...prev, members: (prev.members ?? []).filter((m) => m.id !== id),
   }));
 
-  /* ── Goal CRUD ── */
-  const addGoal = () => {
-    setField("goals", [...goals, {
-      id: makeId(), name: "New Goal", emoji: "other", age: effectiveAge(plan) + 5, amount: 1000000,
-      hasLoan: false, downPaymentPct: 100, loanRate: 9, loanTenure: 5,
-      appreciationRate: 0, maintenancePct: 0,
-    }]);
-  };
+  /* ── Goal CRUD ──
+     One writer for the goal editor's Save, whether it is adding or editing:
+     the editor holds its draft locally and commits the whole goal at once, so
+     a half-filled goal never reaches the projection. A goal without an id is
+     new. */
+  const saveGoal = (goal) => setPlan((prev) => {
+    const list = prev.goals ?? [];
+    if (goal.id != null && list.some((g) => g.id === goal.id)) {
+      return { ...prev, goals: list.map((g) => (g.id === goal.id ? goal : g)) };
+    }
+    return { ...prev, goals: [...list, { ...goal, id: makeId() }] };
+  });
   const removeGoal = (id) => setField("goals", goals.filter((g) => g.id !== id));
-  const updateGoal = (id, key, val) => updateListItem("goals", id, key, val);
 
   /* ── Derived ── */
   const age = effectiveAge(plan);
@@ -287,6 +295,18 @@ export default function FinancialPlanner() {
     [goalGap, simulation]
   );
 
+  /* Life insurance payouts as dated events on the chart: each maturity, and
+     the start of each annual income. Placed on the net-worth line like goals. */
+  const policyPoints = useMemo(
+    () => householdPolicyEvents(plan)
+      .map((e) => {
+        const dp = simulation.data.find((d) => d.age === e.age);
+        return dp ? { ...e, netWorth: dp.netWorth } : null;
+      })
+      .filter(Boolean),
+    [plan, simulation]
+  );
+
   /* ═══════════════════════════════════════════════════════════════════════
      RENDER
      ═══════════════════════════════════════════════════════════════════════ */
@@ -354,10 +374,10 @@ export default function FinancialPlanner() {
         earliestRetireAge={earliestRetireAge}
         exitTaxRate={exitTaxRate}
         goals={goals}
-        addGoal={addGoal}
+        saveGoal={saveGoal}
         removeGoal={removeGoal}
-        updateGoal={updateGoal}
         goalPoints={goalPoints}
+        policyPoints={policyPoints}
         goalGap={goalGap}
       />
     </div>

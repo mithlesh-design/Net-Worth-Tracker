@@ -36,12 +36,6 @@ export default function CurrentHoldings({
   const unallocated = Number(h.unallocated) || 0;
   const fdrd = (Number(h.fd) || 0) + (Number(h.rd) || 0);
 
-  /* Same rule as openingBuckets(): a sum assured is a death benefit, not
-     wealth, so only a surrender/cash value counts. */
-  const li = plan.lifeInsurance ?? {};
-  const licCash = showStartingPortfolioNote
-    ? (li.valueType === "surrenderValue" ? Number(li.value) || 0 : Number(li.surrenderValue) || 0)
-    : 0;
 
   const liquid = Object.entries(h).reduce((s, [k, v]) => {
     const b = HOLDING_BUCKET[k];
@@ -123,27 +117,13 @@ export default function CurrentHoldings({
           value={fmt(totalHoldings)}
           sub={`${fmt(liquid)} available · ${fmt(locked)} in retirement accounts`}
         />
-        {/* An eligible life insurance cash value is an asset but is entered on
-            its own card, so name it here rather than leaving the starting
-            portfolio larger than this total for no visible reason.
-
-            Computed from plan.lifeInsurance directly, NOT as
-            startingPortfolio - totalHoldings. The opening portfolio now carries
-            things this card does not list — owned property, for one — so the
-            difference would quietly label all of it "life insurance". */}
-        {showStartingPortfolioNote && startingPortfolio != null && (
-          <>
-            {licCash > 0 && (
-              <DerivedStat label="Life insurance cash value" value={fmt(licCash)}
-                sub="from the Life Insurance card" tone="muted" />
-            )}
-            {startingPortfolio !== totalHoldings && (
-              <DerivedStat label="Starting Portfolio" value={fmt(startingPortfolio)}
-                sub={startingPortfolio !== totalHoldings + licCash
-                  ? "includes assets entered elsewhere"
-                  : undefined} />
-            )}
-          </>
+        {/* The opening portfolio can carry things this card does not list —
+            owned property, for one — so say so rather than leaving it larger
+            than this total for no visible reason. Life insurance adds nothing
+            here: a policy is counted when it pays out. */}
+        {showStartingPortfolioNote && startingPortfolio != null && startingPortfolio !== totalHoldings && (
+          <DerivedStat label="Starting Portfolio" value={fmt(startingPortfolio)}
+            sub="includes assets entered elsewhere" />
         )}
       </div>
 

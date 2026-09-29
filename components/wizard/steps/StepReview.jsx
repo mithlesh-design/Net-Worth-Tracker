@@ -16,7 +16,7 @@ export default function StepReview({
   plan, age, lifeExpectancy,
   premiums, totalHoldings, simulation, totalMonthlyIncome,
   expectedXIRR, postRetireReturn, investmentStepUp, investSurplus, exitTaxRate,
-  earliestRetireAge, goalPoints, setField, scopeFor,
+  earliestRetireAge, goalPoints, policyPoints, setField, scopeFor,
 }) {
   /* "You, Priya" — named only once there is more than one person to name. */
   const household = hasMembers(plan)
@@ -38,7 +38,7 @@ export default function StepReview({
             expectedXIRR={expectedXIRR} postRetireReturn={postRetireReturn}
             investmentStepUp={investmentStepUp} investSurplus={investSurplus}
             exitTaxRate={exitTaxRate} earliestRetireAge={earliestRetireAge}
-            goalPoints={goalPoints} household={household}
+            goalPoints={goalPoints} policyPoints={policyPoints} household={household}
           />
         </div>
       </div>

@@ -27,9 +27,13 @@ export default function MonthlySummary({
   plan, premiums, totalHoldings, simulation, totalMonthlyIncome, household = null,
 }) {
   const living = plan.expenses.household + plan.expenses.rent;
-  const premiumMonthly = premiums.total / 12;
 
   const today = simulation.data[0];
+  /* Medical premiums from the prop; life premiums from the engine, which
+     knows every included person's policies and which are still being paid. */
+  const medicalMonthly = premiums.total / 12;
+  const lifeMonthly = today ? today.lifePremium / 12 : 0;
+  const premiumMonthly = medicalMonthly + lifeMonthly;
   const emiMonthly = today ? today.totalEMI / 12 : 0;
 
   /* From the engine, for the same reason as income below: it is everyone
@@ -43,9 +47,10 @@ export default function MonthlySummary({
   /* Income comes from the engine, not from the totalMonthlyIncome prop, which
      is yours alone. Two reasons: it follows who is included in the household,
      so these tiles can never disagree with the chart beside them; and it
-     honours each source's own retireAge, which the prop's flat reduce over
-     plan.incomes does not. Same pattern as emiMonthly above. */
-  const incomeMonthly = today ? today.income / 12 : totalMonthlyIncome;
+     stops each person's income at their retirement age, which the prop's flat
+     reduce over plan.incomes does not. Same pattern as emiMonthly above. */
+  const incomeMonthly = (today ? today.income / 12 : totalMonthlyIncome)
+                      + (today ? today.policyIncome / 12 : 0);
 
   const surplus = incomeMonthly - living - premiumMonthly
                 - emiMonthly - contributionsMonthly;
@@ -63,7 +68,9 @@ export default function MonthlySummary({
         <Tile label="Living Expenses" value={fmt(living)}
           sub={`household ${fmt(plan.expenses.household)} · rent ${fmt(plan.expenses.rent)}`} />
         <Tile label="Insurance Premium" value={fmt(premiumMonthly)}
-          sub="monthly equivalent" />
+          sub={lifeMonthly > 0
+            ? `medical ${fmt(medicalMonthly)} · life ${fmt(lifeMonthly)}`
+            : "monthly equivalent"} />
         <Tile label="Planned Contributions" value={fmt(contributionsMonthly)}
           sub={payrollMonthly > 0
             ? `${fmt(payrollMonthly)} payroll · ${fmt(cashMonthly)} cash`

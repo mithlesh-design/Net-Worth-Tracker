@@ -13,6 +13,12 @@ const STATUS = {
   inThePast: { label: "Before today", color: "var(--text-muted)" },
 };
 
+/* Today's full cost carried to the target age at the goal's own rate — the
+   same future cost the goal form shows (goalFutureCost), rebuilt from the
+   fields goalGap already carries. */
+const futureCostOf = (goal) =>
+  goal.fullCostToday * Math.pow(1 + (goal.inflationUsed ?? 0) / 100, Math.max(0, goal.yearsAway ?? 0));
+
 function GoalRow({ goal, inflateGoals }) {
   const s = STATUS[goal.status] ?? STATUS.funded;
   const excluded = goal.status === "outOfHorizon" || goal.status === "inThePast";
@@ -38,6 +44,10 @@ function GoalRow({ goal, inflateGoals }) {
         </p>
       ) : (
         <>
+          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            Today&rsquo;s cost {fmt(goal.fullCostToday)} &rarr; future cost{" "}
+            <strong style={{ color: "var(--text-primary)" }}>{fmt(futureCostOf(goal))}</strong> at {goal.age}
+          </p>
           <div className="flex items-baseline justify-between gap-3 mt-1.5 text-xs">
             {/* The bar measures what the plan pays against what it is charged,
                 so the figure beside it has to be that same charge — pairing the
@@ -115,6 +125,17 @@ export default function GoalFundingTable({ goalGap, plan }) {
               {allFunded ? fmt(totals.requiredInflated) : fmt(totals.gap)}
             </span>
           </div>
+          {(() => {
+            const live = goals.filter((g) => g.status !== "outOfHorizon" && g.status !== "inThePast");
+            const today = live.reduce((t, g) => t + g.fullCostToday, 0);
+            const future = live.reduce((t, g) => t + futureCostOf(g), 0);
+            return live.length > 0 && (
+              <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                Today&rsquo;s cost {fmt(today)} &rarr; future cost{" "}
+                <strong style={{ color: "var(--text-primary)" }}>{fmt(future)}</strong>
+              </p>
+            );
+          })()}
           {!plan?.inflateGoals && totals.inflationGap > 1 && (
             <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
               Your projection charges {fmt(totals.requiredToday)} for these —

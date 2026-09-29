@@ -92,6 +92,14 @@ Since schema v3 this is one explicit age **per person**: each household member
 has their own `retirementAge`, and the household counts as retired only once
 everyone included has stopped working. See "Household members" below.
 
+Income follows the same age. Every income source stops at its owner's
+`retirementAge`; the per-source `retireAge` older profiles still carry is no
+longer read or shown. Retirement age is asked once — yours on About You, a
+member's on their card — and never again per income. This moved profiles whose
+sources disagreed with their owner: most often a salary left at the old default
+of 55 by someone who retires at 60, whose salary used to stop five years early
+while the plan still called them working.
+
 ### 7. Post-retirement return is a cap, not an override
 
 `r = min(bucketReturn, postRetireReturn)`. A contractual PPF or EPF rate is not
@@ -318,7 +326,7 @@ the comments at both sites; both look like oversights and are not.
 
 ## Goal gap and the Success Score (2026-09-14)
 
-### `plan.inflateGoals` — default `false`
+### `plan.inflateGoals` — default `false` (default `true` for new profiles since v4, see below)
 
 Goal amounts are entered in today's rupees. With the flag off the engine
 charges exactly that at the target age, which is what every saved profile was
@@ -333,6 +341,9 @@ because property appreciated.
 Workspace and the Review step disagreeing about what a goal costs.
 
 ### Goal-gap pricing uses `inflationRate`, or `appreciationRate` when set
+
+(Since v4 a goal's own `inflationRate` comes first when it is set; this rule is
+the fallback for goals that have never had one. See below.)
 
 Never `+ lifestyleCreep` — creep inflates a discretionary standard of living,
 not the price of a degree. A goal carrying `appreciationRate > 0` is priced up
@@ -478,3 +489,66 @@ same FI and depletion ages, the same Success Score.
   each tab by cost share.
 - **One planning horizon.** The household runs on your age to your
   `lifeExpectancy`; a member's own tab runs their age to the same number.
+
+## Life insurance policies and goal future cost (2026-09-29, schema v4)
+
+### A policy is three cash flows
+
+`lib/finance/lifePolicies.mjs`. Every policy — term, endowment, ULIP — reduces
+to a premium paid until `premiumUntilAge`, an optional annual income from
+`incomeStartAge` to `incomeEndAge` (both inclusive: "45–55" is eleven
+payments), and an optional lump sum at `maturityAge`. The type only chooses
+which of those the form asks for. A return-of-premium term plan's lump sum is
+derived — annual premium × (`premiumUntilAge` − `startAge`) — not typed.
+
+Read on the OWNER's age, per ledger, so a member's policy matures on their
+birthday, not yours.
+
+### Where each flow lands
+
+- **Premium** — an obligation beside the medical premium (`lifePremium` row
+  field), flat in today's rupees, charged whether or not the owner works.
+  Left out of FI's `recurringSpend` for the same reason EMIs are: it stops.
+- **Annual income** — cash in, like rent (`policyIncome`). It pays this year's
+  costs; what is left follows the surplus rules.
+- **Maturity** — paid straight into the owner's surplus bucket
+  (`policyMaturity`). Routed through surplus it would be "spent" by anyone
+  retired or not investing surplus, and a ₹15 L maturity would vanish from net
+  worth the year it arrived.
+
+None of it is taxed. The sum assured is a death benefit: recorded, never a
+cash flow, never wealth.
+
+### No cash value, no investable share
+
+v3 banked an "investable %" of a LIC premium into the `lic` bucket and opened
+that bucket at the policy's surrender value. v4 counts a policy's value when
+it is paid, so either of those would count the same money twice. The `lic`
+bucket stays in every row at 0 so the row shape does not change.
+
+The v3 → v4 migration turns any v3 life data into one policy per person with
+the premium and sum assured it carried, typed endowment when v3 said it built
+value. It cannot know the maturity, so the policy is flagged `needsReview` and
+validate() asks for it, naming the cash value or investable share that is no
+longer counted. **A profile that had a cash value or investable share sees its
+net worth drop until the maturity is entered.** That is the double count
+coming out, not money going missing.
+
+### Goal future cost
+
+Each goal can carry its own `inflationRate` (the "Expected inflation" on the
+goal form). `goalInflationRate()` uses it when set; a goal that has never had
+one (`null`, every goal saved before v4) keeps the old rule above, so no saved
+projection moves. `goalFutureCost()` is today's cost × (1 + rate)^years —
+shown on the form and in Goal funding whether or not the projection charges
+it.
+
+`inflateGoals` defaults to `true` for new profiles, so the plan pays the
+future cost the form shows. Saved profiles keep their stored value, and
+`migrateV0toV1` pins `false` for v0 documents — which is why `page.jsx` sets it
+back to `true` on the v0 first-run profile.
+
+Historical averages per goal type live in `GOAL_HISTORICAL_INFLATION`
+(`lib/profile/goalTypes.mjs`), all `null` until the client supplies them. They
+are shown as guidance only and never applied.
+

@@ -1,108 +1,270 @@
 "use client";
 
-import { X, Plus } from "lucide-react";
-import { CollapsibleSection, SliderInput, ToggleSwitch, FieldError } from "@/components/ui";
-import { fmt } from "@/lib/finance/format.mjs";
+import { useState } from "react";
+import { Pencil, Trash2, ArrowRight } from "lucide-react";
+import {
+  CollapsibleSection, SliderInput, ToggleSwitch, FieldError, DerivedStat, AddItemButton, Button,
+} from "@/components/ui";
+import { fmt, CURRENT_YEAR } from "@/lib/finance/format.mjs";
 import { calcEMI } from "@/lib/finance/loans.mjs";
-import { GOAL_TYPES, goalShortLabel, goalNameForType } from "@/lib/profile/goalTypes.mjs";
+import { goalInflationRate, goalFutureCost } from "@/lib/finance/projection.mjs";
+import {
+  GOAL_TYPES, goalLabel, goalShortLabel, goalNameForType, historicalInflation,
+} from "@/lib/profile/goalTypes.mjs";
 import GoalIcon from "@/components/ui/GoalIcon";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
-export default function FinancialGoals({ plan, goals, addGoal, removeGoal, updateGoal, findingsFor, age, lifeExpectancy, defaultOpen }) {
-  const { exitTaxRate, currentAge } = plan;
+/* Goals, client items 12–20.
 
-  /* Picking a type retitles the goal as well as swapping its emoji — otherwise
-     the seeded "Buy Home" stays "Buy Home" after a switch to Car. Both writes
-     go through setPlan's updater, so they compose. A title the user typed is
-     left alone. */
-  const setGoalType = (g, type) => {
-    const name = goalNameForType(g.name, type);
-    if (name !== g.name) updateGoal(g.id, "name", name);
-    updateGoal(g.id, "emoji", type);
+   One way in: Add Goal → choose a type → fill in the details → Save. Saved
+   goals then sit as one compact row each; Edit reopens the same editor on that
+   goal. The editor works on a local draft and commits the whole goal on Save,
+   so a half-filled goal never reaches the projection and Cancel really
+   cancels.
+
+   Every goal carries its own expected inflation. The rows and the editor show
+   both prices: today's cost as entered, and the future cost at the target age
+   (today's cost × (1 + rate)^years). */
+
+/* A brand-new goal of `type`, opening a few years out. Its inflation starts at
+   general inflation (a home at the 5% the seeded home goal always used) — a
+   starting point the user edits, never a figure presented as data. */
+function blankGoal(type, plan, age) {
+  const isHome = type === "home";
+  return {
+    id: null,
+    name: goalLabel(type),
+    emoji: type,
+    age: age + 5,
+    amount: isHome ? 8000000 : 1000000,
+    inflationRate: isHome ? 5 : Number(plan.inflationRate) || 0,
+    hasLoan: false, downPaymentPct: isHome ? 20 : 100, loanRate: isHome ? 8.5 : 9, loanTenure: isHome ? 20 : 5,
+    appreciationRate: isHome ? 5 : 0, maintenancePct: isHome ? 1 : 0,
   };
+}
+
+export default function FinancialGoals({ plan, goals, saveGoal, removeGoal, findingsFor, age, lifeExpectancy, defaultOpen }) {
+  /* null, or { step: "type" | "details", draft } — draft.id null when new. */
+  const [editing, setEditing] = useState(null);
+
+  const startAdd = () => setEditing({ step: "type", draft: null });
+  const startEdit = (g) => setEditing({ step: "details", draft: { ...g } });
+  const close = () => setEditing(null);
+
+  const editingId = editing?.draft?.id ?? null;
+  const addingNew = !!editing && editingId === null;
 
   return (
     <CollapsibleSection title="Financial Goals" badge={`${goals.length}`} defaultOpen={defaultOpen}>
-      {goals.map((g) => {
-        const isHome = g.emoji === "home";
-        const loanAmt = g.hasLoan ? g.amount * (1 - g.downPaymentPct / 100) : 0;
-        const emi = g.hasLoan ? calcEMI(loanAmt, g.loanRate, g.loanTenure) : 0;
-        return (
-          <div key={g.id} className="rounded-lg p-4 space-y-3"
-            style={{ background: 'var(--bg-tertiary)' }}>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
-                  style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
-                  <GoalIcon type={g.emoji} size={ICON_SIZE.md} />
-                </span>
-                <input type="text" value={g.name} onChange={(e) => updateGoal(g.id, "name", e.target.value)}
-                  aria-label="Goal name"
-                  className="text-sm font-semibold bg-transparent outline-none min-w-0 flex-1" style={{ color: 'var(--text-primary)' }} />
-              </div>
-              <button onClick={() => removeGoal(g.id)} aria-label={`Remove ${g.name}`}
-                className="shrink-0 rounded-md p-1 transition-colors" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.sm} /></button>
-            </div>
+      {goals.length === 0 && !editing && (
+        <p className="text-xs text-[var(--text-muted)]">
+          No goals yet. Add a home, education, car or anything else you are saving for.
+        </p>
+      )}
 
-            <div>
-              <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--text-secondary)' }}>Type</label>
-              <div className="flex gap-1.5 flex-wrap">
-                {GOAL_TYPES.map((k) => {
-                  const selected = g.emoji === k;
-                  return (
-                    <button key={k} type="button" onClick={() => setGoalType(g, k)} aria-pressed={selected}
-                      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
-                      style={selected
-                        ? { background: 'var(--accent)', color: 'var(--accent-contrast)', border: '1px solid var(--accent)' }
-                        : { background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-default)' }}>
-                      <GoalIcon type={k} size={ICON_SIZE.sm} />
-                      {goalShortLabel(k)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+      {goals.map((g, i) => (editingId === g.id ? (
+        <GoalEditor key={g.id} editing={editing} setEditing={setEditing} plan={plan} age={age}
+          lifeExpectancy={lifeExpectancy} onSave={(d) => { saveGoal(d); close(); }} onCancel={close} />
+      ) : (
+        <SavedGoal key={g.id} goal={g} plan={plan} age={age}
+          findings={findingsFor(`goals.${i}`)}
+          onEdit={() => startEdit(g)} onRemove={() => removeGoal(g.id)} disabled={!!editing} />
+      )))}
 
-            <SliderInput label="Target Age" value={g.age} onChange={(v) => updateGoal(g.id, "age", v)} min={currentAge} max={lifeExpectancy} suffix=" yrs" />
-            <SliderInput label="Total Cost" value={g.amount} onChange={(v) => updateGoal(g.id, "amount", v)} min={100000} max={100000000} step={100000} prefix="₹" showWords />
-
-            <div className="mt-5">
-              <ToggleSwitch value={g.hasLoan} onChange={(v) => updateGoal(g.id, "hasLoan", v)} label="Finance via Loan" />
-            </div>
-
-            {g.hasLoan && (
-              <div className="space-y-3 pl-4 border-l-2"
-                style={{ borderColor: 'var(--info-rose-border)' }}>
-                <SliderInput label="Down Payment %" value={g.downPaymentPct} onChange={(v) => updateGoal(g.id, "downPaymentPct", v)} min={5} max={80} step={5} suffix="%" />
-                <SliderInput label="Loan Interest Rate" value={g.loanRate} onChange={(v) => updateGoal(g.id, "loanRate", v)} min={5} max={15} step={0.25} suffix="%" />
-                <SliderInput label="Loan Tenure" value={g.loanTenure} onChange={(v) => updateGoal(g.id, "loanTenure", v)} min={1} max={30} suffix=" yrs" />
-                <div className="text-xs space-y-0.5" style={{ color: 'var(--info-rose-text)' }}>
-                  <div>Loan: {fmt(loanAmt)} · EMI: {fmt(emi)}/mo</div>
-                  <div>Down payment (gross of tax): {fmt((g.amount * g.downPaymentPct / 100) / (1 - exitTaxRate / 100))}</div>
-                </div>
-              </div>
-            )}
-
-            {!g.hasLoan && (
-              <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                Gross withdrawal (incl. {exitTaxRate}% tax): <strong style={{ color: 'var(--text-primary)' }}>{fmt(g.amount / (1 - exitTaxRate / 100))}</strong>
-              </div>
-            )}
-
-            {isHome && (
-              <div className="mt-5 space-y-3">
-                <div className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--financial-target)' }}>Home-Specific</div>
-                <SliderInput label="Property Appreciation" value={g.appreciationRate} onChange={(v) => updateGoal(g.id, "appreciationRate", v)} min={0} max={15} step={0.5} suffix="%" />
-                <SliderInput label="Annual Maintenance %" value={g.maintenancePct} onChange={(v) => updateGoal(g.id, "maintenancePct", v)} min={0} max={5} step={0.25} suffix="%" />
-              </div>
-            )}
-          </div>
-        );
-      })}
-      <button onClick={addGoal} className="w-full rounded-lg border border-dashed py-3 flex items-center justify-center gap-1.5 text-xs font-semibold transition"
-        style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}>
-        <Plus size={ICON_SIZE.sm} /> Add Goal
-      </button>
+      {addingNew ? (
+        <GoalEditor editing={editing} setEditing={setEditing} plan={plan} age={age}
+          lifeExpectancy={lifeExpectancy} onSave={(d) => { saveGoal(d); close(); }} onCancel={close} />
+      ) : (
+        !editing && <AddItemButton onClick={startAdd} label="Add Goal" />
+      )}
     </CollapsibleSection>
+  );
+}
+
+/* One saved goal: what it is, when, and both prices. */
+function SavedGoal({ goal, plan, age, findings, onEdit, onRemove, disabled }) {
+  const years = Math.max(0, goal.age - age);
+  const future = goalFutureCost(plan, goal, age);
+  const rate = goalInflationRate(plan, goal);
+
+  return (
+    <div className="rounded-lg border p-3 space-y-2 border-[var(--border-subtle)] bg-[var(--surface-raised)]">
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+          style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
+          <GoalIcon type={goal.emoji} size={ICON_SIZE.md} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold truncate text-[var(--text-primary)]">{goal.name}</div>
+          <div className="text-xs text-[var(--text-muted)]">
+            Age {goal.age} · {years > 0 ? `in ${years} yr${years === 1 ? "" : "s"}` : "not in the future"}
+            {goal.hasLoan && " · financed"}
+          </div>
+        </div>
+        <Button variant="ghost" size="icon" onClick={onEdit} disabled={disabled}
+          aria-label={`Edit ${goal.name}`} className="h-8 w-8">
+          <Pencil size={ICON_SIZE.sm} />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={onRemove} disabled={disabled}
+          aria-label={`Remove ${goal.name}`} className="h-8 w-8">
+          <Trash2 size={ICON_SIZE.sm} />
+        </Button>
+      </div>
+      <div className="flex items-center gap-2 text-xs pl-[2.625rem] flex-wrap">
+        <span className="text-[var(--text-secondary)]">Today <strong className="text-[var(--text-primary)] tabular-nums">{fmt(goal.amount)}</strong></span>
+        <ArrowRight size={ICON_SIZE.xs} className="text-[var(--text-subtle)]" />
+        <span className="text-[var(--text-secondary)]">Future <strong className="text-[var(--text-primary)] tabular-nums">{fmt(future)}</strong></span>
+        <span className="text-[var(--text-muted)]">at {rate}%/yr</span>
+      </div>
+      <FieldError findings={findings} />
+    </div>
+  );
+}
+
+/* The one editor, for adding and for editing. */
+function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, onCancel }) {
+  const { step, draft } = editing;
+  const isNew = draft === null || draft.id === null;
+
+  if (step === "type") {
+    const pick = (type) => {
+      const next = draft
+        ? { ...draft, emoji: type, name: goalNameForType(draft.name, type) }
+        : blankGoal(type, plan, age);
+      setEditing({ step: "details", draft: next });
+    };
+    return (
+      <EditorFrame title={isNew ? "Add a goal" : "Change goal type"} subtitle="What are you saving for?">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {GOAL_TYPES.map((t) => {
+            const selected = draft?.emoji === t;
+            return (
+              <button key={t} type="button" onClick={() => pick(t)} aria-pressed={selected}
+                className="flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-xs font-medium transition-colors hover:bg-[var(--surface-hover)]"
+                style={selected
+                  ? { background: "var(--accent-soft)", color: "var(--accent)", borderColor: "var(--accent)" }
+                  : { color: "var(--text-secondary)", borderColor: "var(--border-default)" }}>
+                <GoalIcon type={t} size={ICON_SIZE.md} />
+                {goalShortLabel(t)}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex justify-end">
+          <Button variant="ghost" size="sm" onClick={draft ? () => setEditing({ step: "details", draft }) : onCancel}>
+            {draft ? "Back" : "Cancel"}
+          </Button>
+        </div>
+      </EditorFrame>
+    );
+  }
+
+  const set = (key, val) => setEditing({ step, draft: { ...draft, [key]: val } });
+  const minAge = age + 1;
+  const years = draft.age - age;
+  const ageOk = draft.age > age;
+  const rate = goalInflationRate(plan, draft);
+  const future = goalFutureCost(plan, draft, age);
+  const historical = historicalInflation(draft.emoji);
+  const isHome = draft.emoji === "home";
+  const loanAmt = draft.hasLoan ? draft.amount * (1 - draft.downPaymentPct / 100) : 0;
+  const emi = draft.hasLoan ? calcEMI(loanAmt, draft.loanRate, draft.loanTenure) : 0;
+  const nameOk = String(draft.name ?? "").trim() !== "";
+  const canSave = ageOk && nameOk && draft.amount > 0;
+
+  return (
+    <EditorFrame
+      title={isNew ? "Add a goal" : "Edit goal"}
+      icon={draft.emoji}
+      action={
+        <Button variant="link" size="sm" className="h-auto p-0 text-xs"
+          onClick={() => setEditing({ step: "type", draft })}>
+          Change type
+        </Button>
+      }>
+      <div className="space-y-1">
+        <label className="text-xs font-medium text-[var(--text-secondary)]" htmlFor="goal-name">Goal name</label>
+        <input id="goal-name" type="text" value={draft.name} onChange={(e) => set("name", e.target.value)}
+          className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
+          style={{ background: "var(--input-bg)", borderColor: "var(--input-border)", color: "var(--input-text)" }} />
+      </div>
+
+      <div className="space-y-1">
+        <SliderInput label="Target age" value={draft.age}
+          onChange={(v) => set("age", v)} min={minAge} max={lifeExpectancy} suffix=" yrs" warn={!ageOk} />
+        {!ageOk && (
+          <p className="text-xs text-[var(--danger)]">
+            Target age must be after your current age ({age}). Choose {minAge} or later.
+          </p>
+        )}
+      </div>
+
+      <SliderInput label="Today's cost" value={draft.amount} onChange={(v) => set("amount", v)}
+        min={100000} max={100000000} step={100000} prefix="₹" showWords />
+
+      <div className="space-y-1">
+        <SliderInput label="Expected inflation" value={rate} onChange={(v) => set("inflationRate", v)}
+          min={0} max={20} step={0.5} suffix="%" />
+        <p className="text-[0.6rem] text-[var(--text-muted)]">
+          {historical !== null
+            ? <>Historical average: <strong>{historical}%</strong>. A guide only; set your own.</>
+            : <>How fast this price rises each year. General inflation is {plan.inflationRate}%.</>}
+        </p>
+      </div>
+
+      <div className="rounded-lg p-3 space-y-2 bg-[var(--surface-muted)]">
+        <DerivedStat label="Years to goal" value={ageOk ? `${years} yr${years === 1 ? "" : "s"}` : "—"}
+          sub={ageOk ? `${CURRENT_YEAR + years}` : null} />
+        <DerivedStat label="Future cost" value={ageOk ? fmt(future) : "—"}
+          sub={ageOk ? `${fmt(draft.amount)} today at ${rate}%/yr` : null} />
+      </div>
+
+      <ToggleSwitch value={draft.hasLoan} onChange={(v) => set("hasLoan", v)} label="Finance via loan" />
+      {draft.hasLoan && (
+        <div className="space-y-3 pl-4 border-l-2" style={{ borderColor: "var(--info-rose-border)" }}>
+          <SliderInput label="Down payment %" value={draft.downPaymentPct} onChange={(v) => set("downPaymentPct", v)} min={5} max={80} step={5} suffix="%" />
+          <SliderInput label="Loan interest rate" value={draft.loanRate} onChange={(v) => set("loanRate", v)} min={5} max={15} step={0.25} suffix="%" />
+          <SliderInput label="Loan tenure" value={draft.loanTenure} onChange={(v) => set("loanTenure", v)} min={1} max={30} suffix=" yrs" />
+          <div className="text-xs" style={{ color: "var(--info-rose-text)" }}>
+            Loan: {fmt(loanAmt)} · EMI: {fmt(emi)}/mo, in today&rsquo;s rupees
+          </div>
+        </div>
+      )}
+
+      {isHome && (
+        <div className="space-y-3">
+          <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--financial-target)" }}>After you buy</div>
+          <SliderInput label="Property appreciation" value={draft.appreciationRate} onChange={(v) => set("appreciationRate", v)} min={0} max={15} step={0.5} suffix="%" />
+          <SliderInput label="Annual maintenance %" value={draft.maintenancePct} onChange={(v) => set("maintenancePct", v)} min={0} max={5} step={0.25} suffix="%" />
+        </div>
+      )}
+
+      <div className="flex items-center justify-end gap-2 pt-1">
+        <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+        <Button size="sm" onClick={() => onSave(draft)} disabled={!canSave}>Save goal</Button>
+      </div>
+      {!nameOk && <p className="text-xs text-right text-[var(--danger)]">Give the goal a name.</p>}
+    </EditorFrame>
+  );
+}
+
+function EditorFrame({ title, subtitle = null, icon = null, action = null, children }) {
+  return (
+    <div className="rounded-lg border-2 p-4 space-y-4 border-[var(--accent)] bg-[var(--surface-raised)]">
+      <div className="flex items-center gap-2">
+        {icon && (
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+            style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
+            <GoalIcon type={icon} size={ICON_SIZE.md} />
+          </span>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-[var(--text-primary)]">{title}</div>
+          {subtitle && <div className="text-xs text-[var(--text-muted)]">{subtitle}</div>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </div>
   );
 }

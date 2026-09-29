@@ -94,21 +94,9 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
         bucket="fdrd" holdingKey="rd" holdingLabel="Current RD balance (₹)"
         holdingHint="Balance today, not the maturity value. Combined with FD in Current Holdings." />
 
-      <ContributionBlock {...common} keyName="lic" label="LIC Insurance Premiums" cfg={c.lic}
-        bucket="lic"
-        extra={
-          <div className="border-t pt-3" style={{ borderColor: 'var(--border-secondary)' }}>
-            <SliderInput label="Investable portion of premium"
-              value={plan.licInvestablePct}
-              onChange={(v) => setField("licInvestablePct", v)}
-              min={0} max={100} step={5} suffix="%" />
-          </div>
-        }
-        note={<InfoStrip tone="amber">
-          A premium is an outflow. Only the part that builds cash value is treated as an
-          asset, and that defaults to 0% because term cover never builds any. Raise it
-          only for an endowment or money-back policy.
-        </InfoStrip>} />
+      {/* No life insurance block: premiums are entered on each policy, under
+          Life Insurance, where they are charged as an outflow and what the
+          policy pays back is counted when it is paid. */}
 
       {/* Client field 16: Other (please specify) */}
       <div className="space-y-2">

@@ -36,15 +36,12 @@ export default function InvestmentStrategy({
     setField("contributions", withDefaultReturns(plan.contributions));
   };
 
-  /* Named part by part. The starting portfolio also holds a life-insurance
-     cash value and owned property, and labelling the whole gap as one of them
-     would misname the other. */
+  /* Named part by part: the starting portfolio also holds owned property,
+     which this card does not list. */
   const today = simulation.data[0];
-  const licCash = today?.buckets?.lic ?? 0;
   const property = today?.illiquidNW ?? 0;
   const parts = [
     `${fmt(totalHoldings)} holdings`,
-    licCash > 0 && `${fmt(licCash)} insurance cash value`,
     property > 0 && `${fmt(property)} property`,
   ].filter(Boolean);
 

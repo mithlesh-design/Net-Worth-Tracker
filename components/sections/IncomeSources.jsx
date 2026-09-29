@@ -4,7 +4,6 @@ import { useState } from "react";
 import { X, Plus } from "lucide-react";
 import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldError, InfoStrip } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
-import { effectiveAge } from "@/lib/finance/age.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* Renders one person's income list — yours, or a household member's.
@@ -16,21 +15,21 @@ export default function IncomeSources({
   plan, incomes, updateIncome, addIncome, removeIncome, findingsFor,
   totalMonthlyIncome, defaultOpen,
   title = "Income Sources",
+  /* Where this person's retirement age is set: yours on About You, a member's
+     on their card. Incomes only read it — it is never asked here. */
+  retirementAgeSource = "About You",
   pathPrefix = "incomes",
   /* Your list must keep at least one row; a member's may be emptied. */
   minItems = 1,
   showHint = true,
 }) {
-  const { currentAge } = plan;
-  const age = effectiveAge(plan);
-
   const [showAddIncome, setShowAddIncome] = useState(false);
-  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5, retireAge: 55 });
+  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5 });
 
   const handleAdd = () => {
     addIncome(newInc);
     setShowAddIncome(false);
-    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5, retireAge: 55 });
+    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5 });
   };
 
   return (
@@ -65,7 +64,6 @@ export default function IncomeSources({
             label={inc.role === "salary" ? "Average Salary Growth (annual)" : "Annual Growth"}
             value={inc.growthRate} onChange={(v) => updateIncome(inc.id, "growthRate", v)}
             min={0} max={25} step={0.5} suffix="%" />
-          <SliderInput label="Retire Age" value={inc.retireAge} onChange={(v) => updateIncome(inc.id, "retireAge", v)} min={age} max={75} suffix=" yrs" />
           <FieldError findings={findingsFor(`${pathPrefix}.${incomes.indexOf(inc)}`)} />
         </div>
       ))}
@@ -86,7 +84,6 @@ export default function IncomeSources({
             onChange={(v) => setNewInc({ ...newInc, frequency: v })}
           />
           <SliderInput label="Growth %" value={newInc.growthRate} onChange={(v) => setNewInc({ ...newInc, growthRate: v })} min={0} max={25} step={0.5} suffix="%" />
-          <SliderInput label="Retire Age" value={newInc.retireAge} onChange={(v) => setNewInc({ ...newInc, retireAge: v })} min={currentAge} max={75} suffix=" yrs" />
           <div className="flex gap-2">
             <button onClick={handleAdd} className="flex-1 rounded-lg py-1.5 text-xs font-bold transition"
               style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}>Add</button>
@@ -100,6 +97,10 @@ export default function IncomeSources({
           <Plus size={ICON_SIZE.sm} /> Add Income Source
         </button>
       )}
+      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+        All income stops at retirement age, <strong style={{ color: 'var(--text-primary)' }}>{plan.retirementAge} yrs</strong>.
+        Change it on {retirementAgeSource}.
+      </p>
       <div className="mt-5 space-y-2">
         <DerivedStat label="Total Monthly Income" value={`${fmt(totalMonthlyIncome)}/mo`} />
         <DerivedStat label="Total Annual Income" value={fmt(totalMonthlyIncome * 12)}

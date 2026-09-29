@@ -11,7 +11,7 @@ import { CURRENT_YEAR } from "@/lib/finance/format.mjs";
    they get their own workspace, one step before the investment levers, so a
    shortfall is something the user can still act on. */
 export default function StepGoalWorkspace({
-  plan, setField, goals, addGoal, removeGoal, updateGoal,
+  plan, setField, goals, saveGoal, removeGoal,
   findingsFor, age, lifeExpectancy, earliestRetireAge, goalGap,
 }) {
   /* The clearest example of what the toggle does, drawn from the user's own
@@ -39,8 +39,8 @@ export default function StepGoalWorkspace({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 space-y-5">
           <FinancialGoals
-            plan={plan} goals={goals} addGoal={addGoal}
-            removeGoal={removeGoal} updateGoal={updateGoal}
+            plan={plan} goals={goals} saveGoal={saveGoal}
+            removeGoal={removeGoal}
             findingsFor={findingsFor} age={age} lifeExpectancy={lifeExpectancy}
             defaultOpen
           />

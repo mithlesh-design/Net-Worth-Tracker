@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  CollapsibleSection, SliderInput, SegmentedControl, YesNoField,
+  CollapsibleSection, SliderInput, SegmentedControl, YesNoField, ToggleSwitch,
   ItemCard, InfoStrip, DerivedStat, FieldError,
 } from "@/components/ui";
 import { fmt, monthlyEquivalent } from "@/lib/finance/format.mjs";
@@ -21,12 +21,28 @@ function PolicyBlock({ who, label, cfg, setField, findingsFor, sharedDisabled })
 
       {cfg.enabled && (
         <div className="space-y-3 pt-1">
-          <SliderInput
-            label="Coverage amount (₹)"
-            value={cfg.coverage}
-            onChange={(v) => setField(`${base}.coverage`, v)}
-            min={0} max={20000000} step={100000} prefix="₹" showWords
-          />
+          {/* Cover is EITHER a fixed amount OR unlimited, so the two sit in one
+              box: the switch decides, and the amount below it locks when it is
+              on. The typed amount is kept for switching back. */}
+          <div className="rounded-lg border p-3 space-y-3 border-[var(--border-default)]">
+            <ToggleSwitch
+              label="Unlimited coverage amount"
+              value={!!cfg.unlimitedCoverage}
+              onChange={(v) => setField(`${base}.unlimitedCoverage`, v)}
+            />
+            <SliderInput
+              label="Coverage amount (₹)"
+              value={cfg.coverage}
+              onChange={(v) => setField(`${base}.coverage`, v)}
+              min={0} max={20000000} step={100000} prefix="₹" showWords
+              disabled={!!cfg.unlimitedCoverage} disabledText="Unlimited"
+            />
+            <p className="text-[0.6rem] text-[var(--text-muted)]">
+              {cfg.unlimitedCoverage
+                ? "No amount needed: this policy has no upper limit on cover. Switch off to enter a fixed amount."
+                : "Enter the sum insured, or switch on Unlimited if the policy has no upper limit."}
+            </p>
+          </div>
 
           {who === "parents" && (
             <SegmentedControl

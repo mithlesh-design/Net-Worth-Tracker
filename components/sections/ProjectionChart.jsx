@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { TriangleAlert, ArrowUpRight } from "lucide-react";
+import { TriangleAlert, ArrowUpRight, HandCoins } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
@@ -27,7 +27,9 @@ function NetWorthTooltip({ active, payload }) {
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
         {d.rentalIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Rental income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.rentalIncome)}</span></div>}
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.annualExpense)}</span></div>
-        {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance Premium</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.insurancePremium)}</span></div>}
+        {d.policyIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Insurance income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.policyIncome)}</span></div>}
+        {d.insurancePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>{d.lifePremium > 0 ? "Medical premium" : "Insurance Premium"}</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.insurancePremium)}</span></div>}
+        {d.lifePremium > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Life premium</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.lifePremium)}</span></div>}
         {d.totalEMI > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Loan EMIs</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.totalEMI)}</span></div>}
         {d.maintenanceCost > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Maintenance</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.maintenanceCost)}</span></div>}
         <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}>
@@ -38,6 +40,7 @@ function NetWorthTooltip({ active, payload }) {
         {d.payrollContribution > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>... from payroll</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.payrollContribution)}</span></div>}
         {d.contributionShortfall > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Contribution Shortfall</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.contributionShortfall)}</span></div>}
         {d.surplusSpent > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Surplus Spent</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.surplusSpent)}</span></div>}
+        {d.policyMaturity > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Life insurance maturity</span><span className="font-semibold" style={{ color: 'var(--financial-positive)' }}>+{fmt(d.policyMaturity)}</span></div>}
         {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"\u2212"}{fmt(d.goalCostGross)}</span></div>}
         {/* Owned property is IN net worth; a home goal's property is not. One
             "Property Assets" row covering both would imply they are treated
@@ -88,6 +91,48 @@ function GoalOverlay({ goals, projection, xScale, yScale }) {
   );
 }
 
+/* Life insurance payouts: a coin badge BELOW the line (goals sit above it, so
+   the two never collide at the same age) with the amount beside it — "Age 45
+   → ₹X maturity" read straight off the chart. */
+function PolicyOverlay({ events, projection, xScale, yScale }) {
+  return (
+    <>
+      {events.map((e) => {
+        const pt = projection.find((p) => p.age === e.age);
+        if (!pt) return null;
+        const cx = xScale(pt.age);
+        const cy = yScale(Math.max(0, pt.netWorth));
+        if (!isFinite(cx) || !isFinite(cy)) return null;
+        const R = 10, STEM = 6, by = cy + STEM + R;
+        const text = e.kind === "maturity" ? `${fmtAxis(e.amount)} maturity` : `${fmtAxis(e.amount)}/yr`;
+        return (
+          <g key={e.key}>
+            <title>{`${e.owner ? `${e.owner}: ` : ""}${e.label} — ${e.kind === "maturity"
+              ? `${fmt(e.amount)} at age ${e.ownerAge}`
+              : `${fmt(e.amount)} a year from age ${e.ownerAge}`}`}</title>
+            <line x1={cx} y1={cy} x2={cx} y2={cy + STEM} stroke="var(--financial-positive)" strokeWidth={1.5} strokeOpacity={0.7} />
+            <circle cx={cx} cy={cy} r={3} fill="var(--financial-positive)" />
+            <circle cx={cx} cy={by} r={R} fill="var(--bg-secondary)" stroke="var(--financial-positive)" strokeWidth={1.5} />
+            <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
+              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--financial-positive)" }}>
+                <HandCoins size={ICON_SIZE.xs} />
+              </div>
+            </foreignObject>
+            <text x={cx + R + 4} y={by + 3} fontSize={9} fontWeight={600} fill="var(--financial-positive)">{text}</text>
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+function PolicyOverlayCustomized(props) {
+  const xAxis = props.xAxisMap?.[Object.keys(props.xAxisMap || {})[0]];
+  const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
+  if (!xAxis?.scale || !yAxis?.scale || !props.events?.length) return null;
+  return <PolicyOverlay events={props.events} projection={props.projection} xScale={xAxis.scale} yScale={yAxis.scale} />;
+}
+
 function GoalOverlayCustomized(props) {
   const xAxis = props.xAxisMap?.[Object.keys(props.xAxisMap || {})[0]];
   const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
@@ -98,7 +143,7 @@ function GoalOverlayCustomized(props) {
 export default function ProjectionChart({
   plan, simulation, age, lifeExpectancy,
   expectedXIRR, postRetireReturn, investmentStepUp, investSurplus, exitTaxRate,
-  earliestRetireAge, goalPoints, household = null,
+  earliestRetireAge, goalPoints, policyPoints = [], household = null,
 }) {
   const currentAge = age;
   const lastPoint = simulation.data[simulation.data.length - 1];
@@ -160,6 +205,9 @@ export default function ProjectionChart({
             <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--chart-target)' }} />Retire</span>
             <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--text-muted)' }} />Life Exp.</span>
             <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--chart-target)', background: 'var(--goal-marker-fill)' }} />Goals</span>
+            {policyPoints.length > 0 && (
+              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--financial-positive)' }} />Insurance payouts</span>
+            )}
           </div>
         </div>
 
@@ -201,9 +249,24 @@ export default function ProjectionChart({
                 isAnimationActive={true} animationDuration={600} animationEasing="ease-out" />
 
               <Customized component={(props) => <GoalOverlayCustomized {...props} goals={goalPoints} projection={simulation.data} />} />
+              <Customized component={(props) => <PolicyOverlayCustomized {...props} events={policyPoints} projection={simulation.data} />} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
+
+        {policyPoints.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs" aria-label="Life insurance events">
+            {policyPoints.map((e) => (
+              <span key={e.key} className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                <HandCoins size={ICON_SIZE.xs} style={{ color: 'var(--financial-positive)' }} />
+                {e.kind === "maturity"
+                  ? <>Age {e.age} &rarr; <strong style={{ color: 'var(--text-primary)' }}>{fmt(e.amount)}</strong> life insurance maturity</>
+                  : <>Age {e.age}&ndash;{e.endAge} &rarr; <strong style={{ color: 'var(--text-primary)' }}>{fmt(e.amount)}</strong> a year, insurance income</>}
+                {e.owner && <span style={{ color: 'var(--text-muted)' }}>({e.owner}{e.ownerAge !== e.age ? `, at ${e.ownerAge}` : ""})</span>}
+              </span>
+            ))}
+          </div>
+        )}
 
         {(constrainedYears > 0 || shortfallYears > 0 || simulation.depletionAge) && (
           <div className="mt-4 border-l-2 pl-4 py-2 flex items-start gap-2"

@@ -12,7 +12,7 @@ export default function StepIncomeExpenses({
   scopeFor, addMember, removeMember, makeId,
 }) {
   const hasMedical = plan.medical?.self?.enabled || plan.medical?.parents?.enabled;
-  const hasLife = (plan.lifeInsurance?.value ?? 0) > 0;
+  const hasLife = (plan.lifePolicies ?? []).length > 0;
 
   return (
     <div className="space-y-4">
@@ -56,7 +56,7 @@ export default function StepIncomeExpenses({
           </span>
         </div>
         <MedicalInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
-        <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
+        <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} makeId={makeId} />
       </div>
     </div>
   );
