@@ -174,8 +174,11 @@ export default function GoalGapChart({
 
   if (!series.length) return null;
 
-  const { goals, hasGoals, allFunded, coversRealCost, crossoverAge, inflationRate } = goalGap;
+  const { goals, hasGoals, allFunded, coversRealCost, crossoverAge } = goalGap;
   const shortGoals = goals.filter((g) => g.gap > 1 && g.status !== "outOfHorizon" && g.status !== "inThePast");
+  /* The rates the gold line was actually priced at. Each goal carries its own
+     (goalInflationRate), so general inflation is the wrong figure to quote. */
+  const pricedAt = [...new Set(goals.filter((g) => g.inflationGap > 1).map((g) => g.inflationUsed))];
 
   return (
     <div className="rounded-xl p-4 sm:p-5 border" style={{ background: 'var(--chart-surface)', borderColor: 'var(--border-default)' }}>
@@ -308,7 +311,8 @@ export default function GoalGapChart({
           )}
           {!plan?.inflateGoals && goalGap.totals.inflationGap > 1 && (
             <>
-              {" "}The gold line is priced up at {inflationRate}%/yr; your projection
+              {" "}The gold line is priced up at {pricedAt.length === 1
+                ? `${pricedAt[0]}%/yr` : "each goal’s own inflation rate"}; your projection
               charges {fmt(goalGap.totals.requiredToday)}, today&rsquo;s prices.
             </>
           )}
