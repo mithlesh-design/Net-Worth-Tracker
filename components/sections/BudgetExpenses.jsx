@@ -4,6 +4,7 @@ import { House } from "lucide-react";
 import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat, FieldError } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { people, personLabel, hasMembers, SELF } from "@/lib/household/members.mjs";
+import { effectiveAge } from "@/lib/finance/age.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 export default function BudgetExpenses({ plan, setField, findingsFor, premiums, homeGoalAge, defaultOpen, scopeFor }) {
@@ -37,12 +38,53 @@ export default function BudgetExpenses({ plan, setField, findingsFor, premiums, 
       <SliderInput label="General Inflation" value={inflationRate} onChange={(v) => setField("inflationRate", v)} min={0} max={15} step={0.5} suffix="%" />
       <SliderInput label="Lifestyle Inflation" value={lifestyleCreep} onChange={(v) => setField("lifestyleCreep", v)} min={0} max={10} step={0.5} suffix="%" />
 
+      <PostRetireInflation plan={plan} setField={setField} findingsFor={findingsFor} />
+
       <InfoStrip tone="amber">
-        Expenses grow at <strong>{(inflationRate + lifestyleCreep).toFixed(1)}%</strong>/yr
+        <ExpenseGrowth plan={plan} />
       </InfoStrip>
 
       {hasMembers(plan) && <CostSplit plan={plan} setField={setField} scopeFor={scopeFor} findingsFor={findingsFor} />}
     </CollapsibleSection>
+  );
+}
+
+/* A separate rate for the years after you retire, which replaces general AND
+   lifestyle inflation: lifestyle creep is about a rising standard of living
+   while you earn, and one rate is what people mean by "inflation after
+   retirement". The rate is kept while switched off. */
+function PostRetireInflation({ plan, setField, findingsFor }) {
+  const on = Boolean(plan.usePostRetireInflation);
+  return (
+    <div className="space-y-3">
+      <ToggleSwitch value={on} onChange={(v) => setField("usePostRetireInflation", v)}
+        label="Different inflation after retirement" />
+      {on && (
+        <>
+          <SliderInput label="Inflation after retirement" value={plan.postRetireInflation}
+            onChange={(v) => setField("postRetireInflation", v)} min={0} max={15} step={0.5} suffix="%"
+            warn={findingsFor("postRetireInflation").length > 0} />
+          <p className="text-[0.6rem] text-[var(--text-muted)]">
+            Replaces general and lifestyle inflation for every year after you retire at {plan.retirementAge}.
+          </p>
+          <FieldError findings={findingsFor("postRetireInflation")} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ExpenseGrowth({ plan }) {
+  const working = (Number(plan.inflationRate) || 0) + (Number(plan.lifestyleCreep) || 0);
+  const pctText = (v) => <strong>{v.toFixed(1)}%</strong>;
+  if (!plan.usePostRetireInflation) return <>Expenses grow at {pctText(working)}/yr</>;
+
+  const retired = Number(plan.postRetireInflation) || 0;
+  if (effectiveAge(plan) >= plan.retirementAge) {
+    return <>Expenses grow at {pctText(retired)}/yr, your after-retirement rate</>;
+  }
+  return (
+    <>Expenses grow at {pctText(working)}/yr until you retire at {plan.retirementAge}, then {pctText(retired)}/yr</>
   );
 }
 

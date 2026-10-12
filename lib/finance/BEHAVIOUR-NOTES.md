@@ -552,3 +552,24 @@ Historical averages per goal type live in `GOAL_HISTORICAL_INFLATION`
 (`lib/profile/goalTypes.mjs`), all `null` until the client supplies them. They
 are shown as guidance only and never applied.
 
+
+### Inflation after retirement
+
+Living costs grow at `inflationRate + lifestyleCreep`. With
+`usePostRetireInflation` on, every year after YOUR `retirementAge` grows at
+`postRetireInflation` instead, which replaces both rates: lifestyle creep
+describes a standard of living rising while you earn. The year you retire is
+still priced at the working rate, since it is the growth that brought you
+there. Someone already past retirement age is on the new rate from year 1.
+
+It reads your retirement age, not the household's `isRetired`. A child member
+counts as working until their own 60, which can fall past the horizon, so
+"nobody is working" would never switch the rate. On a member's own Strategy Hub
+tab, `memberPlan` carries their `retirementAge`, so the switch follows them.
+
+Rent you collect still grows at `inflationRate` only (see Owned property). The
+FI bridge grows its spend at whichever rate applies in the year it is checked.
+
+Off by default and absent from every saved profile, so `fillDefaults` turns it
+off and no saved projection moves. With it off, the arithmetic is the same
+single `Math.pow` as before, which is why the golden snapshots are unchanged.
