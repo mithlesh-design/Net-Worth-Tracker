@@ -10,8 +10,8 @@ import {
 const sum = (xs) => xs.reduce((s, v) => s + (Number(v) || 0), 0);
 
 /* Who counts in the household figures. The one control for it: the chart,
-   Monthly Summary, the Strategy Hub's Success Score and the goal charts all
-   read the household projection, so every one of them follows these switches.
+   Monthly Summary and the goal charts all read the household projection, so
+   every one of them follows these switches.
 
    Kept out of the chart area on purpose — a row of toggles over a chart
    competes with the thing they change. */
@@ -31,7 +31,7 @@ export default function HouseholdInclusion({ plan, setField, scopeFor }) {
   return (
     <SectionCard title="Include in Household Calculation">
       <p className="text-xs text-[var(--text-muted)]">
-        Whose money counts in the household totals, the projection and the Success Score.
+        Whose money counts in the household totals and the projection.
       </p>
 
       <ul className="mt-2 divide-y divide-[var(--border-subtle)]">

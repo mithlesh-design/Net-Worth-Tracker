@@ -7,7 +7,6 @@ import MonthlyInvestments from "@/components/sections/MonthlyInvestments";
 import CurrentHoldings from "@/components/sections/CurrentHoldings";
 import PropertyInvestments from "@/components/sections/PropertyInvestments";
 import MiniChart from "@/components/wizard/MiniChart";
-import SuccessScore from "@/components/sections/SuccessScore";
 import { Tabs, TabsList, TabsTrigger, TabsContent, InfoStrip } from "@/components/ui";
 import { runProjectionV1 } from "@/lib/finance/projection.mjs";
 import { buildContributionPlan } from "@/lib/finance/contributions.mjs";
@@ -18,28 +17,19 @@ import {
 /* The levers first, the data entry below them. The old Investments step opened
    on two long forms with no feedback at all, so the user filled in twenty
    fields before learning anything. Here the things that move the outcome are
-   at the top and the forms that feed them are collapsed underneath, with the
-   Success Score as the hero above everything.
+   at the top and the forms that feed them are collapsed underneath.
 
-   The score is the household's, one figure for everyone included. Everything
-   below it belongs to one person: a tab per household member, built from the
-   members added on Income & Expenses — there is no way to add anyone here. */
+   Everything here belongs to one person: a tab per household member, built
+   from the members added on Income & Expenses — there is no way to add anyone
+   here. */
 export default function StepStrategyHub({
   plan, cleanPlan, scopeFor, makeId,
-  successScore, scoreStale, goalGap, lifeExpectancy,
 }) {
   const everyone = people(plan);
   const [activeId, setActiveId] = useState(SELF);
   /* A removed member's tab falls back to yours rather than to nothing. */
   const active = everyone.some((p) => p.id === activeId) ? activeId : SELF;
   const household = everyone.length > 1;
-
-  const nameOf = (id) => (id === SELF ? "You" : personLabel(plan, id));
-  const included = everyone.filter((p) => p.included).map((p) => nameOf(p.id));
-  const excluded = everyone.filter((p) => !p.included).map((p) => nameOf(p.id));
-  const caption = household
-    ? `Household: ${included.join(", ") || "nobody"}${excluded.length ? ` · ${excluded.join(", ")} not included` : ""}. Change who counts on Review.`
-    : null;
 
   const personProps = { plan, cleanPlan, scopeFor, makeId, household };
 
@@ -51,18 +41,10 @@ export default function StepStrategyHub({
         </h2>
         <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
           {household
-            ? "One success score for the household, then each person's own strategy and portfolio."
+            ? "Each person's own strategy and portfolio."
             : "The assumptions driving your projection, and the portfolio behind them."}
         </p>
       </div>
-
-      <SuccessScore
-        result={successScore}
-        stale={scoreStale}
-        hasGoals={!!goalGap?.hasGoals}
-        lifeExpectancy={lifeExpectancy}
-        caption={caption}
-      />
 
       {/* No tab bar for one person: a single "My Plan" tab is clutter. */}
       {household ? (
