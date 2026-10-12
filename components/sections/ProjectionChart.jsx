@@ -20,7 +20,7 @@ function NetWorthTooltip({ active, payload }) {
       <div className="flex items-center gap-2 mb-2">
         <span className="font-black" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
         {d.isRetired && <span className="text-xs font-semibold" style={{ color: 'var(--warning)' }}>Retired</span>}
-        {d.deficit && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
+        {d.deficit && !d.isRetired && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
       </div>
       <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
@@ -148,8 +148,14 @@ export default function ProjectionChart({
   const currentAge = age;
   const lastPoint = simulation.data[simulation.data.length - 1];
   const retirePoint = simulation.data.find((d) => d.age === earliestRetireAge);
-  const firstDeficitAge = simulation.data.find((d) => d.deficit)?.age;
-  const constrainedYears = simulation.data.filter((d) => d.constrained || d.deficit).length;
+  /* The engine flags every year that spends more than comes in, and once nobody
+     is earning that is every retired year: the drawdown the plan was built
+     for. Only a shortfall while someone is still working is a warning. Counted
+     as one, the Deficit marker sat on the retirement line, labelled to its
+     left, and read as a deficit starting a year before retirement. */
+  const isDeficit = (d) => d.deficit && !d.isRetired;
+  const firstDeficitAge = simulation.data.find(isDeficit)?.age;
+  const constrainedYears = simulation.data.filter((d) => d.constrained || isDeficit(d)).length;
   const shortfallYears = simulation.data.filter((d) => d.contributionShortfall > 0).length;
 
   const rawPeak = simulation.data.reduce((max, d) => Math.max(max, d.netWorth), 0);
