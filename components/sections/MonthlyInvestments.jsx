@@ -8,6 +8,7 @@ import {
 import ContributionBlock from "./ContributionBlock";
 import { fmt, monthlyEquivalent, toAnnual } from "@/lib/finance/format.mjs";
 import { PPF_ANNUAL_CAP } from "@/lib/finance/assumptions.mjs";
+import { effectiveAge } from "@/lib/finance/age.mjs";
 import { NAMED_CONTRIBUTIONS } from "@/lib/profile/schema.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
@@ -17,8 +18,10 @@ const FREQUENCIES = ["monthly", "quarterly", "yearly"];
    linked to the holding it feeds. */
 export default function MonthlyInvestments({ plan, setField, findingsFor, cplan, makeId }) {
   const c = plan.contributions;
-  const yearsToRetire = Math.max(0, plan.retirementAge - (plan.currentAge ?? 0));
-  const common = { plan, setField, findingsFor, yearsToRetire };
+  /* effectiveAge, not plan.currentAge: once a date of birth is entered the age
+     slider is hidden and currentAge stops moving. */
+  const yearsToRetire = Math.max(0, plan.retirementAge - (effectiveAge(plan) ?? 0));
+  const common = { plan, setField, findingsFor, yearsToRetire, cplan };
 
   const ppfAnnual = toAnnual(c.ppf.amount, c.ppf.frequency);
   const thisYear = new Date().getFullYear();
