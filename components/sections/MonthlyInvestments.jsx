@@ -39,6 +39,18 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
     <CollapsibleSection title="Monthly Investments" defaultOpen={false}
       badge={cplan.detailedMonthly > 0 ? fmt(cplan.detailedMonthly) : null}>
 
+      {/* With surplus investing on, cash contributions and the surplus draw on
+          the same pool, so raising a SIP moves money between instruments but
+          never changes the total invested. Said here, where the amounts are
+          typed, because the chart not moving otherwise reads as a bug. */}
+      {plan.investSurplus && (
+        <InfoStrip tone="blue">
+          &ldquo;Invest all surplus cash&rdquo; is on in Investment Strategy, so everything left
+          after expenses is invested anyway. Amounts paid from take-home cash change which
+          instruments the money goes into, not how much is invested.
+        </InfoStrip>
+      )}
+
       <ContributionBlock {...common} keyName="mfSip" label="Mutual Fund SIPs" cfg={c.mfSip}
         bucket="mf" holdingKey="mf" holdingLabel="Current value of Mutual Funds (₹)" />
 

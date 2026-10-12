@@ -573,3 +573,19 @@ FI bridge grows its spend at whichever rate applies in the year it is checked.
 Off by default and absent from every saved profile, so `fillDefaults` turns it
 off and no saved projection moves. With it off, the arithmetic is the same
 single `Math.pow` as before, which is why the golden snapshots are unchanged.
+
+### Surplus investing makes the SIP amounts irrelevant
+
+With `investSurplus` on, step 6 invests whatever cash is left after step 5's
+contributions. Both draw on the same pool, so a working year invests
+`max(0, availableCash)` whatever the SIP amounts say; they only decide which
+buckets the money lands in. A plan with and without a ₹1.5 L SIP then projects
+the same net worth to the rupee, and corpus growth reads as 20%+ a year: the
+return part is still exactly `expectedXIRR`, the rest is the whole surplus
+being paid in.
+
+It is off for new profiles (`DEFAULTS` and the first-run profile in
+`page.jsx`), so the plan invests what the user enters and spends the rest.
+Saved profiles keep their stored value; a v0 document without the field
+migrates to on, the behaviour it was projected with. Monthly Investments says
+so while the switch is on.

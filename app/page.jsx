@@ -58,8 +58,12 @@ export default function FinancialPlanner() {
   /* A new user starts from the v0 first-run profile, through the migration
      chain. That chain pins inflateGoals off for v0 profiles, which were
      projected at today's prices; a NEW user gets the current default, future
-     rupees, so the plan pays the future cost the goal form shows. */
-  const [plan, setPlan] = useState(() => ({ ...migrate(FIRST_RUN_V0), inflateGoals: true }));
+     rupees, so the plan pays the future cost the goal form shows. Likewise
+     investSurplus: v0 invested every spare rupee, which made the SIP amounts
+     irrelevant; a new user invests what they enter and spends the rest. */
+  const [plan, setPlan] = useState(() => ({
+    ...migrate(FIRST_RUN_V0), inflateGoals: true, investSurplus: false,
+  }));
 
   /* Writes one field by dotted path, e.g. setField("expenses.rent", 12000). */
   const setField = useCallback((path, value) => {
