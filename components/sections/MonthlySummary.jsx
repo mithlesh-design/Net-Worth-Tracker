@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutDashboard } from "lucide-react";
 import { SectionCard, InfoStrip } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 
@@ -61,7 +62,7 @@ export default function MonthlySummary({
   const startingPortfolio = simulation.openingPortfolio ?? totalHoldings;
 
   return (
-    <SectionCard title="Monthly Summary">
+    <SectionCard title="Monthly Summary" icon={LayoutDashboard}>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Tile label="Monthly Income" value={fmt(incomeMonthly)}
           sub={`${fmt(incomeMonthly * 12)}/yr${household ? ` · ${household}` : ""}`} tone="good" />

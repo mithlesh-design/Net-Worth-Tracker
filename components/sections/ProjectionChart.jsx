@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { TriangleAlert, ArrowUpRight, HandCoins } from "lucide-react";
+import { TriangleAlert, ArrowUpRight, HandCoins, ChartLine } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis, numToWordsIndian } from "@/lib/finance/format.mjs";
 import GoalIcon from "@/components/ui/GoalIcon";
+import { Card } from "@/components/ui/card";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
@@ -15,14 +17,14 @@ function NetWorthTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="backdrop-blur-md rounded-xl border px-4 py-3 min-w-[240px] text-xs"
-      style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
+    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-xs"
+      style={{ background: 'var(--card-bg)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
       <div className="flex items-center gap-2 mb-2">
-        <span className="font-black" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
+        <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
         {d.isRetired && <span className="text-xs font-semibold" style={{ color: 'var(--warning)' }}>Retired</span>}
         {d.deficit && !d.isRetired && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
       </div>
-      <div className="text-base font-black mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
+      <div className="text-base font-bold mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
       <div className="space-y-1 text-xs">
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
         {d.rentalIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Rental income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.rentalIncome)}</span></div>}
@@ -41,11 +43,11 @@ function NetWorthTooltip({ active, payload }) {
         {d.contributionShortfall > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Contribution Shortfall</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{fmt(d.contributionShortfall)}</span></div>}
         {d.surplusSpent > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Surplus Spent</span><span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{fmt(d.surplusSpent)}</span></div>}
         {d.policyMaturity > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Life insurance maturity</span><span className="font-semibold" style={{ color: 'var(--financial-positive)' }}>+{fmt(d.policyMaturity)}</span></div>}
-        {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"\u2212"}{fmt(d.goalCostGross)}</span></div>}
+        {d.goalCostGross > 0 && <div className="flex justify-between border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}><span style={{ color: 'var(--text-secondary)' }}>Goals (incl. tax)</span><span className="font-semibold" style={{ color: 'var(--value-target)' }}>{"\u2212"}{fmt(d.goalCostGross)}</span></div>}
         {/* Owned property is IN net worth; a home goal's property is not. One
             "Property Assets" row covering both would imply they are treated
             alike, which is the whole thing this split exists to prevent. */}
-        {d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property owned</span><span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.illiquidNW)}</span></div>}
+        {d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property owned</span><span className="font-semibold" style={{ color: 'var(--value-target)' }}>{fmt(d.illiquidNW)}</span></div>}
         {d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Property loan</span><span className="font-semibold" style={{ color: 'var(--danger)' }}>{"\u2212"}{fmt(d.propertyDebt)}</span></div>}
         {d.totalPropertyValue - d.illiquidNW > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Future home (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalPropertyValue - d.illiquidNW)}</span></div>}
         {d.totalLoanOutstanding - d.propertyDebt > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-muted)' }}>Home loan (not counted)</span><span className="font-semibold" style={{ color: 'var(--text-muted)' }}>{fmt(d.totalLoanOutstanding - d.propertyDebt)}</span></div>}
@@ -118,7 +120,7 @@ function PolicyOverlay({ events, projection, xScale, yScale }) {
                 <HandCoins size={ICON_SIZE.xs} />
               </div>
             </foreignObject>
-            <text x={cx + R + 4} y={by + 3} fontSize={9} fontWeight={600} fill="var(--financial-positive)">{text}</text>
+            <text x={cx + R + 4} y={by + 4} fontSize={11} fontWeight={600} fill="var(--financial-positive)">{text}</text>
           </g>
         );
       })}
@@ -162,11 +164,12 @@ export default function ProjectionChart({
   const yMax = useAnimatedDomain(rawPeak * 1.1);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
+    <Card className="flex flex-col gap-5 p-5 sm:p-7">
+      <SectionHeader icon={ChartLine} title="Net Worth Over Time"
+        kicker={simulation.fiAge ? `FI at age ${simulation.fiAge}` : null} />
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: 'var(--text-primary)' }}>Net Worth Over Time</h2>
-          <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             {/* One person's assumptions would misdescribe a household whose
                 members each carry their own; name who is in it instead. */}
             {household
@@ -175,9 +178,6 @@ export default function ProjectionChart({
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          {simulation.fiAge && (
-            <span className="text-sm font-semibold" style={{ color: 'var(--financial-target)' }}>FI at Age {simulation.fiAge}</span>
-          )}
           {constrainedYears > 0 && (
             <span className="text-sm font-semibold flex items-center gap-1" style={{ color: 'var(--danger)' }}>
               <TriangleAlert size={ICON_SIZE.xs} /> {constrainedYears} yrs deficit
@@ -186,13 +186,12 @@ export default function ProjectionChart({
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-xl p-4 sm:p-5 border"
-        style={{ background: 'var(--chart-surface)', borderColor: 'var(--border-default)' }}>
+      <div className="relative overflow-hidden">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Net Worth at Age {lifeExpectancy}</div>
             <div className="mt-1 flex items-baseline gap-3">
-              <span className="text-2xl font-black tabular-nums sm:text-3xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
+              <span className="text-3xl font-extrabold tracking-tight tabular-nums sm:text-4xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
               {lastPoint && lastPoint.netWorthRaw > simulation.openingPortfolio && (
                 <span className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--success)' }}>
                   <ArrowUpRight size={ICON_SIZE.sm} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
@@ -206,20 +205,20 @@ export default function ProjectionChart({
             </div>
             <div className="mt-0.5 text-xs italic" style={{ color: 'var(--text-muted)' }}>{lastPoint ? numToWordsIndian(Math.max(0, lastPoint.netWorthRaw)) : ""}</div>
           </div>
-          <div className="hidden sm:flex items-center gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <span className="flex items-center gap-1.5"><span className="h-1.5 w-4 rounded-full" style={{ background: 'var(--chart-primary)' }} />Net Worth</span>
-            <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--chart-target)' }} />Retire</span>
-            <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--text-muted)' }} />Life Exp.</span>
-            <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--chart-target)', background: 'var(--goal-marker-fill)' }} />Goals</span>
+          <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-1.5 w-4 rounded-full" style={{ background: 'var(--chart-primary)' }} />Net Worth</span>
+            <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--chart-target)' }} />Retire</span>
+            <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--text-muted)' }} />Life Exp.</span>
+            <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--chart-target)', background: 'var(--goal-marker-fill)' }} />Goals</span>
             {policyPoints.length > 0 && (
-              <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--financial-positive)' }} />Insurance payouts</span>
+              <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-3 w-3 rounded-full border-2" style={{ borderColor: 'var(--financial-positive)' }} />Insurance payouts</span>
             )}
           </div>
         </div>
 
         <div className="relative h-72 sm:h-80 lg:h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={simulation.data} margin={{ top: 40, right: 15, bottom: 0, left: 5 }}>
+            <AreaChart data={simulation.data} margin={{ top: 40, right: 15, bottom: 14, left: 5 }}>
               <defs>
                 <linearGradient id="nwGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--chart-primary)" stopOpacity="var(--gradient-start-opacity)" />
@@ -230,24 +229,24 @@ export default function ProjectionChart({
               <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
               <XAxis dataKey="age" type="number" domain={[currentAge, lifeExpectancy]}
                 tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-                tick={{ fontSize: 10, fill: "var(--chart-tick)" }}
-                label={{ value: "Age", position: "insideBottomRight", offset: -4, fill: "var(--chart-tick)", fontSize: 10 }} />
+                tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
+                label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 11 }} />
               <YAxis tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-                tickFormatter={fmtAxis} tick={{ fontSize: 10, fill: "var(--chart-tick)" }} width={65}
+                tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "var(--chart-tick)" }} width={65}
                 domain={[0, Math.round(yMax)]} allowDataOverflow={false} />
               <Tooltip content={<NetWorthTooltip />} cursor={{ stroke: "var(--chart-axis)", strokeWidth: 1 }} />
 
               {earliestRetireAge <= lifeExpectancy && (
                 <ReferenceLine x={earliestRetireAge} stroke="var(--chart-target)" strokeWidth={1.5} strokeDasharray="5 4" strokeOpacity={0.6}
-                  label={{ value: `Retire ${earliestRetireAge}`, position: "insideTopLeft", fontSize: 9, fill: "var(--chart-target)", offset: 6 }} />
+                  label={{ value: `Retire ${earliestRetireAge}`, position: "insideTopLeft", fontSize: 11, fill: "var(--chart-target)", offset: 6 }} />
               )}
 
               <ReferenceLine x={lifeExpectancy} stroke="var(--chart-tick)" strokeWidth={1} strokeDasharray="4 4" strokeOpacity={0.5}
-                label={{ value: `Life ${lifeExpectancy}`, position: "insideTopRight", fontSize: 9, fill: "var(--chart-tick)", offset: 6 }} />
+                label={{ value: `Life ${lifeExpectancy}`, position: "insideTopRight", fontSize: 11, fill: "var(--chart-tick)", offset: 6 }} />
 
               {firstDeficitAge && (
                 <ReferenceLine x={firstDeficitAge} stroke="var(--chart-negative)" strokeWidth={1} strokeDasharray="3 3" strokeOpacity={0.5}
-                  label={{ value: "Deficit", position: "insideTopRight", fontSize: 8, fill: "var(--chart-negative)" }} />
+                  label={{ value: "Deficit", position: "insideTopRight", fontSize: 11, fill: "var(--chart-negative)" }} />
               )}
 
               <Area type="monotone" dataKey="netWorth" stroke="var(--chart-primary)" strokeWidth={2.5} fill="url(#nwGrad)"
@@ -303,20 +302,20 @@ export default function ProjectionChart({
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-5 sm:grid-cols-4" style={{ borderColor: 'var(--border-subtle)' }}>
         {[
           { label: "Peak Net Worth", value: fmt(simulation.peakNW), sub: numToWordsIndian(simulation.peakNW), color: "var(--financial-positive)" },
-          { label: "Corpus at Retire", value: retirePoint ? fmt(retirePoint.netWorthRaw) : "\u2014", sub: retirePoint ? `${fmt(retirePoint.liquidNW)} liquid · ${fmt(retirePoint.lockedNW)} locked` : "", color: "var(--financial-target)" },
+          { label: "Corpus at Retire", value: retirePoint ? fmt(retirePoint.netWorthRaw) : "\u2014", sub: retirePoint ? `${fmt(retirePoint.liquidNW)} liquid · ${fmt(retirePoint.lockedNW)} locked` : "", color: "var(--value-target)" },
           { label: "FI Age", value: simulation.fiAge || "\u2014", sub: simulation.fiAge ? (simulation.fiAgeSustained === simulation.fiAge ? `${simulation.fiAge - age} yrs away` : simulation.fiAgeSustained ? `holds from ${simulation.fiAgeSustained}` : "not sustained") : "Not reached", color: "var(--financial-projection)" },
           { label: `NW at ${lifeExpectancy}`, value: lastPoint ? fmt(lastPoint.netWorth) : "\u2014", sub: lastPoint && lastPoint.netWorthRaw <= 0 ? "Depleted" : "", color: lastPoint && lastPoint.netWorthRaw <= 0 ? "var(--danger)" : "var(--financial-projection)" },
         ].map((c) => (
-          <div key={c.label} className="py-2">
-            <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{c.label}</div>
-            <div className="mt-1 text-lg font-bold tabular-nums" style={{ color: c.color }}>{c.value}</div>
+          <div key={c.label} className="min-w-0 py-1">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>{c.label}</div>
+            <div className="mt-1.5 text-xl font-bold tabular-nums" style={{ color: c.color }}>{c.value}</div>
             <div className="mt-0.5 text-xs truncate" style={{ color: 'var(--text-muted)' }}>{c.sub}</div>
           </div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

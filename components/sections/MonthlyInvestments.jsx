@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, Repeat } from "lucide-react";
 import {
   CollapsibleSection, SliderInput, SegmentedControl, ItemCard,
   AddItemButton, InfoStrip, DerivedStat, TextField, FieldError,
@@ -36,7 +36,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
   const removeOther = (id) => setField("contributions.other", c.other.filter((o) => o.id !== id));
 
   return (
-    <CollapsibleSection title="Monthly Investments" defaultOpen={false}
+    <CollapsibleSection title="Monthly Investments" icon={Repeat} defaultOpen={false}
       badge={cplan.detailedMonthly > 0 ? fmt(cplan.detailedMonthly) : null}>
 
       {/* With surplus investing on, cash contributions and the surplus draw on
@@ -95,7 +95,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
               value={c.epfEmployer.amount}
               onChange={(v) => setField("contributions.epfEmployer.amount", v)}
               min={0} max={100000} step={500} prefix="₹" />
-            <p className="text-[0.55rem] mt-1" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               Usually matches your own deduction. It is in neither gross nor take-home
               pay, so it is never subtracted from your cash.
             </p>
@@ -115,7 +115,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
 
       {/* Client field 16: Other (please specify) */}
       <div className="space-y-2">
-        <div className="text-[0.58rem] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)' }}>
+        <div className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)' }}>
           Other
         </div>
         {c.other.map((o, i) => {
@@ -128,10 +128,10 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
                   onChange={(e) => updateOther(o.id, "name", e.target.value)}
                   className="text-xs font-bold bg-transparent outline-none flex-1 min-w-0"
                   style={{ color: nameMissing ? 'var(--info-red-text)' : 'var(--text-primary)' }} />
-                <span className="text-[0.6rem] font-bold shrink-0" style={{ color: 'var(--financial-projection)' }}>
+                <span className="text-xs font-bold shrink-0" style={{ color: 'var(--financial-projection)' }}>
                   {fmt(monthlyEquivalent(o.amount, o.frequency))}/mo
                 </span>
-                <button onClick={() => removeOther(o.id)} className="hover:text-rose-400 shrink-0"
+                <button onClick={() => removeOther(o.id)} aria-label="Remove contribution" className="hover:text-[var(--danger)] shrink-0"
                   style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>
               </div>
               <SliderInput label={`Amount (${o.frequency})`} value={o.amount}

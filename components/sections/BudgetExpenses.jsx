@@ -1,6 +1,6 @@
 "use client";
 
-import { House } from "lucide-react";
+import { House, Receipt } from "lucide-react";
 import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat, FieldError } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { people, personLabel, hasMembers, SELF } from "@/lib/household/members.mjs";
@@ -12,7 +12,7 @@ export default function BudgetExpenses({ plan, setField, findingsFor, premiums, 
   const { inflationRate, lifestyleCreep } = plan;
 
   return (
-    <CollapsibleSection title="Budget & Expenses" defaultOpen={defaultOpen}>
+    <CollapsibleSection title="Budget & Expenses" icon={Receipt} defaultOpen={defaultOpen}>
       <SliderInput label="Household expenses (₹/month)" value={plan.expenses.household}
         onChange={(v) => setField("expenses.household", v)}
         min={0} max={500000} step={5000} prefix="₹" showWords
@@ -64,7 +64,7 @@ function PostRetireInflation({ plan, setField, findingsFor }) {
           <SliderInput label="Inflation after retirement" value={plan.postRetireInflation}
             onChange={(v) => setField("postRetireInflation", v)} min={0} max={15} step={0.5} suffix="%"
             warn={findingsFor("postRetireInflation").length > 0} />
-          <p className="text-[0.6rem] text-[var(--text-muted)]">
+          <p className="text-xs text-[var(--text-muted)]">
             Replaces general and lifestyle inflation for every year after you retire at {plan.retirementAge}.
           </p>
           <FieldError findings={findingsFor("postRetireInflation")} />
@@ -107,10 +107,10 @@ function PremiumInput({ plan, setField, premiums }) {
   };
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <SliderInput label="Medical insurance premium (₹/month)" value={monthly} onChange={setMonthly}
         min={0} max={50000} step={500} prefix="₹" showWords />
-      <p className="text-[0.6rem] text-[var(--text-muted)]">
+      <p className="text-xs text-[var(--text-muted)]">
         {frequency === "monthly"
           ? "Your own policy. Also editable under Medical Insurance below."
           : `Your own policy, paid ${frequency}: ${fmt(Number(self.premium) || 0)}. Also editable under Medical Insurance below.`}
@@ -126,7 +126,7 @@ function PremiumInput({ plan, setField, premiums }) {
    sits right under Rent in the milestone gold the home goal uses on the charts. */
 function StopRentCallout({ plan, setField, homeGoalAge }) {
   return (
-    <div className="rounded-lg border p-3 space-y-1.5"
+    <div className="rounded-xl border p-4 space-y-2"
       style={{ background: 'var(--brand-gold-050)', borderColor: 'var(--brand-gold-400)' }}>
       <div className="flex items-center gap-2">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md"

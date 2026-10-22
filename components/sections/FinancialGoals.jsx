@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, ArrowRight } from "lucide-react";
+import { Pencil, Trash2, ArrowRight, Target } from "lucide-react";
 import {
-  CollapsibleSection, SliderInput, ToggleSwitch, FieldError, DerivedStat, AddItemButton, Button,
+  CollapsibleSection, SliderInput, ToggleSwitch, FieldError, DerivedStat, AddItemButton, Button, Label,
 } from "@/components/ui";
 import { fmt, CURRENT_YEAR } from "@/lib/finance/format.mjs";
 import { calcEMI } from "@/lib/finance/loans.mjs";
@@ -55,7 +55,7 @@ export default function FinancialGoals({ plan, goals, saveGoal, removeGoal, find
   const addingNew = !!editing && editingId === null;
 
   return (
-    <CollapsibleSection title="Financial Goals" badge={`${goals.length}`} defaultOpen={defaultOpen}>
+    <CollapsibleSection title="Financial Goals" icon={Target} badge={`${goals.length}`} defaultOpen={defaultOpen}>
       {goals.length === 0 && !editing && (
         <p className="text-xs text-[var(--text-muted)]">
           No goals yet. Add a home, education, car or anything else you are saving for.
@@ -88,9 +88,9 @@ function SavedGoal({ goal, plan, age, findings, onEdit, onRemove, disabled }) {
   const rate = goalInflationRate(plan, goal);
 
   return (
-    <div className="rounded-lg border p-3 space-y-2 border-[var(--border-subtle)] bg-[var(--surface-raised)]">
+    <div className="rounded-xl border p-4 space-y-2 border-[var(--border-default)] bg-[var(--surface-raised)] transition-colors hover:border-[var(--border-strong)]">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
           style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
           <GoalIcon type={goal.emoji} size={ICON_SIZE.md} />
         </span>
@@ -140,7 +140,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
             const selected = draft?.emoji === t;
             return (
               <button key={t} type="button" onClick={() => pick(t)} aria-pressed={selected}
-                className="flex flex-col items-center gap-1.5 rounded-lg border px-2 py-3 text-xs font-medium transition-colors hover:bg-[var(--surface-hover)]"
+                className="flex flex-col items-center gap-2 rounded-xl border px-2 py-4 text-sm font-medium transition-colors hover:bg-[var(--surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 style={selected
                   ? { background: "var(--accent-soft)", color: "var(--accent)", borderColor: "var(--accent)" }
                   : { color: "var(--text-secondary)", borderColor: "var(--border-default)" }}>
@@ -182,10 +182,10 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
           Change type
         </Button>
       }>
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-[var(--text-secondary)]" htmlFor="goal-name">Goal name</label>
+      <div className="space-y-2">
+        <Label htmlFor="goal-name">Goal name</Label>
         <input id="goal-name" type="text" value={draft.name} onChange={(e) => set("name", e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
+          className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base shadow-[var(--shadow-xs)] outline-none transition-all hover:border-[var(--input-border-hover)] focus:border-[var(--input-border-focus)] focus:[box-shadow:var(--input-focus-ring)]"
           style={{ background: "var(--input-bg)", borderColor: "var(--input-border)", color: "var(--input-text)" }} />
       </div>
 
@@ -205,7 +205,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
       <div className="space-y-1">
         <SliderInput label="Expected inflation" value={rate} onChange={(v) => set("inflationRate", v)}
           min={0} max={20} step={0.5} suffix="%" />
-        <p className="text-[0.6rem] text-[var(--text-muted)]">
+        <p className="text-xs text-[var(--text-muted)]">
           {historical !== null
             ? <>Historical average: <strong>{historical}%</strong>. A guide only; set your own.</>
             : <>How fast this price rises each year. General inflation is {plan.inflationRate}%.</>}
@@ -233,7 +233,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
 
       {isHome && (
         <div className="space-y-3">
-          <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--financial-target)" }}>After you buy</div>
+          <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--value-target)" }}>After you buy</div>
           <SliderInput label="Property appreciation" value={draft.appreciationRate} onChange={(v) => set("appreciationRate", v)} min={0} max={15} step={0.5} suffix="%" />
           <SliderInput label="Annual maintenance %" value={draft.maintenancePct} onChange={(v) => set("maintenancePct", v)} min={0} max={5} step={0.25} suffix="%" />
         </div>

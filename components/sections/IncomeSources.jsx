@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X, Plus } from "lucide-react";
-import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldError, InfoStrip } from "@/components/ui";
+import { X, Wallet } from "lucide-react";
+import { CollapsibleSection, SliderInput, SegmentedControl, DerivedStat, FieldError, InfoStrip, Button, AddItemButton } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
@@ -33,7 +33,7 @@ export default function IncomeSources({
   };
 
   return (
-    <CollapsibleSection title={title} badge={`${incomes.length}`} defaultOpen={defaultOpen}>
+    <CollapsibleSection title={title} icon={Wallet} badge={`${incomes.length}`} defaultOpen={defaultOpen}>
       {showHint && (
         <InfoStrip tone="blue">
           Enter <strong>take-home</strong> pay — what actually reaches the bank, after
@@ -49,7 +49,7 @@ export default function IncomeSources({
               className="text-xs font-bold bg-transparent outline-none w-28" style={{ color: 'var(--text-primary)' }} />
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(toAnnual(inc.amount, inc.frequency))}/yr</span>
-              {incomes.length > minItems && <button onClick={() => removeIncome(inc.id)} className="hover:text-rose-400" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
+              {incomes.length > minItems && <button onClick={() => removeIncome(inc.id)} aria-label={`Remove ${inc.name || "income"}`} className="hover:text-[var(--danger)]" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
             </div>
           </div>
           <SliderInput label={`Amount (${inc.frequency})`} value={inc.amount} onChange={(v) => updateIncome(inc.id, "amount", v)}
@@ -85,17 +85,12 @@ export default function IncomeSources({
           />
           <SliderInput label="Growth %" value={newInc.growthRate} onChange={(v) => setNewInc({ ...newInc, growthRate: v })} min={0} max={25} step={0.5} suffix="%" />
           <div className="flex gap-2">
-            <button onClick={handleAdd} className="flex-1 rounded-lg py-1.5 text-xs font-bold transition"
-              style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}>Add</button>
-            <button onClick={() => setShowAddIncome(false)} className="rounded-lg border px-3 py-1.5 text-xs transition"
-              style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}>Cancel</button>
+            <Button onClick={handleAdd} className="flex-1">Add</Button>
+            <Button variant="outline" onClick={() => setShowAddIncome(false)}>Cancel</Button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setShowAddIncome(true)} className="w-full rounded-lg border border-dashed py-3 flex items-center justify-center gap-1.5 text-xs font-semibold transition"
-          style={{ borderColor: 'var(--border-strong)', color: 'var(--text-secondary)' }}>
-          <Plus size={ICON_SIZE.sm} /> Add Income Source
-        </button>
+        <AddItemButton onClick={() => setShowAddIncome(true)} label="Add Income Source" />
       )}
       <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
         All income stops at retirement age, <strong style={{ color: 'var(--text-primary)' }}>{plan.retirementAge} yrs</strong>.

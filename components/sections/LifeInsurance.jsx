@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Trash2, ShieldCheck } from "lucide-react";
 import {
   CollapsibleSection, SliderInput, SegmentedControl, ToggleSwitch, InfoStrip, FieldError,
   ItemCard, AddItemButton, Button, Label,
@@ -31,7 +31,7 @@ export default function LifeInsurance({ plan, setField, findingsFor, makeId }) {
   const remove = (id) => setField("lifePolicies", policies.filter((p) => p.id !== id));
 
   return (
-    <CollapsibleSection title="Life Insurance" defaultOpen={false}
+    <CollapsibleSection title="Life Insurance" icon={ShieldCheck} defaultOpen={false}
       badge={policies.length ? `${policies.length} · ${fmt(totalPremium / 12)}/mo` : "None"}>
       {policies.map((p, i) => (
         <PolicyCard key={p.id} policy={p} index={i} age={age} setField={setField}
@@ -74,7 +74,7 @@ function PolicyCard({ policy: p, index, age, setField, findings, onRemove }) {
       <div className="space-y-1">
         <Label htmlFor={`${base}-type`}>Policy type</Label>
         <select id={`${base}-type`} value={p.type} onChange={(e) => edit("type", e.target.value)}
-          className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
+className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base shadow-[var(--shadow-xs)] outline-none transition-all hover:border-[var(--input-border-hover)] focus:border-[var(--input-border-focus)] focus:[box-shadow:var(--input-focus-ring)]"
           style={{ background: "var(--input-bg)", borderColor: "var(--input-border)", color: "var(--input-text)" }}>
           {POLICY_TYPES.map((t) => <option key={t} value={t}>{POLICY_TYPE_LABELS[t]}</option>)}
         </select>
@@ -121,7 +121,7 @@ function TermFields({ p, age, edit }) {
             onChange={(v) => edit("maturityAge", v)} min={age} max={MAX_AGE} suffix=" yrs" />
           <SliderInput label="Age you started the policy" value={p.startAge}
             onChange={(v) => edit("startAge", v)} min={18} max={Math.max(18, p.premiumUntilAge)} suffix=" yrs" />
-          <p className="text-[0.6rem] text-[var(--text-muted)]">
+          <p className="text-xs text-[var(--text-muted)]">
             Used to count the premiums returned: {premiumYears(p)} years × {fmt(annualPolicyPremium(p))} a year.
           </p>
         </>
@@ -140,7 +140,7 @@ function MaturityFields({ p, age, edit }) {
       <SliderInput label="Approximate maturity amount (₹)" value={p.maturityAmount ?? 0}
         onChange={(v) => edit("maturityAmount", v)} min={0} max={100000000} step={50000} prefix="₹" showWords />
       {isUlip && (
-        <p className="text-[0.6rem] text-[var(--text-muted)]">
+        <p className="text-xs text-[var(--text-muted)]">
           A ULIP&rsquo;s value depends on the market. Use the projected figure from your policy
           statement; the plan treats it as an estimate.
         </p>
@@ -156,7 +156,7 @@ function MaturityFields({ p, age, edit }) {
             onChange={(v) => edit("incomeStartAge", v)} min={age} max={MAX_AGE} suffix=" yrs" />
           <SliderInput label="Income end age" value={p.incomeEndAge}
             onChange={(v) => edit("incomeEndAge", v)} min={p.incomeStartAge ?? age} max={MAX_AGE} suffix=" yrs" />
-          <p className="text-[0.6rem] text-[var(--text-muted)]">
+          <p className="text-xs text-[var(--text-muted)]">
             {payments > 0
               ? `${payments} yearly payment${payments === 1 ? "" : "s"}, from age ${p.incomeStartAge} to ${p.incomeEndAge}.`
               : "The end age must be the start age or later."}

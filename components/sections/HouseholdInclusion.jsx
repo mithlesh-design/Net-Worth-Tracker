@@ -1,5 +1,6 @@
 "use client";
 
+import { UsersRound } from "lucide-react";
 import { useId } from "react";
 import { SectionCard, Switch, PersonAvatar } from "@/components/ui";
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
@@ -29,7 +30,7 @@ export default function HouseholdInclusion({ plan, setField, scopeFor }) {
     : scopeFor(id).setField("included", v));
 
   return (
-    <SectionCard title="Include in Household Calculation">
+    <SectionCard title="Include in Household Calculation" icon={UsersRound}>
       <p className="text-xs text-[var(--text-muted)]">
         Whose money counts in the household totals and the projection.
       </p>

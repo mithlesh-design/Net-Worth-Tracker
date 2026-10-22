@@ -5,7 +5,10 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Customized,
 } from "recharts";
 import { fmt, fmtAxis } from "@/lib/finance/format.mjs";
+import { TrendingUp } from "lucide-react";
 import GoalIcon from "@/components/ui/GoalIcon";
+import { Card } from "@/components/ui/card";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
@@ -16,9 +19,9 @@ function GoalGapTooltip({ active, payload, goalGap }) {
   const dueHere = goalGap.goals.filter((g) => g.age === d.age && g.status !== "outOfHorizon");
 
   return (
-    <div className="backdrop-blur-md rounded-xl border px-4 py-3 min-w-[240px] text-xs"
-      style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-md)' }}>
-      <div className="font-black mb-2" style={{ color: 'var(--text-primary)' }}>Age {d.age}</div>
+    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-xs"
+      style={{ background: 'var(--card-bg)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
+      <div className="font-bold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>Age {d.age}</div>
 
       <div className="space-y-1">
         <div className="flex justify-between gap-6">
@@ -27,7 +30,7 @@ function GoalGapTooltip({ active, payload, goalGap }) {
         </div>
         <div className="flex justify-between gap-6">
           <span style={{ color: 'var(--text-secondary)' }}>Needed for goals ahead</span>
-          <span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{fmt(d.required)}</span>
+          <span className="font-semibold" style={{ color: 'var(--value-target)' }}>{fmt(d.required)}</span>
         </div>
         <div className="flex justify-between gap-6 border-t pt-1" style={{ borderColor: 'var(--border-subtle)' }}>
           <span style={{ color: 'var(--text-secondary)' }}>{short ? "Short by" : "Ahead by"}</span>
@@ -50,7 +53,7 @@ function GoalGapTooltip({ active, payload, goalGap }) {
               <span className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
                 <GoalIcon type={g.emoji} size={ICON_SIZE.xs} />{g.name}
               </span>
-              <span className="font-semibold" style={{ color: 'var(--financial-target)' }}>{"−"}{fmt(g.requiredInflated)}</span>
+              <span className="font-semibold" style={{ color: 'var(--value-target)' }}>{"−"}{fmt(g.requiredInflated)}</span>
             </div>
           ))}
         </div>
@@ -181,20 +184,18 @@ export default function GoalGapChart({
   const pricedAt = [...new Set(goals.filter((g) => g.inflationGap > 1).map((g) => g.inflationUsed))];
 
   return (
-    <div className="rounded-xl p-4 sm:p-5 border" style={{ background: 'var(--chart-surface)', borderColor: 'var(--border-default)' }}>
-      <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
-        <div>
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Goal Gap</h3>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            Your trajectory against what your goals demand
-          </p>
-        </div>
-        <div className="hidden sm:flex items-center gap-4 text-xs" style={{ color: 'var(--text-secondary)' }}>
-          <span className="flex items-center gap-1.5">
+    <Card className="p-5 sm:p-7">
+      <SectionHeader icon={TrendingUp} title="Goal Gap" className="mb-3" />
+      <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          Your trajectory against what your goals demand
+        </p>
+        <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="h-1.5 w-4 rounded-full" style={{ background: 'var(--chart-primary)' }} />
             Your corpus
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--chart-target)' }} />
             Goals need
           </span>
@@ -203,7 +204,7 @@ export default function GoalGapChart({
 
       <div className="relative h-72 sm:h-80 lg:h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={series} margin={{ top: 40, right: 15, bottom: 0, left: 5 }}>
+          <ComposedChart data={series} margin={{ top: 40, right: 15, bottom: 14, left: 5 }}>
             <defs>
               {/* Gradient ids are document-global; nwGrad and miniNwGrad are taken. */}
               <linearGradient id="ggProjGrad" x1="0" y1="0" x2="0" y2="1">
@@ -221,12 +222,12 @@ export default function GoalGapChart({
             <XAxis
               dataKey="age" type="number" domain={[startAge, windowEnd]}
               tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-              tick={{ fontSize: 10, fill: "var(--chart-tick)" }}
-              label={{ value: "Age", position: "insideBottomRight", offset: -4, fill: "var(--chart-tick)", fontSize: 10 }}
+              tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
+              label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 11 }}
             />
             <YAxis
               tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-              tickFormatter={fmtAxis} tick={{ fontSize: 10, fill: "var(--chart-tick)" }}
+              tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
               width={65} domain={[0, Math.round(yMax)]} allowDataOverflow={false}
             />
             <Tooltip
@@ -264,7 +265,7 @@ export default function GoalGapChart({
               <ReferenceLine
                 x={earliestRetireAge} stroke="var(--chart-target)"
                 strokeDasharray="5 4" strokeOpacity={0.6}
-                label={{ value: "Retire", position: "top", fill: "var(--chart-tick)", fontSize: 9 }}
+                label={{ value: "Retire", position: "top", fill: "var(--chart-tick)", fontSize: 11 }}
               />
             )}
 
@@ -318,6 +319,6 @@ export default function GoalGapChart({
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

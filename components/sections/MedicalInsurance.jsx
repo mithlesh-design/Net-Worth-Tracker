@@ -1,5 +1,6 @@
 "use client";
 
+import { HeartPulse } from "lucide-react";
 import {
   CollapsibleSection, SliderInput, SegmentedControl, YesNoField, ToggleSwitch,
   ItemCard, InfoStrip, DerivedStat, FieldError,
@@ -37,7 +38,7 @@ function PolicyBlock({ who, label, cfg, setField, findingsFor, sharedDisabled })
               min={0} max={20000000} step={100000} prefix="₹" showWords
               disabled={!!cfg.unlimitedCoverage} disabledText="Unlimited"
             />
-            <p className="text-[0.6rem] text-[var(--text-muted)]">
+            <p className="text-xs text-[var(--text-muted)]">
               {cfg.unlimitedCoverage
                 ? "No amount needed: this policy has no upper limit on cover. Switch off to enter a fixed amount."
                 : "Enter the sum insured, or switch on Unlimited if the policy has no upper limit."}
@@ -104,7 +105,7 @@ export default function MedicalInsurance({ plan, setField, findingsFor }) {
      own. */
   return (
     <CollapsibleSection
-      title="Medical Insurance"
+      title="Medical Insurance" icon={HeartPulse}
       defaultOpen={false}
       badge={covered ? `${covered} · ${fmt(premiums.total / 12)}/mo` : "None"}
     >

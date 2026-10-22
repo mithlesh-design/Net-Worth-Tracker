@@ -1,5 +1,6 @@
 "use client";
 
+import { UserRound } from "lucide-react";
 import { SectionCard, TextField, DateField, InfoStrip, FieldError } from "@/components/ui";
 import { ageFromDob, todayISO } from "@/lib/finance/age.mjs";
 
@@ -9,8 +10,8 @@ export default function PersonalDetails({ plan, setField, findingsFor }) {
   const derivedAge = ageFromDob(dob);
 
   return (
-    <SectionCard title="Personal Details">
-      <div className="space-y-3">
+    <SectionCard title="Personal Details" icon={UserRound} kicker="Your journey. Our focus.">
+      <div className="space-y-5">
         <TextField
           label="Full Name"
           value={plan.personal.fullName}
@@ -27,9 +28,8 @@ export default function PersonalDetails({ plan, setField, findingsFor }) {
           hint={derivedAge === null ? "Sets your current age in the Timeline." : undefined}
         />
         {derivedAge !== null && derivedAge >= 0 && (
-          <InfoStrip tone="blue">
-            Current age <strong>{derivedAge}</strong>, calculated from your date of birth.
-            The Timeline uses this figure.
+          <InfoStrip tone="amber">
+            Current age: <strong>{derivedAge}</strong> &mdash; used to personalize your financial timeline.
           </InfoStrip>
         )}
         <FieldError findings={findingsFor("personal")} />

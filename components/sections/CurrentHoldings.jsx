@@ -1,7 +1,8 @@
 "use client";
 
+import { Briefcase } from "lucide-react";
 import {
-  CollapsibleSection, SliderInput, InfoStrip, DerivedStat, FieldError,
+  CollapsibleSection, SliderInput, InfoStrip, DerivedStat, FieldError, Button,
 } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { BUCKET_DEFS, LOCKED } from "@/lib/finance/assumptions.mjs";
@@ -52,7 +53,7 @@ export default function CurrentHoldings({
     setField(`${basePath}.unallocated`, Math.max(0, unallocated - namedTotal));
 
   return (
-    <CollapsibleSection title={title} defaultOpen={false}
+    <CollapsibleSection title={title} icon={Briefcase} defaultOpen={false}
       badge={totalHoldings > 0 ? fmt(totalHoldings) : null}>
 
       {FIELDS.map((f) => (
@@ -64,7 +65,7 @@ export default function CurrentHoldings({
             min={0} max={50000000} step={10000} prefix="₹" showWords
             warn={findingsFor(`${basePath}.${f.key}`).length > 0}
           />
-          <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             {f.hint ?? "Value today."}
           </p>
         </div>
@@ -82,7 +83,7 @@ export default function CurrentHoldings({
           onChange={(v) => setField(`${basePath}.unallocated`, v)}
           min={0} max={50000000} step={10000} prefix="₹" showWords
         />
-        <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
           Anything not broken down above. A previously saved net worth lands here.
         </p>
       </div>
@@ -96,16 +97,12 @@ export default function CurrentHoldings({
               If the entered holdings are part of the unallocated figure, reduce it.
             </div>
             <div className="flex gap-2 pt-0.5">
-              <button onClick={reduceUnallocated}
-                className="rounded-lg px-2 py-1 text-[0.6rem] font-bold transition"
-                style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)' }}>
+              <Button size="sm" onClick={reduceUnallocated}>
                 Reduce unallocated by {fmt(namedTotal)}
-              </button>
-              <button onClick={() => setField(`${basePath}.unallocated`, 0)}
-                className="rounded-lg border px-2 py-1 text-[0.6rem] font-bold transition"
-                style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}>
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setField(`${basePath}.unallocated`, 0)}>
                 Clear it
-              </button>
+              </Button>
             </div>
           </div>
         </InfoStrip>

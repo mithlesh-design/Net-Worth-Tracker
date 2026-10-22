@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, Building2 } from "lucide-react";
 import {
   CollapsibleSection, SliderInput, InfoStrip, DerivedStat, ItemCard, AddItemButton,
 } from "@/components/ui";
@@ -39,7 +39,7 @@ export default function PropertyInvestments({
   }]);
 
   return (
-    <CollapsibleSection title="Property You Own" defaultOpen={false}
+    <CollapsibleSection title="Property You Own" icon={Building2} defaultOpen={false}
       badge={totalValue > 0 ? fmt(totalValue) : null}>
 
       <InfoStrip tone="blue">
@@ -57,11 +57,11 @@ export default function PropertyInvestments({
                 onChange={(e) => update(p.id, "name", e.target.value)}
                 className="text-xs font-bold bg-transparent outline-none flex-1 min-w-0"
                 style={{ color: 'var(--text-primary)' }} />
-              <span className="text-[0.6rem] font-bold shrink-0"
+              <span className="text-xs font-bold shrink-0"
                 style={{ color: 'var(--financial-projection)' }}>
                 {fmt((Number(p.value) || 0) - (Number(p.loanOutstanding) || 0))} equity
               </span>
-              <button onClick={() => remove(p.id)} className="hover:text-rose-400 shrink-0"
+              <button onClick={() => remove(p.id)} aria-label="Remove property" className="hover:text-[var(--danger)] shrink-0"
                 style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>
             </div>
 
@@ -72,7 +72,7 @@ export default function PropertyInvestments({
             <SliderInput label="Rental income (₹/month, after tax)" value={p.rentalIncome ?? 0}
               onChange={(v) => update(p.id, "rentalIncome", v)}
               min={0} max={1000000} step={1000} prefix="₹" />
-            <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               What you keep. Rent is taxed at slab rates after a 30% standard
               deduction, and this projection has no tax model — so enter the net figure.
             </p>
@@ -80,7 +80,7 @@ export default function PropertyInvestments({
             <SliderInput label="Annual maintenance" value={p.maintenancePct ?? 0}
               onChange={(v) => update(p.id, "maintenancePct", v)}
               min={0} max={5} step={0.1} suffix="%" />
-            <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               Of current value — repairs, society dues, property tax. Charged for life,
               so it makes financial independence harder, not easier.
             </p>
@@ -88,7 +88,7 @@ export default function PropertyInvestments({
             <SliderInput label="Loan outstanding today (₹)" value={p.loanOutstanding ?? 0}
               onChange={(v) => update(p.id, "loanOutstanding", v)}
               min={0} max={100000000} step={100000} prefix="₹" showWords />
-            <p className="text-[0.55rem] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               The balance left now, not the original loan amount.
             </p>
 

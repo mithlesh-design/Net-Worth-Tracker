@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2, Users } from "lucide-react";
 import IncomeSources from "@/components/sections/IncomeSources";
 import {
   CollapsibleSection, SliderInput, SegmentedControl, TextField, FieldError, InfoStrip,
@@ -39,7 +39,7 @@ export default function HouseholdMembers({
 
   return (
     <CollapsibleSection
-      title="Household Members"
+      title="Household Members" icon={Users}
       badge={members.length ? `${members.length} added` : null}
       defaultOpen
     >
@@ -65,7 +65,7 @@ export default function HouseholdMembers({
         <DropdownMenuTrigger asChild disabled={atLimit}>
           <Button
             variant="outline"
-            className="w-full border-dashed py-3 h-auto text-xs font-semibold border-[var(--border-strong)] text-[var(--text-secondary)] bg-transparent hover:bg-[var(--surface-hover)]"
+            className="w-full border-dashed py-3.5 h-auto text-sm font-semibold border-[var(--gold-line)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--gold-soft)] hover:border-[var(--gold-rule)]"
           >
             <Plus size={ICON_SIZE.sm} className="mr-1.5" />
             Add a household member
@@ -148,7 +148,7 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
             <SliderInput label="Retirement age" value={m.retirementAge ?? 60}
               onChange={(v) => scope.setField("retirementAge", v)}
               min={18} max={80} suffix=" yrs" />
-            <p className="text-[0.6rem] mt-0.5 text-[var(--text-muted)]">
+            <p className="text-xs mt-0.5 text-[var(--text-muted)]">
               {age !== null && m.retirementAge <= age
                 ? "Already retired: their investments no longer take new money, and their returns are held to their post-retirement rate."
                 : "Their monthly investments stop at this age, and their returns switch to their post-retirement rate."}

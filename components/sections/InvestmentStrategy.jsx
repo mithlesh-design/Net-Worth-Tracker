@@ -1,10 +1,9 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
-import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat } from "@/components/ui";
+import { Compass } from "lucide-react";
+import { CollapsibleSection, SliderInput, ToggleSwitch, InfoStrip, DerivedStat, Button } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { ASSUMPTIONS_AS_OF } from "@/lib/finance/assumptions.mjs";
-import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* Is any instrument priced away from the single expected-return slider? Then
    that slider no longer describes the portfolio, and a blended figure does. */
@@ -46,7 +45,7 @@ export default function InvestmentStrategy({
   ].filter(Boolean);
 
   return (
-    <CollapsibleSection title="Investment Strategy" defaultOpen={defaultOpen}>
+    <CollapsibleSection title="Investment Strategy" icon={Compass} defaultOpen={defaultOpen}>
       <DerivedStat label="Starting Portfolio" value={fmt(simulation.openingPortfolio)}
         sub={parts.length > 1 ? parts.join(" + ") : "total of Current Holdings"} />
 
@@ -69,11 +68,9 @@ export default function InvestmentStrategy({
         <>
           <DerivedStat label="Blended Portfolio Return" value={`${blendedNow.toFixed(1)}%`}
             sub="weighted by what you actually hold" />
-          <button onClick={resetAllRates}
-            className="w-full rounded-lg border py-1.5 text-[0.6rem] font-bold transition"
-            style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}>
+          <Button variant="outline" size="sm" onClick={resetAllRates} className="w-full">
             Set all instruments to {expectedXIRR}%
-          </button>
+          </Button>
         </>
       ) : (
         <SliderInput label="Pre-Retirement Return" value={expectedXIRR} onChange={(v) => setField("expectedXIRR", v)} min={1} max={25} step={0.5} suffix="%" />
@@ -95,10 +92,9 @@ export default function InvestmentStrategy({
             : "Only the Target SIP is invested. Remaining surplus is spent (lifestyle)."}
         </p>
       </div>
-      <div className="rounded-lg border px-3 py-2 text-[0.6rem] flex items-center gap-1.5"
-        style={{ background: 'var(--info-blue-bg)', borderColor: 'var(--info-blue-border)', color: 'var(--info-blue-text)' }}>
-        <ShieldCheck size={ICON_SIZE.xs} /> Returns switch to {postRetireReturn}% at age {retirementAge}
-      </div>
+      <InfoStrip tone="blue">
+        Returns switch to <strong>{postRetireReturn}%</strong> at age <strong>{retirementAge}</strong>.
+      </InfoStrip>
     </CollapsibleSection>
   );
 }

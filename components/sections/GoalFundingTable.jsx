@@ -1,5 +1,6 @@
 "use client";
 
+import { PiggyBank } from "lucide-react";
 import { SectionCard } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import GoalIcon from "@/components/ui/GoalIcon";
@@ -102,7 +103,7 @@ export default function GoalFundingTable({ goalGap, plan }) {
 
   if (!goals.length) {
     return (
-      <SectionCard title="Goal funding">
+      <SectionCard title="Goal funding" icon={PiggyBank}>
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           Add a goal above and this will show whether your plan gets you there.
         </p>
@@ -111,7 +112,7 @@ export default function GoalFundingTable({ goalGap, plan }) {
   }
 
   return (
-    <SectionCard title="Goal funding">
+    <SectionCard title="Goal funding" icon={PiggyBank}>
       {hasGoals && (
         <div className="pb-3 mb-1 border-b" style={{ borderColor: "var(--border-default)" }}>
           <div className="flex items-baseline justify-between gap-3">
@@ -119,7 +120,7 @@ export default function GoalFundingTable({ goalGap, plan }) {
               {allFunded ? "Real cost of all your goals" : "Total shortfall"}
             </span>
             <span
-              className="text-base font-black tabular-nums"
+              className="text-lg font-bold tabular-nums"
               style={{ color: allFunded ? "var(--text-primary)" : "var(--danger)" }}
             >
               {allFunded ? fmt(totals.requiredInflated) : fmt(totals.gap)}

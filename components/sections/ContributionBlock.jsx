@@ -39,7 +39,7 @@ export default function ContributionBlock({
       <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full text-left px-3 py-2.5">
         <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{label}</span>
         <span className="flex items-center gap-2">
-          <span className="text-[0.6rem] font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(monthly)}/mo</span>
+          <span className="text-xs font-bold" style={{ color: 'var(--financial-projection)' }}>{fmt(monthly)}/mo</span>
           <ChevronDown size={ICON_SIZE.xs} className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
             style={{ color: 'var(--text-muted)' }} />
         </span>
@@ -71,7 +71,7 @@ export default function ContributionBlock({
                 onChange={(v) => setField(`${base}.fundedFromPayroll`, v)}
                 label="Already deducted from my pay"
               />
-              <p className="text-[0.55rem] mt-1" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 {cfg.fundedFromPayroll
                   ? "Will not be subtracted from your take-home cash again."
                   : "Paid from your take-home cash."}
@@ -91,7 +91,7 @@ export default function ContributionBlock({
                 onChange={(v) => setField(`holdings.${holdingKey}`, v)}
                 min={0} max={50000000} step={10000} prefix="₹" showWords
               />
-              <p className="text-[0.55rem] mt-1" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 {holdingHint ?? "Value today. Shared with the Current Holdings card."}
               </p>
             </div>
@@ -99,7 +99,7 @@ export default function ContributionBlock({
 
           {/* Supporting assumptions, marked as assumptions. */}
           <div className="border-t pt-3 space-y-3" style={{ borderColor: 'var(--border-secondary)' }}>
-            <div className="text-[0.55rem] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               Assumptions {isEstimate ? "(estimate)" : ""}
             </div>
             <SliderInput
