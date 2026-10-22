@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export default function DateField({ label, value, onChange, max = undefined, hint = null, invalid = false }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {label && <Label>{label}</Label>}
       <Input
         type="date"

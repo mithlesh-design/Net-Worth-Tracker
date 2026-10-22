@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export default function TextField({ label, value, onChange, placeholder = "", hint = null, invalid = false }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {label && <Label>{label}</Label>}
       <Input
         type="text"

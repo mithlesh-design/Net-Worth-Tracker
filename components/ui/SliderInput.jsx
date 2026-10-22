@@ -5,12 +5,17 @@ import { toWords } from "@/lib/finance/format.mjs";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 
-/* `disabled` locks both the box and the track. `disabledText`, when given,
+/* Label on the left, the value on the right in bold with its unit muted
+   ("75 yrs"), then a thin track with a gold thumb. The value is an editable
+   box that reads as text until it is touched.
+
+   `disabled` locks both the box and the track. `disabledText`, when given,
    replaces the number shown while locked, so a field that no longer applies
    says so instead of showing a stale figure. */
 export default function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, prefix = "", suffix = "", showWords = false, warn = false, disabled = false, disabledText = null }) {
   const pct = ((Math.min(Math.max(value, min), max) - min) / (max - min)) * 100;
-  const trackColor = warn ? "var(--danger)" : "var(--brand-navy-700)";
+  const fill = warn ? "var(--danger)" : "var(--slider-fill)";
+  const unit = suffix.trim();
 
   /* What is in the box while it has focus. A number input bound straight to
      the numeric value keeps a typed-over zero: "0" + "1000" reads "01000", and
@@ -27,43 +32,49 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
     onChange(Number(text) || 0);
   };
   return (
-    <div className={cn("space-y-1", disabled && "opacity-60")} aria-disabled={disabled || undefined}>
-      <div className="flex items-center justify-between">
+    <div className={cn("space-y-1.5", disabled && "opacity-60")} aria-disabled={disabled || undefined}>
+      <div className="flex items-center justify-between gap-3">
         <Label>{label}</Label>
         {disabled && disabledText !== null ? (
           <span className="text-sm font-semibold text-[var(--text-secondary)]">{disabledText}</span>
         ) : (
-        <div className={cn("flex items-center text-sm font-semibold tabular-nums", warn ? "text-[var(--danger)]" : "text-[var(--text-primary)]")}>
-          {prefix && <span className="mr-0.5 text-xs text-[var(--text-muted)]">{prefix}</span>}
-          <input
-            type="number"
-            value={draft ?? value}
-            onChange={handleType}
-            /* Selecting on focus means the first key replaces a 0 outright. */
-            onFocus={(e) => { setDraft(String(value)); e.target.select(); }}
-            onBlur={() => setDraft(null)}
-            disabled={disabled}
-            className="w-20 text-right bg-transparent outline-none"
-            step={step}
-            style={{ color: "inherit" }}
-          />
-          {suffix && <span className="ml-0.5 text-xs text-[var(--text-muted)]">{suffix}</span>}
-        </div>
+          <div className={cn("flex items-baseline gap-1 tabular-nums", warn ? "text-[var(--danger)]" : "text-[var(--text-primary)]")}>
+            {prefix && <span className="text-sm font-medium text-[var(--text-muted)]">{prefix}</span>}
+            <input
+              type="number"
+              value={draft ?? value}
+              onChange={handleType}
+              /* Selecting on focus means the first key replaces a 0 outright. */
+              onFocus={(e) => { setDraft(String(value)); e.target.select(); }}
+              onBlur={() => setDraft(null)}
+              disabled={disabled}
+              aria-label={typeof label === "string" ? label : undefined}
+              className="w-24 rounded-md bg-transparent px-1 text-right text-lg font-bold outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)] sm:w-28"
+              step={step}
+              style={{ color: "inherit" }}
+            />
+            {unit && <span className="text-sm font-medium text-[var(--text-muted)]">{unit}</span>}
+          </div>
         )}
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={Math.min(Math.max(value, min), max)}
-        onChange={(e) => onChange(Number(e.target.value))}
-        disabled={disabled}
-        className={cn("w-full h-1.5 rounded-full appearance-none", disabled ? "cursor-not-allowed" : "cursor-pointer")}
-        style={{ background: `linear-gradient(to right, ${trackColor} ${pct}%, var(--slider-track-bg) ${pct}%)` }}
-      />
+      {/* Padded by the thumb's overhang (20px thumb on a 4px track), so the
+          thumb stays inside this component and never sits on a hint below. */}
+      <div className="py-2">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={Math.min(Math.max(value, min), max)}
+          onChange={(e) => onChange(Number(e.target.value))}
+          disabled={disabled}
+          aria-label={typeof label === "string" ? label : undefined}
+          className={cn("block w-full appearance-none rounded-full", disabled ? "cursor-not-allowed" : "cursor-pointer")}
+          style={{ background: `linear-gradient(to right, ${fill} ${pct}%, var(--slider-track-bg) ${pct}%)` }}
+        />
+      </div>
       {showWords && value > 0 && !disabled && (
-        <p className="text-[0.6rem] italic truncate text-[var(--text-muted)]">{toWords(value)}</p>
+        <p className="truncate text-xs italic text-[var(--text-muted)]">{toWords(value)}</p>
       )}
     </div>
   );

@@ -3,36 +3,37 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card } from "./card";
+import SectionHeader from "./SectionHeader";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "./collapsible";
 import { cn } from "@/lib/utils";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
-export default function CollapsibleSection({ title, children, defaultOpen = true, badge = null }) {
+/* A SectionCard that folds. `badge` (a count or an amount) sits in the
+   header's kicker slot, so a closed card still says what it holds. */
+export default function CollapsibleSection({ title, icon = null, children, defaultOpen = true, badge = null }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="p-5">
+    <Card className="p-5 sm:p-7">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger asChild>
-          <button className="flex items-center justify-between w-full text-left">
-            <div className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] flex items-center gap-2 text-[var(--text-muted)]">
-              {title}
-              {badge && (
-                <span className="text-[0.6rem] font-medium normal-case tracking-normal text-[var(--text-subtle)]">
-                  {badge}
+          <button className="w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--card-bg)]">
+            <SectionHeader
+              icon={icon}
+              title={title}
+              titleAs="span"
+              kicker={badge}
+              action={
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border"
+                  style={{ borderColor: "var(--border-default)", color: "var(--text-muted)" }}>
+                  <ChevronDown size={ICON_SIZE.md}
+                    className={cn("transition-transform duration-200", open && "rotate-180")} />
                 </span>
-              )}
-            </div>
-            <ChevronDown
-              size={ICON_SIZE.sm}
-              className={cn(
-                "transition-transform duration-200 text-[var(--text-muted)]",
-                open && "rotate-180"
-              )}
+              }
             />
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="mt-3 space-y-4">{children}</div>
+          <div className="mt-5 space-y-5 sm:mt-6">{children}</div>
         </CollapsibleContent>
       </Collapsible>
     </Card>

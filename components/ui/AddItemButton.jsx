@@ -11,8 +11,8 @@ export default function AddItemButton({ onClick, label, tone = "emerald" }) {
       variant="outline"
       onClick={onClick}
       className={cn(
-        "w-full border-dashed py-3 h-auto text-xs font-semibold",
-        "border-[var(--border-strong)] text-[var(--text-secondary)] bg-transparent hover:bg-[var(--surface-hover)]"
+        "w-full border-dashed py-3.5 h-auto text-sm font-semibold",
+        "border-[var(--gold-line)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--gold-soft)] hover:border-[var(--gold-rule)]"
       )}
     >
       <Plus size={ICON_SIZE.sm} className="mr-1.5" /> {label}

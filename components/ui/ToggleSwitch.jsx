@@ -11,7 +11,7 @@ export default function ToggleSwitch({ value, onChange, label }) {
   const id = useId();
 
   return (
-    <div className="flex items-center gap-2.5">
+    <div className="flex items-center gap-3">
       <Switch id={id} checked={value} onCheckedChange={onChange} />
       <Label htmlFor={id} className="cursor-pointer">{label}</Label>
     </div>

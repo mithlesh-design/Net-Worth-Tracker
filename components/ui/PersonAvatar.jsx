@@ -10,7 +10,7 @@ export default function PersonAvatar({ label, className }) {
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+        "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
         "bg-[var(--nav-active-bg)] text-[var(--nav-active-text)]",
         className
       )}
