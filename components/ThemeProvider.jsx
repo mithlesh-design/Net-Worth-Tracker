@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext({ theme: "light", toggleTheme: () => {} });
+const ThemeContext = createContext({ theme: "light", toggleTheme: () => {}, setTheme: () => {} });
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState("light");
@@ -27,7 +27,7 @@ export function ThemeProvider({ children }) {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -28,16 +28,20 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
 
   if (status === "loading") {
     return (
-      <div className="h-8 w-8 rounded-full animate-pulse bg-[var(--bg-tertiary)]" />
+      <div className="h-9 w-9 rounded-full animate-pulse bg-white/15" />
     );
   }
 
   if (!session) {
     return (
-      <Button onClick={() => signIn()} size="sm" className="rounded-full gap-1.5 px-3.5 text-xs font-bold shadow-sm">
+      /* Lives on the navy header bar in both themes, so it is styled for a
+         dark ground rather than from the card tokens. */
+      <button onClick={() => signIn()} aria-label="Sign in"
+        className="inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        style={{ borderColor: "var(--brand-gold-500)", color: "var(--header-text)" }}>
         <LogIn size={ICON_SIZE.sm} />
-        Sign In
-      </Button>
+        <span className="hidden sm:inline">Sign In</span>
+      </button>
     );
   }
 
@@ -50,22 +54,24 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
     <DropdownMenu onOpenChange={(open) => { if (open) onRefreshProfiles?.(); }}>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-2 rounded-full border pl-1 pr-3 py-1 transition-colors shadow-sm bg-[var(--bg-secondary)] border-[var(--border-primary)]"
+          className="flex items-center gap-2 rounded-full border pl-1 pr-3 py-1 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          style={{ borderColor: "rgba(255, 255, 255, 0.35)", background: "rgba(255, 255, 255, 0.06)" }}
         >
           {user.image ? (
             <img src={user.image} alt="" className="h-7 w-7 rounded-full" />
           ) : (
-            <div className="h-7 w-7 rounded-full flex items-center justify-center text-[0.6rem] font-bold bg-[var(--accent-soft)] text-[var(--accent)]">
+            <div className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{ background: "var(--brand-gold-500)", color: "#0A2342" }}>
               {initials}
             </div>
           )}
-          <span className="text-xs font-medium max-w-[100px] truncate hidden sm:block text-[var(--text-secondary)]">
+          <span className="text-sm font-medium max-w-[120px] truncate hidden sm:block" style={{ color: "var(--header-text)" }}>
             {user.name || user.email}
           </span>
           {isDemo && (
-            <Badge className="hidden sm:block text-[0.5rem] uppercase tracking-wide">Demo</Badge>
+            <Badge className="hidden sm:block text-xs uppercase tracking-wide">Demo</Badge>
           )}
-          <ChevronDown size={ICON_SIZE.xs} className="text-[var(--text-muted)]" />
+          <ChevronDown size={ICON_SIZE.xs} style={{ color: "var(--header-muted)" }} />
         </button>
       </DropdownMenuTrigger>
 
@@ -74,11 +80,11 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
         <div className="px-3 py-2.5">
           <div className="flex items-center gap-1.5">
             <p className="text-xs font-bold text-[var(--text-primary)]">{user.name || "User"}</p>
-            {isDemo && <Badge className="text-[0.5rem] uppercase tracking-wide">Demo mode</Badge>}
+            {isDemo && <Badge className="text-xs uppercase tracking-wide">Demo mode</Badge>}
           </div>
-          <p className="text-[0.6rem] truncate text-[var(--text-muted)]">{user.email}</p>
+          <p className="text-xs truncate text-[var(--text-muted)]">{user.email}</p>
           {isDemo && !persisted && (
-            <p className="text-[0.55rem] mt-1 text-[var(--info-red-text)]">
+            <p className="text-xs mt-1 text-[var(--info-red-text)]">
               This browser blocked storage, so a refresh will sign you out.
             </p>
           )}
@@ -92,7 +98,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {saveState.status !== "idle" && saveState.message && (
               <Alert
                 variant={saveState.status === "error" ? "danger" : "success"}
-                className="mb-2 px-2.5 py-1.5 text-[0.6rem]"
+                className="mb-2 px-2.5 py-1.5 text-xs"
               >
                 {saveState.message}
               </Alert>
@@ -117,7 +123,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                 />
                 <Button
                   size="sm"
-                  className="h-8 px-3 text-[0.6rem]"
+                  className="h-8 px-3 text-xs"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (saveName.trim()) {
@@ -154,13 +160,13 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
               <span className="flex items-center gap-2">
                 <FolderOpen size={ICON_SIZE.sm} className="text-[var(--info-blue-text)]" />
                 Saved Profiles
-                <Badge variant="outline" className="text-[0.55rem]">{profiles.length}</Badge>
+                <Badge variant="outline" className="text-xs">{profiles.length}</Badge>
               </span>
               <ChevronDown size={ICON_SIZE.xs} className={cn("transition-transform text-[var(--text-muted)]", profilesOpen && "rotate-180")} />
             </button>
 
             {profilesOpen && isDemo && (
-              <p className="mt-1 px-2 text-[0.55rem] text-[var(--text-muted)]">
+              <p className="mt-1 px-2 text-xs text-[var(--text-muted)]">
                 Demo profiles are saved on this browser only.
               </p>
             )}
@@ -168,7 +174,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {profilesOpen && (
               <div className="mt-1 max-h-48 overflow-y-auto space-y-1">
                 {profiles.length === 0 ? (
-                  <p className="text-[0.6rem] text-center py-3 text-[var(--text-muted)]">No saved profiles yet</p>
+                  <p className="text-xs text-center py-3 text-[var(--text-muted)]">No saved profiles yet</p>
                 ) : (
                   profiles.map((p) => (
                     <div
@@ -180,13 +186,13 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                         className="flex-1 text-left"
                       >
                         <p className="text-xs font-semibold text-[var(--text-primary)]">{p.name}</p>
-                        <p className="text-[0.55rem] text-[var(--text-muted)]">
+                        <p className="text-xs text-[var(--text-muted)]">
                           {new Date(p.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); onDeleteProfile?.(p.id); }}
-                        className="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition p-1 text-[var(--text-muted)]"
+                        className="opacity-0 group-hover:opacity-100 hover:text-[var(--danger)] transition p-1 text-[var(--text-muted)]"
                       >
                         <Trash2 size={ICON_SIZE.xs} />
                       </button>
@@ -205,7 +211,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           onSelect={() => signOut()}
           className="text-[var(--text-secondary)] focus:bg-[var(--info-red-bg)]"
         >
-          <LogOut size={ICON_SIZE.sm} className="text-rose-400" />
+          <LogOut size={ICON_SIZE.sm} />
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>

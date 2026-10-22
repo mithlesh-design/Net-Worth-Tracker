@@ -3,10 +3,8 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import AuthButton from "@/components/AuthButton";
 import { useAppSession } from "@/components/DemoAuthProvider";
-import { useTheme } from "@/components/ThemeProvider";
-import { Sun, Moon } from "lucide-react";
-import logoDark from "@/components/Img/DARK.svg";
-import logoLight from "@/components/Img/LIGHT.svg";
+import AppHeader from "@/components/AppHeader";
+import PageBackground from "@/components/PageBackground";
 
 import { fmt, toAnnual } from "@/lib/finance/format.mjs";
 import { runProjectionV1 } from "@/lib/finance/projection.mjs";
@@ -22,8 +20,6 @@ import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
 import { getProfileStore } from "@/lib/profile/store.mjs";
 
 import WizardShell from "@/components/wizard/WizardShell";
-import { Button } from "@/components/ui/button";
-import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* Pure state writers. Array indices in a path ("members.2.holdings.mf") walk
    like object keys. */
@@ -51,9 +47,6 @@ function updateInList(prev, listPath, id, key, val) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function FinancialPlanner() {
-
-  /* ── Theme ── */
-  const { theme, toggleTheme } = useTheme();
 
   /* A new user starts from the v0 first-run profile, through the migration
      chain. That chain pins inflateGoals off for v0 profiles, which were
@@ -316,36 +309,19 @@ export default function FinancialPlanner() {
      ═══════════════════════════════════════════════════════════════════════ */
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div className="relative flex flex-col min-h-screen">
+      <PageBackground />
 
-      {/* ══════════════ STICKY HEADER BAR ══════════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-3.5 sm:px-6 backdrop-blur-xl"
-        style={{ background: 'color-mix(in srgb, var(--bg-primary) 85%, transparent)', borderBottom: '1px solid var(--border-default)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <img
-          src={theme === "dark" ? logoLight.src : logoDark.src}
-          alt="Financial Independence Planner"
-          className="h-10 sm:h-14 w-auto"
+      <AppHeader>
+        <AuthButton
+          onSaveProfile={saveProfile}
+          onLoadProfile={loadProfile}
+          onDeleteProfile={deleteProfile}
+          onRefreshProfiles={refreshProfiles}
+          profiles={savedProfiles}
+          saveState={saveState}
         />
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="w-9 h-9 text-[var(--text-muted)]"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun size={ICON_SIZE.md} /> : <Moon size={ICON_SIZE.md} />}
-          </Button>
-          <AuthButton
-            onSaveProfile={saveProfile}
-            onLoadProfile={loadProfile}
-            onDeleteProfile={deleteProfile}
-            onRefreshProfiles={refreshProfiles}
-            profiles={savedProfiles}
-            saveState={saveState}
-          />
-        </div>
-      </header>
+      </AppHeader>
 
       <WizardShell
         plan={plan}

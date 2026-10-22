@@ -12,102 +12,157 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — LIGHT (default)
+
+   Avdesh Mishra Capitals: deep navy ink, warm gold accents, white cards
+   over a warm cream page with the knight photograph behind it. Components
+   read the ROLE tokens (text, borders, card, callout, cta, slider…), never
+   the brand scales directly, so the dark theme only has to redefine roles.
    ═══════════════════════════════════════════════════════════════════ */
 
 :root,
 [data-theme="light"] {
   /* Brand */
-  --brand-navy-950: #041F3A;
-  --brand-navy-900: #062B51;
-  --brand-navy-800: #0B365F;
-  --brand-navy-700: #164A73;
-  --brand-navy-100: #EAF1F6;
-  --brand-navy-050: #F4F8FB;
+  --brand-navy-950: #061A33;
+  --brand-navy-900: #0A2342;
+  --brand-navy-800: #0F2E57;
+  --brand-navy-700: #163C6B;
+  --brand-navy-100: #E8EEF5;
+  --brand-navy-050: #F3F6FA;
 
-  --brand-gold-600: #B78A2E;
+  --brand-gold-600: #B07D2A;
   --brand-gold-500: #C9A14A;
-  --brand-gold-400: #D9B967;
-  --brand-gold-100: #F6EBCF;
-  --brand-gold-050: #FBF7ED;
+  --brand-gold-400: #DDBE73;
+  --brand-gold-100: #F5EBD3;
+  --brand-gold-050: #FBF6EB;
+
+  /* Page and chrome */
+  --page-bg: #F6F2EA;
+  /* Over the photograph: clear over the knight on the left, washing to cream
+     where the cards sit. Phones get a near-solid wash. */
+  --page-overlay: linear-gradient(90deg,
+      rgba(246, 242, 234, 0.10) 0%,
+      rgba(246, 242, 234, 0.30) 18%,
+      rgba(246, 242, 234, 0.72) 38%,
+      rgba(246, 242, 234, 0.84) 100%),
+    linear-gradient(180deg, rgba(246, 242, 234, 0.55) 0%, rgba(246, 242, 234, 0) 22%);
+  --page-overlay-mobile: linear-gradient(180deg,
+      rgba(246, 242, 234, 0.90) 0%, rgba(246, 242, 234, 0.94) 100%);
+  --page-image-opacity: 1;
+  --header-bg: linear-gradient(90deg, #08203F 0%, #0F2E57 58%, #163B68 100%);
+  --header-border: rgba(201, 161, 74, 0.28);
+  --header-text: #F3F5F8;
+  --header-muted: rgba(243, 245, 248, 0.72);
+
+  /* Gold roles. --gold-text is the only gold that may carry text: it holds
+     4.5:1 on white and on the cream callout. The 500 tone is decorative. */
+  --gold-text: #8C6620;
+  --gold-icon: #B07D2A;
+  --gold-line: rgba(201, 161, 74, 0.42);
+  --gold-soft: #F7EDD6;
+  --gold-rule: #C9A14A;
+
+  /* Hero */
+  --hero-title: #0A2342;
+  --hero-subtitle: #4A5A6E;
 
   /* Surfaces */
-  --bg-primary: #F7F9FB;
+  --bg-primary: var(--page-bg);
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #FAFBFC;
-  --bg-warm: #F8F6EF;
+  --bg-tertiary: #FAF8F4;
+  --bg-warm: #FBF6EB;
   --surface-raised: #FFFFFF;
-  --surface-muted: #F3F6F8;
-  --surface-hover: #F0F5F8;
-  --surface-selected: #EAF1F6;
+  --surface-muted: #F7F5F0;
+  --surface-hover: #F3F0E9;
+  --surface-selected: #EEF2F7;
 
   /* Text */
-  --text-primary: #102231;
-  --text-secondary: #536573;
-  --text-muted: #7D8B96;
-  --text-subtle: #98A4AE;
+  --text-primary: #0A2342;
+  --text-secondary: #46566A;
+  --text-muted: #5F6B7E;
+  --text-subtle: #8E98A6;
   --text-inverse: #FFFFFF;
 
   /* Borders */
-  --border-default: #E1E7EB;
-  --border-strong: #CCD6DD;
-  --border-subtle: #EDF1F3;
-  --focus-ring: #164A73;
+  --border-default: #E3E7EC;
+  --border-strong: #CED5DE;
+  --border-subtle: #EEF0F3;
+  --focus-ring: #C9A14A;
 
   /* Semantic */
-  --success: #21875A;
-  --success-bg: #EAF7F0;
-  --success-border: #B9E1CA;
+  --success: #1F7A52;
+  --success-bg: #EAF6EF;
+  --success-border: #BFE0CC;
 
-  --warning: #B97816;
-  --warning-bg: #FFF6E4;
-  --warning-border: #F2D79E;
+  --warning: #9A6A14;
+  --warning-bg: #FBF3E2;
+  --warning-border: #EED9A9;
 
-  --danger: #C94B4B;
-  --danger-bg: #FCEEEE;
-  --danger-border: #F0BABA;
+  --danger: #B9413F;
+  --danger-bg: #FBEDEC;
+  --danger-border: #F0C1BE;
 
-  --info: #3275A8;
-  --info-bg: #EDF6FC;
-  --info-border: #C7E1F2;
+  --info: #1F4E80;
+  --info-bg: #EEF3F9;
+  --info-border: #D3DFEC;
 
   /* Financial states */
-  --financial-positive: #21875A;
-  --financial-negative: #C94B4B;
-  --financial-neutral: #536573;
+  --financial-positive: #1F7A52;
+  --financial-negative: #B9413F;
+  --financial-neutral: #46566A;
   --financial-target: #C9A14A;
-  --financial-projection: #164A73;
+  --financial-projection: #163C6B;
 
   /* Interactive */
-  --accent: #062B51;
-  --accent-hover: #0B365F;
-  --accent-active: #041F3A;
-  --accent-soft: #EAF1F6;
+  --accent: #0A2342;
+  --accent-hover: #0F2E57;
+  --accent-active: #061A33;
+  --accent-soft: #E8EEF5;
   --accent-contrast: #FFFFFF;
 
+  /* Primary call to action: the gold "Continue" */
+  --cta-bg: linear-gradient(180deg, #EACD84 0%, #D7B25E 52%, #C9A14A 100%);
+  --cta-bg-hover: linear-gradient(180deg, #EFD593 0%, #DDB968 52%, #CFA752 100%);
+  --cta-text: #0A2342;
+  --cta-shadow: 0 10px 24px -8px rgba(176, 125, 42, 0.55);
+
+  /* Callouts (InfoStrip) */
+  --callout-gold-bg: #FBF5E9;
+  --callout-gold-border: #F0E2C3;
+  --callout-gold-text: #3D3220;
+  --callout-gold-icon-bg: #C9A14A;
+  --callout-navy-bg: #F1F5FA;
+  --callout-navy-border: #DCE5EF;
+  --callout-navy-text: #1E3550;
+  --callout-navy-icon-bg: #163C6B;
+  --callout-danger-bg: var(--danger-bg);
+  --callout-danger-border: var(--danger-border);
+  --callout-danger-text: #7E2A28;
+  --callout-danger-icon-bg: var(--danger);
+
   /* Overlay */
-  --overlay: rgba(6, 43, 81, 0.36);
+  --overlay: rgba(6, 26, 51, 0.40);
 
   /* ── Legacy aliases (consumed by existing components) ── */
   --border-primary: var(--border-default);
   --border-secondary: var(--border-subtle);
-  --shadow-color: rgba(6, 43, 81, 0.05);
+  --shadow-color: rgba(10, 35, 66, 0.06);
 
   /* Info strips — mapped to semantic tokens */
-  --info-blue-bg: var(--info-bg);
-  --info-blue-border: var(--info-border);
+  --info-blue-bg: var(--callout-navy-bg);
+  --info-blue-border: var(--callout-navy-border);
   --info-blue-text: var(--info);
-  --info-amber-bg: var(--warning-bg);
-  --info-amber-border: var(--warning-border);
-  --info-amber-text: var(--warning);
+  --info-amber-bg: var(--callout-gold-bg);
+  --info-amber-border: var(--callout-gold-border);
+  --info-amber-text: var(--gold-text);
   --info-rose-bg: var(--danger-bg);
   --info-rose-border: var(--danger-border);
   --info-rose-text: var(--danger);
-  --info-sky-bg: #EDF6FC;
-  --info-sky-border: #C7E1F2;
-  --info-sky-text: #0E7490;
-  --info-violet-bg: #F0ECF9;
-  --info-violet-border: #D4C9ED;
-  --info-violet-text: #6D28D9;
+  --info-sky-bg: var(--callout-navy-bg);
+  --info-sky-border: var(--callout-navy-border);
+  --info-sky-text: var(--info);
+  --info-violet-bg: var(--callout-navy-bg);
+  --info-violet-border: var(--callout-navy-border);
+  --info-violet-text: var(--info);
   --info-emerald-bg: var(--success-bg);
   --info-emerald-border: var(--success-border);
   --info-emerald-text: var(--success);
@@ -116,42 +171,48 @@
   --info-red-text: var(--danger);
 
   /* Slider & toggle */
-  --slider-track-bg: #E1E7EB;
-  --slider-thumb-border: var(--brand-navy-700);
-  --toggle-off-bg: #CCD6DD;
-  --toggle-on-bg: var(--brand-navy-700);
+  --slider-track-bg: #E3E7EC;
+  --slider-fill: #163C6B;
+  --slider-thumb-bg: #C9A14A;
+  --slider-thumb-ring: #FFFFFF;
+  --slider-thumb-border: var(--slider-thumb-bg);
+  --toggle-off-bg: #CED5DE;
+  --toggle-on-bg: #163C6B;
 
   /* Badges */
   --badge-emerald-bg: var(--success-bg);
   --badge-emerald-text: var(--success);
-  --badge-amber-bg: var(--warning-bg);
-  --badge-amber-text: var(--warning);
+  --badge-amber-bg: var(--callout-gold-bg);
+  --badge-amber-text: var(--gold-text);
   --badge-red-bg: var(--danger-bg);
   --badge-red-text: var(--danger);
   --badge-blue-bg: var(--info-bg);
   --badge-blue-text: var(--info);
-  --badge-violet-bg: #F0ECF9;
-  --badge-violet-text: #6D28D9;
+  --badge-violet-bg: var(--info-bg);
+  --badge-violet-text: var(--info);
 
   /* Chart */
-  --chart-primary: #164A73;
-  --chart-secondary: #6F93AB;
+  --chart-primary: #163C6B;
+  --chart-secondary: #7B95B3;
   --chart-target: #C9A14A;
-  --chart-positive: #21875A;
-  --chart-negative: #C94B4B;
-  --chart-grid: #E8EEF2;
-  --chart-axis: #CCD6DD;
-  --chart-tick: #7D8B96;
+  --chart-positive: #1F7A52;
+  --chart-negative: #B9413F;
+  --chart-grid: #ECEEF1;
+  --chart-axis: #D5DAE1;
+  --chart-tick: #5F6B7E;
   --chart-surface: #FFFFFF;
-  --gradient-start-opacity: 0.25;
+  --gradient-start-opacity: 0.22;
   --gradient-mid-opacity: 0.04;
   --goal-marker-fill: #FFFFFF;
 
-  /* Wizard */
-  --wizard-complete: var(--brand-navy-700);
-  --wizard-active: var(--brand-navy-900);
-  --wizard-upcoming: #C9D3DA;
-  --wizard-track: #E5EBEF;
+  /* Wizard stepper */
+  --wizard-complete: #0A2342;
+  --wizard-active: #0A2342;
+  --wizard-active-ring: #C9A14A;
+  --wizard-upcoming: #FFFFFF;
+  --wizard-upcoming-border: #CED5DE;
+  --wizard-upcoming-text: #5F6B7E;
+  --wizard-track: #D9DEE5;
 
   /* Navigation */
   --nav-active-bg: var(--brand-navy-100);
@@ -160,119 +221,165 @@
   --nav-text: var(--text-secondary);
 
   /* Buttons */
-  --button-primary-bg: var(--brand-navy-900);
+  --button-primary-bg: #0A2342;
   --button-primary-text: #FFFFFF;
-  --button-primary-hover: var(--brand-navy-800);
+  --button-primary-hover: #0F2E57;
   --button-secondary-bg: #FFFFFF;
-  --button-secondary-text: var(--brand-navy-900);
-  --button-secondary-border: var(--border-default);
+  --button-secondary-text: #0A2342;
+  --button-secondary-border: #CED5DE;
   --button-danger-bg: var(--danger);
   --button-danger-text: #FFFFFF;
 
   /* Forms */
-  --input-bg: var(--bg-secondary);
-  --input-text: var(--text-primary);
-  --input-placeholder: var(--text-subtle);
-  --input-border: var(--border-default);
-  --input-border-hover: var(--border-strong);
-  --input-border-focus: var(--brand-navy-700);
-  --input-focus-ring: 0 0 0 3px rgba(22, 74, 115, 0.12);
+  --input-bg: #FFFFFF;
+  --input-text: #0A2342;
+  --input-placeholder: #6B7586;
+  --input-border: #DCE1E7;
+  --input-border-hover: #C3CBD5;
+  --input-border-focus: #C9A14A;
+  --input-focus-ring: 0 0 0 4px rgba(201, 161, 74, 0.18);
 
   /* Cards */
-  --card-bg: var(--bg-secondary);
-  --card-border: var(--border-default);
-  --card-radius: 12px;
-  --card-padding: 24px;
+  --card-bg: #FFFFFF;
+  --card-border: rgba(10, 35, 66, 0.07);
+  --card-shadow: 0 1px 2px rgba(10, 35, 66, 0.04), 0 12px 32px -12px rgba(10, 35, 66, 0.14);
+  --card-radius: 16px;
+  --card-padding: 28px;
 
   /* Financial values */
   --value-primary: var(--text-primary);
   --value-positive: var(--success);
   --value-negative: var(--danger);
-  --value-target: var(--brand-gold-600);
+  --value-target: var(--gold-text);
   --value-muted: var(--text-secondary);
 
   /* Date icon */
   --date-icon-filter: none;
 
   /* Misc */
-  --scrollbar-color: #CCD6DD;
+  --scrollbar-color: #CED5DE;
   --input-bg-field: #FFFFFF;
-  --hover-bg: rgba(6, 43, 81, 0.03);
+  --hover-bg: rgba(10, 35, 66, 0.03);
   --overlay-bg: var(--overlay);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — DARK
+
+   The same system at night: deep navy page, navy cards, the photograph
+   dimmed under a navy wash, gold a step brighter so it still reads.
    ═══════════════════════════════════════════════════════════════════ */
 
 [data-theme="dark"] {
-  /* Brand */
-  --brand-navy-950: #EAF1F6;
-  --brand-navy-900: #D9E5ED;
-  --brand-navy-800: #B9CEDD;
-  --brand-navy-700: #8FAFC4;
-  --brand-navy-100: #18344B;
-  --brand-navy-050: #122A3D;
+  /* Brand (kept in the same direction as light: 900 is still the deep end) */
+  --brand-navy-950: #030D1B;
+  --brand-navy-900: #061A33;
+  --brand-navy-800: #0C223D;
+  --brand-navy-700: #7FA6D6;
+  --brand-navy-100: #173A63;
+  --brand-navy-050: #112B4A;
 
-  --brand-gold-600: #E4C36F;
+  --brand-gold-600: #E2C27A;
   --brand-gold-500: #D9B967;
   --brand-gold-400: #E7CD8B;
-  --brand-gold-100: #3C3423;
-  --brand-gold-050: #2A261C;
+  --brand-gold-100: #3A3120;
+  --brand-gold-050: #2A2418;
+
+  /* Page and chrome */
+  --page-bg: #06172B;
+  --page-overlay: linear-gradient(90deg,
+      rgba(6, 23, 43, 0.55) 0%,
+      rgba(6, 23, 43, 0.70) 20%,
+      rgba(6, 23, 43, 0.90) 42%,
+      rgba(6, 23, 43, 0.94) 100%);
+  --page-overlay-mobile: linear-gradient(180deg,
+      rgba(6, 23, 43, 0.94) 0%, rgba(6, 23, 43, 0.97) 100%);
+  --page-image-opacity: 0.9;
+  --header-bg: linear-gradient(90deg, #041226 0%, #0A2342 58%, #0F2E57 100%);
+  --header-border: rgba(217, 185, 103, 0.22);
+  --header-text: #F3F5F8;
+  --header-muted: rgba(243, 245, 248, 0.68);
+
+  --gold-text: #E2C27A;
+  --gold-icon: #E2C27A;
+  --gold-line: rgba(217, 185, 103, 0.32);
+  --gold-soft: rgba(217, 185, 103, 0.14);
+  --gold-rule: #D9B967;
+
+  --hero-title: #F3F5F8;
+  --hero-subtitle: #B9C4D2;
 
   /* Surfaces */
-  --bg-primary: #0D141A;
-  --bg-secondary: #121C24;
-  --bg-tertiary: #16222C;
-  --bg-warm: #191813;
-  --surface-raised: #17242E;
-  --surface-muted: #1B2A34;
-  --surface-hover: #22333E;
-  --surface-selected: #1B3446;
+  --bg-primary: var(--page-bg);
+  --bg-secondary: #0C223D;
+  --bg-tertiary: #0F2846;
+  --bg-warm: #2A2418;
+  --surface-raised: #0F2846;
+  --surface-muted: #102B4B;
+  --surface-hover: #15325A;
+  --surface-selected: #173A63;
 
   /* Text */
-  --text-primary: #F4F7F9;
-  --text-secondary: #C0CCD4;
-  --text-muted: #8FA0AC;
-  --text-subtle: #6F818D;
-  --text-inverse: #102231;
+  --text-primary: #F3F5F8;
+  --text-secondary: #C3CCD8;
+  --text-muted: #97A5B7;
+  --text-subtle: #708098;
+  --text-inverse: #0A2342;
 
   /* Borders */
-  --border-default: #2A3A45;
-  --border-strong: #3A4D59;
-  --border-subtle: #21303A;
+  --border-default: #1E3858;
+  --border-strong: #2A4A70;
+  --border-subtle: #16304F;
   --focus-ring: #D9B967;
 
   /* Semantic */
-  --success: #4EB37B;
-  --success-bg: #123124;
-  --success-border: #28583E;
+  --success: #5BC28C;
+  --success-bg: #0E2E26;
+  --success-border: #1F5A43;
 
-  --warning: #E2B55A;
-  --warning-bg: #342A14;
-  --warning-border: #665128;
+  --warning: #E7C06A;
+  --warning-bg: #2E2614;
+  --warning-border: #5E4B22;
 
-  --danger: #E17171;
-  --danger-bg: #351B1B;
-  --danger-border: #633232;
+  --danger: #EA8580;
+  --danger-bg: #331A22;
+  --danger-border: #6A2F35;
 
-  --info: #73B3DB;
-  --info-bg: #162D3C;
-  --info-border: #2C566F;
+  --info: #8DB7E4;
+  --info-bg: #10294A;
+  --info-border: #234772;
 
   /* Financial states */
-  --financial-positive: #4EB37B;
-  --financial-negative: #E17171;
-  --financial-neutral: #A5B3BD;
+  --financial-positive: #5BC28C;
+  --financial-negative: #EA8580;
+  --financial-neutral: #B1BDCB;
   --financial-target: #D9B967;
-  --financial-projection: #73A9CC;
+  --financial-projection: #8DB7E4;
 
   /* Interactive */
-  --accent: #D9E5ED;
-  --accent-hover: #FFFFFF;
-  --accent-active: #B9CEDD;
-  --accent-soft: #18344B;
-  --accent-contrast: #102231;
+  --accent: #E2C27A;
+  --accent-hover: #EBD08F;
+  --accent-active: #D9B967;
+  --accent-soft: #173A63;
+  --accent-contrast: #0A2342;
+
+  --cta-bg: linear-gradient(180deg, #EACD84 0%, #D7B25E 52%, #C9A14A 100%);
+  --cta-bg-hover: linear-gradient(180deg, #EFD593 0%, #DDB968 52%, #CFA752 100%);
+  --cta-text: #0A2342;
+  --cta-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
+
+  --callout-gold-bg: rgba(217, 185, 103, 0.10);
+  --callout-gold-border: rgba(217, 185, 103, 0.26);
+  --callout-gold-text: #EFE3C6;
+  --callout-gold-icon-bg: #C9A14A;
+  --callout-navy-bg: #10294A;
+  --callout-navy-border: #234772;
+  --callout-navy-text: #D6E3F2;
+  --callout-navy-icon-bg: #3C6AA3;
+  --callout-danger-bg: var(--danger-bg);
+  --callout-danger-border: var(--danger-border);
+  --callout-danger-text: #F6CFCC;
+  --callout-danger-icon-bg: #C9524E;
 
   /* Overlay */
   --overlay: rgba(0, 0, 0, 0.56);
@@ -282,22 +389,21 @@
   --border-secondary: var(--border-subtle);
   --shadow-color: rgba(0, 0, 0, 0.4);
 
-  /* Info strips */
-  --info-blue-bg: var(--info-bg);
-  --info-blue-border: var(--info-border);
+  --info-blue-bg: var(--callout-navy-bg);
+  --info-blue-border: var(--callout-navy-border);
   --info-blue-text: var(--info);
-  --info-amber-bg: var(--warning-bg);
-  --info-amber-border: var(--warning-border);
-  --info-amber-text: var(--warning);
+  --info-amber-bg: var(--callout-gold-bg);
+  --info-amber-border: var(--callout-gold-border);
+  --info-amber-text: var(--gold-text);
   --info-rose-bg: var(--danger-bg);
   --info-rose-border: var(--danger-border);
   --info-rose-text: var(--danger);
-  --info-sky-bg: #162D3C;
-  --info-sky-border: #2C566F;
-  --info-sky-text: #67CDE8;
-  --info-violet-bg: #2A2040;
-  --info-violet-border: #493B6E;
-  --info-violet-text: #B4A0E0;
+  --info-sky-bg: var(--callout-navy-bg);
+  --info-sky-border: var(--callout-navy-border);
+  --info-sky-text: var(--info);
+  --info-violet-bg: var(--callout-navy-bg);
+  --info-violet-border: var(--callout-navy-border);
+  --info-violet-text: var(--info);
   --info-emerald-bg: var(--success-bg);
   --info-emerald-border: var(--success-border);
   --info-emerald-text: var(--success);
@@ -306,88 +412,95 @@
   --info-red-text: var(--danger);
 
   /* Slider & toggle */
-  --slider-track-bg: #2A3A45;
-  --slider-thumb-border: var(--brand-navy-700);
-  --toggle-off-bg: #3A4D59;
-  --toggle-on-bg: var(--brand-navy-700);
+  --slider-track-bg: #1E3858;
+  --slider-fill: #7FA6D6;
+  --slider-thumb-bg: #D9B967;
+  --slider-thumb-ring: #0C223D;
+  --slider-thumb-border: var(--slider-thumb-bg);
+  --toggle-off-bg: #2A4A70;
+  --toggle-on-bg: #C9A14A;
 
   /* Badges */
   --badge-emerald-bg: var(--success-bg);
   --badge-emerald-text: var(--success);
-  --badge-amber-bg: var(--warning-bg);
-  --badge-amber-text: var(--warning);
+  --badge-amber-bg: var(--callout-gold-bg);
+  --badge-amber-text: var(--gold-text);
   --badge-red-bg: var(--danger-bg);
   --badge-red-text: var(--danger);
   --badge-blue-bg: var(--info-bg);
   --badge-blue-text: var(--info);
-  --badge-violet-bg: #2A2040;
-  --badge-violet-text: #B4A0E0;
+  --badge-violet-bg: var(--info-bg);
+  --badge-violet-text: var(--info);
 
   /* Chart */
-  --chart-primary: #73A9CC;
-  --chart-secondary: #4E7A96;
+  --chart-primary: #8DB7E4;
+  --chart-secondary: #4F739C;
   --chart-target: #D9B967;
-  --chart-positive: #4EB37B;
-  --chart-negative: #E17171;
-  --chart-grid: #1E2E38;
-  --chart-axis: #2A3A45;
-  --chart-tick: #6F818D;
-  --chart-surface: #121C24;
-  --gradient-start-opacity: 0.35;
+  --chart-positive: #5BC28C;
+  --chart-negative: #EA8580;
+  --chart-grid: #16304F;
+  --chart-axis: #234772;
+  --chart-tick: #97A5B7;
+  --chart-surface: #0C223D;
+  --gradient-start-opacity: 0.30;
   --gradient-mid-opacity: 0.06;
-  --goal-marker-fill: #121C24;
+  --goal-marker-fill: #0C223D;
 
-  /* Wizard */
-  --wizard-complete: var(--brand-navy-700);
-  --wizard-active: var(--brand-navy-900);
-  --wizard-upcoming: #3A4D59;
-  --wizard-track: #2A3A45;
+  /* Wizard stepper */
+  --wizard-complete: #163C6B;
+  --wizard-active: #24578F;
+  --wizard-active-ring: #D9B967;
+  --wizard-upcoming: #0C223D;
+  --wizard-upcoming-border: #2A4A70;
+  --wizard-upcoming-text: #97A5B7;
+  --wizard-track: #234772;
 
   /* Navigation */
   --nav-active-bg: var(--brand-navy-100);
-  --nav-active-text: var(--brand-navy-900);
+  --nav-active-text: var(--text-primary);
   --nav-hover-bg: var(--brand-navy-050);
   --nav-text: var(--text-secondary);
 
   /* Buttons */
-  --button-primary-bg: var(--brand-navy-900);
-  --button-primary-text: var(--accent-contrast);
-  --button-primary-hover: var(--brand-navy-800);
-  --button-secondary-bg: var(--bg-tertiary);
-  --button-secondary-text: var(--text-primary);
-  --button-secondary-border: var(--border-default);
+  --button-primary-bg: #E2C27A;
+  --button-primary-text: #0A2342;
+  --button-primary-hover: #EBD08F;
+  --button-secondary-bg: transparent;
+  --button-secondary-text: #F3F5F8;
+  --button-secondary-border: #2A4A70;
   --button-danger-bg: var(--danger);
-  --button-danger-text: #FFFFFF;
+  --button-danger-text: #0A2342;
 
   /* Forms */
-  --input-bg: var(--bg-tertiary);
-  --input-text: var(--text-primary);
-  --input-placeholder: var(--text-subtle);
-  --input-border: var(--border-default);
-  --input-border-hover: var(--border-strong);
-  --input-border-focus: var(--brand-navy-700);
-  --input-focus-ring: 0 0 0 3px rgba(143, 175, 196, 0.15);
+  --input-bg: #0A1E37;
+  --input-text: #F3F5F8;
+  --input-placeholder: #8392A8;
+  --input-border: #234772;
+  --input-border-hover: #2F5786;
+  --input-border-focus: #D9B967;
+  --input-focus-ring: 0 0 0 4px rgba(217, 185, 103, 0.16);
 
   /* Cards */
-  --card-bg: var(--bg-secondary);
-  --card-border: var(--border-default);
-  --card-radius: 12px;
-  --card-padding: 24px;
+  --card-bg: #0C223D;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 36px -14px rgba(0, 0, 0, 0.55);
+  --card-radius: 16px;
+  --card-padding: 28px;
 
   /* Financial values */
   --value-primary: var(--text-primary);
   --value-positive: var(--success);
   --value-negative: var(--danger);
-  --value-target: var(--brand-gold-500);
+  --value-target: var(--gold-text);
   --value-muted: var(--text-secondary);
 
   /* Date icon */
   --date-icon-filter: invert(1);
 
   /* Misc */
-  --scrollbar-color: #2A3A45;
-  --input-bg-field: var(--bg-tertiary);
-  --hover-bg: rgba(255, 255, 255, 0.05);
+  --scrollbar-color: #2A4A70;
+  --input-bg-field: #0A1E37;
+  --hover-bg: rgba(255, 255, 255, 0.04);
   --overlay-bg: var(--overlay);
 }
 
@@ -396,9 +509,12 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Typography */
-  --font-sans: "Manrope", "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
+  /* Typography. --font-manrope / --font-playfair come from next/font in
+     app/layout.jsx; the named fallbacks cover a build without it.
+     The serif is for headline WORDS only (StepHero, GroupHeading). Every
+     number — amounts, ages, percentages, chart figures — is Manrope. */
+  --font-sans: var(--font-manrope), "Manrope", "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -443,15 +559,15 @@
   --border-width: 1px;
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(6, 43, 81, 0.03);
-  --shadow-sm: 0 2px 8px rgba(6, 43, 81, 0.05);
-  --shadow-md: 0 8px 24px rgba(6, 43, 81, 0.08);
-  --shadow-lg: 0 16px 40px rgba(6, 43, 81, 0.12);
+  --shadow-xs: 0 1px 2px rgba(10, 35, 66, 0.04);
+  --shadow-sm: 0 2px 8px rgba(10, 35, 66, 0.06);
+  --shadow-md: 0 10px 28px -10px rgba(10, 35, 66, 0.16);
+  --shadow-lg: 0 20px 48px -16px rgba(10, 35, 66, 0.22);
 
   /* Control sizes */
-  --control-sm: 36px;
-  --control-md: 44px;
-  --control-lg: 48px;
+  --control-sm: 38px;
+  --control-md: 50px;
+  --control-lg: 52px;
 
   /* Motion */
   --motion-fast: 120ms;
@@ -466,10 +582,22 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-primary);
+  background-color: var(--page-bg);
   color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color var(--motion-base) var(--ease-standard),
               color var(--motion-base) var(--ease-standard);
+}
+
+/* The section eyebrow: gold, uppercase, letter-spaced. One definition, used
+   by every card header and the brand tagline. */
+.eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-text);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -492,13 +620,13 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RANGE SLIDER
+   RANGE SLIDER — thin navy fill, gold thumb with a ring
    ═══════════════════════════════════════════════════════════════════ */
 
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  height: 6px;
+  height: 4px;
   border-radius: var(--radius-pill);
   outline: none;
   cursor: pointer;
@@ -506,31 +634,34 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2.5px solid var(--slider-thumb-border);
-  box-shadow: var(--shadow-sm);
+  background: var(--slider-thumb-bg);
+  border: 3px solid var(--slider-thumb-ring);
+  box-shadow: 0 0 0 1px var(--gold-line), 0 2px 6px rgba(10, 35, 66, 0.25);
   cursor: pointer;
   transition: transform var(--motion-fast) var(--ease-standard),
               box-shadow var(--motion-fast) var(--ease-standard) !important;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 5px var(--gold-soft), 0 2px 6px rgba(10, 35, 66, 0.25);
+}
+input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(201, 161, 74, 0.35), 0 2px 6px rgba(10, 35, 66, 0.25);
 }
 input[type="range"]::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 2.5px solid var(--slider-thumb-border);
-  box-shadow: var(--shadow-sm);
+  background: var(--slider-thumb-bg);
+  border: 3px solid var(--slider-thumb-ring);
+  box-shadow: 0 0 0 1px var(--gold-line), 0 2px 6px rgba(10, 35, 66, 0.25);
   cursor: pointer;
 }
 input[type="range"]::-moz-range-thumb:hover {
-  box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm);
+  box-shadow: 0 0 0 5px var(--gold-soft), 0 2px 6px rgba(10, 35, 66, 0.25);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -542,11 +673,11 @@ input[type="date"] {
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.7;
   filter: var(--date-icon-filter);
   transition: opacity var(--motion-fast) var(--ease-standard);
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -585,24 +716,29 @@ input[type="number"] {
 
 .wizard-step-enter {
   opacity: 0;
-  transform: translateX(16px);
-  animation: wizard-slide-in var(--motion-base) var(--ease-standard) forwards;
+  transform: translateY(8px);
+  animation: wizard-slide-in var(--motion-slow) var(--ease-standard) forwards;
 }
 .wizard-step-enter-back {
   opacity: 0;
-  transform: translateX(-16px);
-  animation: wizard-slide-in-back var(--motion-base) var(--ease-standard) forwards;
+  transform: translateY(8px);
+  animation: wizard-slide-in var(--motion-slow) var(--ease-standard) forwards;
 }
 .wizard-step-active {
   opacity: 1;
-  transform: translateX(0);
+  transform: none;
 }
 
 @keyframes wizard-slide-in {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
 }
-@keyframes wizard-slide-in-back {
-  from { opacity: 0; transform: translateX(-16px); }
-  to   { opacity: 1; transform: translateX(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wizard-step-enter,
+  .wizard-step-enter-back {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
