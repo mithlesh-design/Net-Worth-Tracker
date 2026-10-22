@@ -4,22 +4,21 @@ import {
   AreaChart, Area, XAxis, YAxis,
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
+import { ChartLine } from "lucide-react";
 import { fmtAxis } from "@/lib/finance/format.mjs";
+import { Card } from "@/components/ui/card";
+import SectionHeader from "@/components/ui/SectionHeader";
 
 export default function MiniChart({
   simulation, currentAge, lifeExpectancy, retirementAge,
-  title = "Preview: Net Worth Projection",
+  title = "Net Worth Projection",
 }) {
   if (!simulation?.data?.length) return null;
 
   return (
-    <div className="rounded-xl p-4 mt-2 border"
-      style={{ background: 'var(--chart-surface)', borderColor: 'var(--border-default)' }}>
-      <div className="text-xs font-medium mb-2"
-        style={{ color: 'var(--text-muted)' }}>
-        {title}
-      </div>
-      <div className="h-[180px]">
+    <Card className="p-5 sm:p-7">
+      <SectionHeader icon={ChartLine} title={title} className="mb-4" />
+      <div className="h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={simulation.data} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
             <defs>
@@ -29,9 +28,9 @@ export default function MiniChart({
               </linearGradient>
             </defs>
             <XAxis dataKey="age" type="number" domain={[currentAge, lifeExpectancy]}
-              tickLine={false} axisLine={false} tick={{ fontSize: 9, fill: "var(--chart-tick)" }} />
+              tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-tick)" }} />
             <YAxis tickLine={false} axisLine={false} tickFormatter={fmtAxis}
-              tick={{ fontSize: 9, fill: "var(--chart-tick)" }} width={50} />
+              tick={{ fontSize: 11, fill: "var(--chart-tick)" }} width={50} />
             {retirementAge <= lifeExpectancy && (
               <ReferenceLine x={retirementAge} stroke="var(--chart-target)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.5} />
             )}
@@ -40,6 +39,6 @@ export default function MiniChart({
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   );
 }

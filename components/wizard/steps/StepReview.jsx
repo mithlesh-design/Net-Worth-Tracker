@@ -25,14 +25,14 @@ export default function StepReview({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 space-y-5">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-12">
+        <div className="space-y-6 2xl:col-span-5">
           <MonthlySummary plan={plan} premiums={premiums}
             totalHoldings={totalHoldings} simulation={simulation}
             totalMonthlyIncome={totalMonthlyIncome} household={household} />
           <HouseholdInclusion plan={plan} setField={setField} scopeFor={scopeFor} />
         </div>
-        <div className="lg:col-span-7 space-y-4">
+        <div className="space-y-6 2xl:col-span-7">
           <ProjectionChart
             plan={plan} simulation={simulation} age={age} lifeExpectancy={lifeExpectancy}
             expectedXIRR={expectedXIRR} postRetireReturn={postRetireReturn}

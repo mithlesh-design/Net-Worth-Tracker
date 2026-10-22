@@ -7,7 +7,7 @@ import MonthlyInvestments from "@/components/sections/MonthlyInvestments";
 import CurrentHoldings from "@/components/sections/CurrentHoldings";
 import PropertyInvestments from "@/components/sections/PropertyInvestments";
 import MiniChart from "@/components/wizard/MiniChart";
-import { Tabs, TabsList, TabsTrigger, TabsContent, InfoStrip } from "@/components/ui";
+import { Tabs, TabsList, TabsTrigger, TabsContent, InfoStrip, GroupHeading } from "@/components/ui";
 import { runProjectionV1 } from "@/lib/finance/projection.mjs";
 import { buildContributionPlan } from "@/lib/finance/contributions.mjs";
 import {
@@ -35,16 +35,13 @@ export default function StepStrategyHub({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
-          Strategy Hub
-        </h2>
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-          {household
-            ? "Each person's own strategy and portfolio."
-            : "The assumptions driving your projection, and the portfolio behind them."}
+      {/* The step's title and purpose live in the page hero; a household only
+          needs telling that what follows is per person. */}
+      {household && (
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Each person&rsquo;s own strategy and portfolio, one tab each.
         </p>
-      </div>
+      )}
 
       {/* No tab bar for one person: a single "My Plan" tab is clutter. */}
       {household ? (
@@ -121,8 +118,8 @@ function PersonStrategy({ plan, cleanPlan, scopeFor, makeId, personId, household
         </InfoStrip>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-7 space-y-4">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-12">
+        <div className="space-y-6 2xl:col-span-7">
           <InvestmentStrategy
             plan={view} setField={scope.setField} cplan={cplan}
             simulation={simulation} totalHoldings={totalHoldings}
@@ -130,7 +127,7 @@ function PersonStrategy({ plan, cleanPlan, scopeFor, makeId, personId, household
           />
           <TaxWall plan={view} setField={scope.setField} defaultOpen={false} />
         </div>
-        <div className="lg:col-span-5 space-y-4">
+        <div className="space-y-6 2xl:col-span-5">
           <MiniChart
             simulation={simulation}
             currentAge={age}
@@ -141,18 +138,9 @@ function PersonStrategy({ plan, cleanPlan, scopeFor, makeId, personId, household
         </div>
       </div>
 
-      <div className="pt-2 space-y-4">
-        <div className="flex items-baseline justify-between gap-3 px-1">
-          <h3
-            className="text-[0.65rem] font-semibold uppercase tracking-[0.12em]"
-            style={{ color: "var(--text-muted)" }}
-          >
-            {possessive} investment data
-          </h3>
-          <span className="text-[0.6rem] text-right" style={{ color: "var(--text-subtle)" }}>
-            Expand to edit what {isSelf ? "you hold and add" : "they hold and add"} each month
-          </span>
-        </div>
+      <div className="space-y-6 pt-2">
+        <GroupHeading title={`${possessive} investment data`}
+          note={`Expand to edit what ${isSelf ? "you hold and add" : "they hold and add"} each month`} />
         <MonthlyInvestments
           plan={view} setField={scope.setField} findingsFor={scope.findingsFor}
           cplan={cplan} makeId={makeId}

@@ -3,7 +3,7 @@
 import FinancialGoals from "@/components/sections/FinancialGoals";
 import GoalGapChart from "@/components/sections/GoalGapChart";
 import GoalFundingTable from "@/components/sections/GoalFundingTable";
-import { ToggleSwitch, InfoStrip } from "@/components/ui";
+import { ToggleSwitch, InfoStrip, Card } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { CURRENT_YEAR } from "@/lib/finance/format.mjs";
 
@@ -27,17 +27,8 @@ export default function StepGoalWorkspace({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>
-          Goal Workspace
-        </h2>
-        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-          What you&rsquo;re saving for, and whether your current trajectory gets you there.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 space-y-5">
+      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-12">
+        <div className="space-y-6 2xl:col-span-5">
           <FinancialGoals
             plan={plan} goals={goals} saveGoal={saveGoal}
             removeGoal={removeGoal}
@@ -47,22 +38,19 @@ export default function StepGoalWorkspace({
           <GoalFundingTable goalGap={goalGap} plan={plan} />
         </div>
 
-        <div className="lg:col-span-7 space-y-4">
+        <div className="space-y-6 2xl:col-span-7">
           <GoalGapChart
             goalGap={goalGap} plan={plan} age={age}
             lifeExpectancy={lifeExpectancy} earliestRetireAge={earliestRetireAge}
           />
 
-          <div
-            className="rounded-xl border p-4 space-y-2"
-            style={{ background: "var(--surface-muted)", borderColor: "var(--border-subtle)" }}
-          >
+          <Card className="space-y-3 p-5 sm:p-7">
             <ToggleSwitch
               label="Price my goals in future rupees"
               value={!!plan.inflateGoals}
               onChange={(v) => setField("inflateGoals", v)}
             />
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               {plan.inflateGoals ? (
                 <>
                   Your projection charges each goal what it will actually cost by then.
@@ -81,7 +69,7 @@ export default function StepGoalWorkspace({
                 </>
               )}
             </p>
-          </div>
+          </Card>
 
           {!plan.inflateGoals && goalGap?.hasGoals && goalGap.totals.inflationGap > 1 && (
             <InfoStrip tone="amber">

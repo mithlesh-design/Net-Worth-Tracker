@@ -5,6 +5,7 @@ import HouseholdMembers from "@/components/sections/HouseholdMembers";
 import BudgetExpenses from "@/components/sections/BudgetExpenses";
 import MedicalInsurance from "@/components/sections/MedicalInsurance";
 import LifeInsurance from "@/components/sections/LifeInsurance";
+import { GroupHeading } from "@/components/ui";
 
 export default function StepIncomeExpenses({
   plan, incomes, updateIncome, addIncome, removeIncome,
@@ -15,7 +16,7 @@ export default function StepIncomeExpenses({
   const hasLife = (plan.lifePolicies ?? []).length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <IncomeSources
         plan={plan} incomes={incomes} updateIncome={updateIncome}
         addIncome={addIncome} removeIncome={removeIncome}
@@ -41,20 +42,11 @@ export default function StepIncomeExpenses({
           never hidden, because the premium is a real line in the cash-flow
           waterfall. The sub-heading stops the step reading as four
           undifferentiated cards. */}
-      <div className="pt-2 space-y-4">
-        <div className="flex items-baseline justify-between gap-3 px-1">
-          <h3
-            className="text-[0.65rem] font-semibold uppercase tracking-[0.12em]"
-            style={{ color: "var(--text-muted)" }}
-          >
-            Protection
-          </h3>
-          <span className="text-[0.6rem] text-right" style={{ color: "var(--text-subtle)" }}>
-            {hasMedical || hasLife
-              ? "Premiums are charged against your cash flow"
-              : "Optional — leave empty if you have none"}
-          </span>
-        </div>
+      <div className="space-y-6 pt-2">
+        <GroupHeading title="Protection"
+          note={hasMedical || hasLife
+            ? "Premiums are charged against your cash flow"
+            : "Optional — leave empty if you have none"} />
         <MedicalInsurance plan={plan} setField={setField} findingsFor={findingsFor} />
         <LifeInsurance plan={plan} setField={setField} findingsFor={findingsFor} makeId={makeId} />
       </div>

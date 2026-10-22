@@ -13,40 +13,54 @@ import StepReview from "./steps/StepReview";
    STEP_LABELS array in WizardProgress. Adding or reordering a step is now a
    one-line edit here.
 
-   `short` is the mobile label: the progress rail is 820px wide and the labels
-   are whitespace-nowrap, so at 375px each step gets about 68px and the full
-   labels overflow.
+   `short` is the mobile label: the labels are whitespace-nowrap, so at 375px
+   each step gets about 68px and the full labels overflow.
 
    `nextLabel` sits on the step that PRECEDES the results, which is what
-   removes WizardNav's old `TOTAL_STEPS - 2` arithmetic. */
+   removes WizardNav's old `TOTAL_STEPS - 2` arithmetic.
+
+   `hero` is the serif headline and subtitle in the page's left column. Width
+   is no longer per step: every step shares the hero + content frame. */
 export const WIZARD_STEPS = [
   {
     id: "about",
     label: "About You",
     short: "You",
     Component: StepAboutYou,
-    maxWidth: "max-w-[820px]",
+    hero: {
+      title: "Let’s start with you",
+      subtitle: "A clear picture today helps us plan for a stronger tomorrow.",
+    },
   },
   {
     id: "income",
     label: "Income & Expenses",
     short: "Income",
     Component: StepIncomeExpenses,
-    maxWidth: "max-w-4xl",
+    hero: {
+      title: "What comes in, what goes out",
+      subtitle: "Your earnings and everyday costs set the pace for everything that follows.",
+    },
   },
   {
     id: "goals",
     label: "Goal Workspace",
     short: "Goals",
     Component: StepGoalWorkspace,
-    maxWidth: "max-w-6xl",
+    hero: {
+      title: "Shape your goals",
+      subtitle: "What you’re saving for, and whether your current trajectory gets you there.",
+    },
   },
   {
     id: "strategy",
     label: "Strategy Hub",
     short: "Strategy",
     Component: StepStrategyHub,
-    maxWidth: "max-w-5xl",
+    hero: {
+      title: "Your strategy",
+      subtitle: "The assumptions driving your projection, and the portfolio behind them.",
+    },
     nextLabel: "See Results",
   },
   {
@@ -54,7 +68,10 @@ export const WIZARD_STEPS = [
     label: "Review",
     short: "Review",
     Component: StepReview,
-    maxWidth: "max-w-6xl",
+    hero: {
+      title: "Your plan at a glance",
+      subtitle: "Where your money goes each month, and where it takes you.",
+    },
   },
 ];
 
