@@ -11,11 +11,11 @@ export default function VerifyPage() {
       subtitle: "One click on the link we sent and you are back in your plan.",
     }}>
       <SectionCard title="Magic link sent" icon={Mail}>
-        <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+        <p className="text-body" style={{ color: "var(--text-secondary)" }}>
           A sign-in link has been sent to your email address.
           Click the link in the email to sign in.
         </p>
-        <p className="mt-4 text-sm" style={{ color: "var(--text-muted)" }}>
+        <p className="mt-4 text-help" style={{ color: "var(--text-muted)" }}>
           You can close this page and click the link from your email.
         </p>
       </SectionCard>

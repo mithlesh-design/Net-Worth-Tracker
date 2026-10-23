@@ -19,9 +19,9 @@ function GoalGapTooltip({ active, payload, goalGap }) {
   const dueHere = goalGap.goals.filter((g) => g.age === d.age && g.status !== "outOfHorizon");
 
   return (
-    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-xs"
+    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-help tabular-nums"
       style={{ background: 'var(--card-bg)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
-      <div className="font-bold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>Age {d.age}</div>
+      <div className="text-subtitle mb-2" style={{ color: 'var(--text-primary)' }}>Age {d.age}</div>
 
       <div className="space-y-1">
         <div className="flex justify-between gap-6">
@@ -187,10 +187,10 @@ export default function GoalGapChart({
     <Card className="p-5 sm:p-7">
       <SectionHeader icon={TrendingUp} title="Goal Gap" className="mb-3" />
       <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
           Your trajectory against what your goals demand
         </p>
-        <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+        <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-help" style={{ color: 'var(--text-secondary)' }}>
           <span className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="h-1.5 w-4 rounded-full" style={{ background: 'var(--chart-primary)' }} />
             Your corpus
@@ -222,13 +222,13 @@ export default function GoalGapChart({
             <XAxis
               dataKey="age" type="number" domain={[startAge, windowEnd]}
               tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-              tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
-              label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 11 }}
+              tick={{ fontSize: 12, fill: "var(--chart-tick)" }}
+              label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 12 }}
             />
             <YAxis
               tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-              tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
-              width={65} domain={[0, Math.round(yMax)]} allowDataOverflow={false}
+              tickFormatter={fmtAxis} tick={{ fontSize: 12, fill: "var(--chart-tick)" }}
+              width={70} domain={[0, Math.round(yMax)]} allowDataOverflow={false}
             />
             <Tooltip
               content={<GoalGapTooltip goalGap={goalGap} />}
@@ -265,7 +265,7 @@ export default function GoalGapChart({
               <ReferenceLine
                 x={earliestRetireAge} stroke="var(--chart-target)"
                 strokeDasharray="5 4" strokeOpacity={0.6}
-                label={{ value: "Retire", position: "top", fill: "var(--chart-tick)", fontSize: 11 }}
+                label={{ value: "Retire", position: "top", fill: "var(--chart-tick)", fontSize: 12 }}
               />
             )}
 
@@ -278,7 +278,7 @@ export default function GoalGapChart({
         {!hasGoals && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="rounded-lg px-4 py-3 text-center text-xs max-w-[260px]"
+              className="rounded-lg px-4 py-3 text-center text-help max-w-[260px]"
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', boxShadow: 'var(--shadow-sm)' }}
             >
               Add a goal to see the gap between your corpus and what you&rsquo;ll need.
@@ -288,7 +288,7 @@ export default function GoalGapChart({
       </div>
 
       {hasGoals && (
-        <div className="mt-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+        <div className="mt-4 text-body" style={{ color: 'var(--text-secondary)' }}>
           {/* Two verdicts, deliberately separate. allFunded is "the plan paid
               what it was charged"; coversRealCost is "the corpus stays above
               what those goals really cost by then". With future pricing off

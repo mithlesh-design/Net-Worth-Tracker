@@ -12,7 +12,7 @@ export default function Timeline({ plan, setField, findingsFor, age, ageIsDerive
           <>
             <DerivedStat label="Current Age" value={`${age} yrs`} sub="from your date of birth" />
             <button onClick={() => setField("personal.dob", null)}
-              className="text-xs underline underline-offset-2" style={{ color: 'var(--text-muted)' }}>
+              className="text-help underline underline-offset-2" style={{ color: 'var(--text-muted)' }}>
               Clear date of birth to set age manually
             </button>
           </>
@@ -53,9 +53,9 @@ function MilestoneTrack({ today, retirement, lifeExpectancy }) {
               left: p.pos,
               transform: i === 0 ? "translateX(-12%)" : i === 2 ? "translateX(-88%)" : "translateX(-50%)",
             }}>
-            <span className="text-xs font-medium sm:text-[0.8125rem]" style={{ color: "var(--text-secondary)" }}>{p.label}</span>
-            <span className="mt-0.5 text-lg font-bold tabular-nums leading-tight" style={{ color: "var(--text-primary)" }}>
-              {p.value} <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>yrs</span>
+            <span className="text-overline uppercase" style={{ color: "var(--text-secondary)" }}>{p.label}</span>
+            <span className="mt-1 text-value tabular-nums" style={{ color: "var(--text-primary)" }}>
+              {p.value} <span className="text-label" style={{ color: "var(--text-muted)" }}>yrs</span>
             </span>
           </div>
         ))}

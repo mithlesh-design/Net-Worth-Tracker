@@ -19,8 +19,8 @@ import StepReview from "./steps/StepReview";
    `nextLabel` sits on the step that PRECEDES the results, which is what
    removes WizardNav's old `TOTAL_STEPS - 2` arithmetic.
 
-   `hero` is the serif headline and subtitle in the page's left column. Width
-   is no longer per step: every step shares the hero + content frame. */
+   `hero` is the headline and subtitle in the page's left column. Width is no
+   longer per step: every step shares the hero + content frame. */
 export const WIZARD_STEPS = [
   {
     id: "about",

@@ -31,7 +31,7 @@ export default function HouseholdInclusion({ plan, setField, scopeFor }) {
 
   return (
     <SectionCard title="Include in Household Calculation" icon={UsersRound}>
-      <p className="text-xs text-[var(--text-muted)]">
+      <p className="text-body text-[var(--text-secondary)]">
         Whose money counts in the household totals and the projection.
       </p>
 
@@ -51,14 +51,14 @@ export default function HouseholdInclusion({ plan, setField, scopeFor }) {
           const locked = p.included && lastOneOn;
           const switchId = `${baseId}-${p.id}`;
           return (
-            <li key={p.id} className="flex items-center gap-3 py-2.5">
+            <li key={p.id} className="flex items-center gap-3 py-3">
               <PersonAvatar label={label} />
               <div className="min-w-0 flex-1">
                 <label htmlFor={switchId}
-                  className="block truncate text-sm font-semibold text-[var(--text-primary)] cursor-pointer">
+                  className="block cursor-pointer truncate text-subtitle text-[var(--text-primary)]">
                   {label}
                 </label>
-                <span className="block truncate text-xs text-[var(--text-muted)]">
+                <span className="block truncate text-help text-[var(--text-muted)]">
                   {relation} · {perMonth > 0 ? `${fmt(perMonth)}/mo` : "no income"} · {fmt(held)} held
                 </span>
               </div>
@@ -74,11 +74,11 @@ export default function HouseholdInclusion({ plan, setField, scopeFor }) {
         })}
       </ul>
 
-      <p className="mt-2 text-xs text-[var(--text-muted)]">
+      <p className="mt-3 text-help text-[var(--text-muted)]">
         Household expenses and goals always count in full · {includedCount} of {everyone.length} people included.
       </p>
       {lastOneOn && (
-        <p id={lockNoteId} className="mt-1 text-xs text-[var(--text-subtle)]">
+        <p id={lockNoteId} className="mt-1 text-help text-[var(--text-muted)]">
           At least one person has to stay included.
         </p>
       )}

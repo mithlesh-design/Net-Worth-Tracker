@@ -69,7 +69,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {user.name || user.email}
           </span>
           {isDemo && (
-            <Badge className="hidden sm:block text-xs uppercase tracking-wide">Demo</Badge>
+            <Badge className="hidden sm:block">Demo</Badge>
           )}
           <ChevronDown size={ICON_SIZE.xs} style={{ color: "var(--header-muted)" }} />
         </button>
@@ -79,12 +79,12 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
         {/* User info */}
         <div className="px-3 py-2.5">
           <div className="flex items-center gap-1.5">
-            <p className="text-xs font-bold text-[var(--text-primary)]">{user.name || "User"}</p>
-            {isDemo && <Badge className="text-xs uppercase tracking-wide">Demo mode</Badge>}
+            <p className="text-subtitle text-[var(--text-primary)]">{user.name || "User"}</p>
+            {isDemo && <Badge>Demo mode</Badge>}
           </div>
-          <p className="text-xs truncate text-[var(--text-muted)]">{user.email}</p>
+          <p className="truncate text-help text-[var(--text-muted)]">{user.email}</p>
           {isDemo && !persisted && (
-            <p className="text-xs mt-1 text-[var(--info-red-text)]">
+            <p className="mt-1 text-help text-[var(--info-red-text)]">
               This browser blocked storage, so a refresh will sign you out.
             </p>
           )}
@@ -98,7 +98,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {saveState.status !== "idle" && saveState.message && (
               <Alert
                 variant={saveState.status === "error" ? "danger" : "success"}
-                className="mb-2 px-2.5 py-1.5 text-xs"
+                className="mb-2 px-3 py-2 text-help"
               >
                 {saveState.message}
               </Alert>
@@ -110,7 +110,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="Profile name..."
-                  className="flex-1 h-8 text-xs"
+                  className="flex-1 h-9 text-help"
                   autoFocus
                   onKeyDown={(e) => {
                     e.stopPropagation();
@@ -123,7 +123,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                 />
                 <Button
                   size="sm"
-                  className="h-8 px-3 text-xs"
+                  className="h-9 px-3"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (saveName.trim()) {
@@ -155,18 +155,18 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           <div className="px-2 py-1.5">
             <button
               onClick={() => setProfilesOpen(!profilesOpen)}
-              className="flex items-center justify-between w-full rounded-lg px-2 py-2 text-xs transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
+              className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-label transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
             >
               <span className="flex items-center gap-2">
                 <FolderOpen size={ICON_SIZE.sm} className="text-[var(--info-blue-text)]" />
                 Saved Profiles
-                <Badge variant="outline" className="text-xs">{profiles.length}</Badge>
+                <Badge variant="outline">{profiles.length}</Badge>
               </span>
               <ChevronDown size={ICON_SIZE.xs} className={cn("transition-transform text-[var(--text-muted)]", profilesOpen && "rotate-180")} />
             </button>
 
             {profilesOpen && isDemo && (
-              <p className="mt-1 px-2 text-xs text-[var(--text-muted)]">
+              <p className="mt-1 px-2.5 text-help text-[var(--text-muted)]">
                 Demo profiles are saved on this browser only.
               </p>
             )}
@@ -174,7 +174,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
             {profilesOpen && (
               <div className="mt-1 max-h-48 overflow-y-auto space-y-1">
                 {profiles.length === 0 ? (
-                  <p className="text-xs text-center py-3 text-[var(--text-muted)]">No saved profiles yet</p>
+                  <p className="py-3 text-center text-help text-[var(--text-muted)]">No saved profiles yet</p>
                 ) : (
                   profiles.map((p) => (
                     <div
@@ -185,8 +185,8 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                         onClick={() => onLoadProfile?.(p)}
                         className="flex-1 text-left"
                       >
-                        <p className="text-xs font-semibold text-[var(--text-primary)]">{p.name}</p>
-                        <p className="text-xs text-[var(--text-muted)]">
+                        <p className="text-label font-semibold text-[var(--text-primary)]">{p.name}</p>
+                        <p className="text-help text-[var(--text-muted)]">
                           {new Date(p.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       </button>

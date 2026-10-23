@@ -43,7 +43,7 @@ export default function HouseholdMembers({
       badge={members.length ? `${members.length} added` : null}
       defaultOpen
     >
-      <p className="text-xs text-[var(--text-muted)]">
+      <p className="text-body text-[var(--text-secondary)]">
         Spouse, partner, parents or anyone whose money is part of your plan. Each
         person gets their own tab in the Strategy Hub, and on Review you choose
         who counts in the household totals.
@@ -65,7 +65,7 @@ export default function HouseholdMembers({
         <DropdownMenuTrigger asChild disabled={atLimit}>
           <Button
             variant="outline"
-            className="w-full border-dashed py-3.5 h-auto text-sm font-semibold border-[var(--gold-line)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--gold-soft)] hover:border-[var(--gold-rule)]"
+            className="w-full border-dashed py-3.5 h-auto text-label font-semibold border-[var(--gold-line)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--gold-soft)] hover:border-[var(--gold-rule)]"
           >
             <Plus size={ICON_SIZE.sm} className="mr-1.5" />
             Add a household member
@@ -81,7 +81,7 @@ export default function HouseholdMembers({
         </DropdownMenuContent>
       </DropdownMenu>
       {atLimit && (
-        <p className="text-xs text-center text-[var(--text-muted)]">
+        <p className="text-center text-help text-[var(--text-muted)]">
           Up to {MAX_MEMBERS} members, so each still gets a usable tab.
         </p>
       )}
@@ -112,8 +112,8 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
         <button className="flex w-full items-center gap-3 px-4 py-3 text-left">
           <PersonAvatar label={label} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">{label}</span>
-            <span className="block truncate text-xs text-[var(--text-muted)]">
+            <span className="block truncate text-subtitle text-[var(--text-primary)]">{label}</span>
+            <span className="block truncate text-help text-[var(--text-muted)]">
               {relation.short} · {age ?? "–"} yrs · {perMonth > 0 ? `${fmt(perMonth)}/mo` : "no income"}
               {m.included === false && " · not in household total"}
             </span>
@@ -148,7 +148,7 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
             <SliderInput label="Retirement age" value={m.retirementAge ?? 60}
               onChange={(v) => scope.setField("retirementAge", v)}
               min={18} max={80} suffix=" yrs" />
-            <p className="text-xs mt-0.5 text-[var(--text-muted)]">
+            <p className="mt-1 text-help text-[var(--text-muted)]">
               {age !== null && m.retirementAge <= age
                 ? "Already retired: their investments no longer take new money, and their returns are held to their post-retirement rate."
                 : "Their monthly investments stop at this age, and their returns switch to their post-retirement rate."}
@@ -172,7 +172,7 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
             defaultOpen
           />
           {incomes.length === 0 && (
-            <p className="text-xs text-[var(--text-muted)]">
+            <p className="text-help text-[var(--text-muted)]">
               No income recorded. Their holdings and investments can still be added on their Strategy Hub tab.
             </p>
           )}
@@ -184,16 +184,16 @@ function MemberCard({ plan, member: m, scope, makeId, onRemove, defaultOpen }) {
                 property from the plan.
               </InfoStrip>
               <div className="flex gap-2">
-                <Button variant="destructive" size="sm" className="flex-1 text-xs" onClick={onRemove}>
+                <Button variant="destructive" size="sm" className="flex-1" onClick={onRemove}>
                   Remove {label}
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs" onClick={() => setConfirming(false)}>
+                <Button variant="outline" size="sm" className="" onClick={() => setConfirming(false)}>
                   Keep
                 </Button>
               </div>
             </div>
           ) : (
-            <Button variant="ghost" size="sm" className="text-xs text-[var(--text-muted)]"
+            <Button variant="ghost" size="sm" className="text-[var(--text-muted)]"
               onClick={() => setConfirming(true)}>
               <Trash2 size={ICON_SIZE.sm} className="mr-1.5" /> Remove {label}
             </Button>

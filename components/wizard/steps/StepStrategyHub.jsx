@@ -38,7 +38,7 @@ export default function StepStrategyHub({
       {/* The step's title and purpose live in the page hero; a household only
           needs telling that what follows is per person. */}
       {household && (
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <p className="text-body" style={{ color: "var(--text-secondary)" }}>
           Each person&rsquo;s own strategy and portfolio, one tab each.
         </p>
       )}
@@ -98,7 +98,7 @@ function PersonStrategy({ plan, cleanPlan, scopeFor, makeId, personId, household
   return (
     <div className="space-y-6">
       {household && (
-        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+        <p className="text-body" style={{ color: "var(--text-secondary)" }}>
           <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
             {isSelf ? "Your plan" : label}
           </span>

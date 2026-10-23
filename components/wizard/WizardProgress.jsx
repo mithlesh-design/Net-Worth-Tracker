@@ -46,7 +46,7 @@ export default function WizardProgress({ currentStep, onStepClick }) {
                     "Income & Expenses" would not fit. */}
                 <span
                   className={cn(
-                    "whitespace-nowrap text-xs leading-tight sm:text-[0.8125rem]",
+                    "whitespace-nowrap text-help",
                     active ? "font-semibold" : "font-medium"
                   )}
                   style={{ color: active ? "var(--text-primary)" : "var(--text-muted)" }}

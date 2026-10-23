@@ -55,9 +55,9 @@ export default function PropertyInvestments({
             <div className="flex items-center justify-between gap-2">
               <input type="text" value={p.name ?? ""} placeholder="Name this property"
                 onChange={(e) => update(p.id, "name", e.target.value)}
-                className="text-xs font-bold bg-transparent outline-none flex-1 min-w-0"
+                className="-mx-1 min-w-0 flex-1 rounded-md bg-transparent px-1 text-subtitle outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]"
                 style={{ color: 'var(--text-primary)' }} />
-              <span className="text-xs font-bold shrink-0"
+              <span className="shrink-0 text-value-sm tabular-nums"
                 style={{ color: 'var(--financial-projection)' }}>
                 {fmt((Number(p.value) || 0) - (Number(p.loanOutstanding) || 0))} equity
               </span>
@@ -72,7 +72,7 @@ export default function PropertyInvestments({
             <SliderInput label="Rental income (₹/month, after tax)" value={p.rentalIncome ?? 0}
               onChange={(v) => update(p.id, "rentalIncome", v)}
               min={0} max={1000000} step={1000} prefix="₹" />
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>
               What you keep. Rent is taxed at slab rates after a 30% standard
               deduction, and this projection has no tax model — so enter the net figure.
             </p>
@@ -80,7 +80,7 @@ export default function PropertyInvestments({
             <SliderInput label="Annual maintenance" value={p.maintenancePct ?? 0}
               onChange={(v) => update(p.id, "maintenancePct", v)}
               min={0} max={5} step={0.1} suffix="%" />
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>
               Of current value — repairs, society dues, property tax. Charged for life,
               so it makes financial independence harder, not easier.
             </p>
@@ -88,7 +88,7 @@ export default function PropertyInvestments({
             <SliderInput label="Loan outstanding today (₹)" value={p.loanOutstanding ?? 0}
               onChange={(v) => update(p.id, "loanOutstanding", v)}
               min={0} max={100000000} step={100000} prefix="₹" showWords />
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>
               The balance left now, not the original loan amount.
             </p>
 

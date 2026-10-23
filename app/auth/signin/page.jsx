@@ -69,7 +69,7 @@ export default function SignInPage() {
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1" style={{ background: "var(--border-default)" }} />
-            <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--text-muted)" }}>or</span>
+            <span className="text-overline uppercase" style={{ color: "var(--text-muted)" }}>or</span>
             <div className="h-px flex-1" style={{ background: "var(--border-default)" }} />
           </div>
 
@@ -100,7 +100,7 @@ export default function SignInPage() {
             </form>
           )}
 
-          <p className="text-center text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+          <p className="text-center text-help" style={{ color: "var(--text-muted)" }}>
             {demo.enabled
               ? "Demo mode: no email is sent. You are signed in instantly on this browser, and profiles are saved here only."
               : "The planner works without login. Sign in only to save & load profiles."}

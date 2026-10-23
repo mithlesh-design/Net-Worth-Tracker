@@ -95,7 +95,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
               value={c.epfEmployer.amount}
               onChange={(v) => setField("contributions.epfEmployer.amount", v)}
               min={0} max={100000} step={500} prefix="₹" />
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+            <p className="mt-1.5 text-help" style={{ color: 'var(--text-muted)' }}>
               Usually matches your own deduction. It is in neither gross nor take-home
               pay, so it is never subtracted from your cash.
             </p>
@@ -115,7 +115,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
 
       {/* Client field 16: Other (please specify) */}
       <div className="space-y-2">
-        <div className="text-xs font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--text-secondary)' }}>
+        <div className="text-overline uppercase" style={{ color: 'var(--text-muted)' }}>
           Other
         </div>
         {c.other.map((o, i) => {
@@ -126,9 +126,9 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
               <div className="flex items-center justify-between gap-2">
                 <input type="text" value={o.name} placeholder="Name this contribution"
                   onChange={(e) => updateOther(o.id, "name", e.target.value)}
-                  className="text-xs font-bold bg-transparent outline-none flex-1 min-w-0"
+                  className="-mx-1 min-w-0 flex-1 rounded-md bg-transparent px-1 text-subtitle outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]"
                   style={{ color: nameMissing ? 'var(--info-red-text)' : 'var(--text-primary)' }} />
-                <span className="text-xs font-bold shrink-0" style={{ color: 'var(--financial-projection)' }}>
+                <span className="shrink-0 text-value-sm tabular-nums" style={{ color: 'var(--financial-projection)' }}>
                   {fmt(monthlyEquivalent(o.amount, o.frequency))}/mo
                 </span>
                 <button onClick={() => removeOther(o.id)} aria-label="Remove contribution" className="hover:text-[var(--danger)] shrink-0"

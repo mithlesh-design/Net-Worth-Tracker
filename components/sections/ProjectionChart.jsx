@@ -10,6 +10,7 @@ import { fmt, fmtAxis, numToWordsIndian } from "@/lib/finance/format.mjs";
 import GoalIcon from "@/components/ui/GoalIcon";
 import { Card } from "@/components/ui/card";
 import SectionHeader from "@/components/ui/SectionHeader";
+import { StatGrid, StatTile } from "@/components/ui/StatGrid";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
@@ -17,15 +18,15 @@ function NetWorthTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-xs"
+    <div className="rounded-xl border px-4 py-3 min-w-[240px] text-help tabular-nums"
       style={{ background: 'var(--card-bg)', borderColor: 'var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
-        {d.isRetired && <span className="text-xs font-semibold" style={{ color: 'var(--warning)' }}>Retired</span>}
-        {d.deficit && !d.isRetired && <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
+        <span className="text-subtitle" style={{ color: 'var(--text-primary)' }}>Age {d.age} · {d.year}</span>
+        {d.isRetired && <span className="text-overline uppercase" style={{ color: 'var(--warning)' }}>Retired</span>}
+        {d.deficit && !d.isRetired && <span className="text-overline uppercase flex items-center gap-1" style={{ color: 'var(--danger)' }}><TriangleAlert size={ICON_SIZE.xs} />Deficit</span>}
       </div>
-      <div className="text-base font-bold mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
-      <div className="space-y-1 text-xs">
+      <div className="text-value mb-2" style={{ color: 'var(--financial-projection)' }}>{fmt(d.netWorth)}</div>
+      <div className="space-y-1">
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.income)}</span></div>
         {d.rentalIncome > 0 && <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Rental income</span><span className="font-semibold" style={{ color: 'var(--info)' }}>{fmt(d.rentalIncome)}</span></div>}
         <div className="flex justify-between"><span style={{ color: 'var(--text-secondary)' }}>Expenses</span><span className="font-semibold" style={{ color: 'var(--warning)' }}>{"\u2212"}{fmt(d.annualExpense)}</span></div>
@@ -120,7 +121,7 @@ function PolicyOverlay({ events, projection, xScale, yScale }) {
                 <HandCoins size={ICON_SIZE.xs} />
               </div>
             </foreignObject>
-            <text x={cx + R + 4} y={by + 4} fontSize={11} fontWeight={600} fill="var(--financial-positive)">{text}</text>
+            <text x={cx + R + 4} y={by + 4} fontSize={12} fontWeight={600} fill="var(--financial-positive)">{text}</text>
           </g>
         );
       })}
@@ -169,7 +170,7 @@ export default function ProjectionChart({
         kicker={simulation.fiAge ? `FI at age ${simulation.fiAge}` : null} />
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-body" style={{ color: 'var(--text-secondary)' }}>
             {/* One person's assumptions would misdescribe a household whose
                 members each carry their own; name who is in it instead. */}
             {household
@@ -179,8 +180,8 @@ export default function ProjectionChart({
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           {constrainedYears > 0 && (
-            <span className="text-sm font-semibold flex items-center gap-1" style={{ color: 'var(--danger)' }}>
-              <TriangleAlert size={ICON_SIZE.xs} /> {constrainedYears} yrs deficit
+            <span className="flex items-center gap-1.5 text-value-sm" style={{ color: 'var(--danger)' }}>
+              <TriangleAlert size={ICON_SIZE.sm} /> {constrainedYears} yrs deficit
             </span>
           )}
         </div>
@@ -189,23 +190,23 @@ export default function ProjectionChart({
       <div className="relative overflow-hidden">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Net Worth at Age {lifeExpectancy}</div>
-            <div className="mt-1 flex items-baseline gap-3">
-              <span className="text-3xl font-extrabold tracking-tight tabular-nums sm:text-4xl" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
+            <div className="text-overline uppercase" style={{ color: 'var(--text-muted)' }}>Net Worth at Age {lifeExpectancy}</div>
+            <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-value-xl tabular-nums" style={{ color: 'var(--text-primary)' }}>{lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}</span>
               {lastPoint && lastPoint.netWorthRaw > simulation.openingPortfolio && (
-                <span className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--success)' }}>
+                <span className="inline-flex items-center gap-1 text-value-sm tabular-nums" style={{ color: 'var(--success)' }}>
                   <ArrowUpRight size={ICON_SIZE.sm} /> +{fmt(lastPoint.netWorthRaw - simulation.openingPortfolio)}
                 </span>
               )}
               {lastPoint && lastPoint.netWorthRaw <= 0 && (
-                <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--danger)' }}>
+                <span className="inline-flex items-center gap-1 text-value-sm" style={{ color: 'var(--danger)' }}>
                   <TriangleAlert size={ICON_SIZE.sm} /> Depleted
                 </span>
               )}
             </div>
-            <div className="mt-0.5 text-xs italic" style={{ color: 'var(--text-muted)' }}>{lastPoint ? numToWordsIndian(Math.max(0, lastPoint.netWorthRaw)) : ""}</div>
+            <div className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>{lastPoint ? numToWordsIndian(Math.max(0, lastPoint.netWorthRaw)) : ""}</div>
           </div>
-          <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+          <div className="hidden sm:flex flex-wrap items-center justify-end gap-x-4 gap-y-1.5 text-help" style={{ color: 'var(--text-secondary)' }}>
             <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-1.5 w-4 rounded-full" style={{ background: 'var(--chart-primary)' }} />Net Worth</span>
             <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--chart-target)' }} />Retire</span>
             <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="h-0.5 w-4 border-b-2 border-dashed" style={{ borderColor: 'var(--text-muted)' }} />Life Exp.</span>
@@ -229,24 +230,24 @@ export default function ProjectionChart({
               <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
               <XAxis dataKey="age" type="number" domain={[currentAge, lifeExpectancy]}
                 tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-                tick={{ fontSize: 11, fill: "var(--chart-tick)" }}
-                label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 11 }} />
+                tick={{ fontSize: 12, fill: "var(--chart-tick)" }}
+                label={{ value: "Age", position: "insideBottomRight", offset: -12, fill: "var(--chart-tick)", fontSize: 12 }} />
               <YAxis tickLine={false} axisLine={{ stroke: "var(--chart-axis)" }} tickMargin={8}
-                tickFormatter={fmtAxis} tick={{ fontSize: 11, fill: "var(--chart-tick)" }} width={65}
+                tickFormatter={fmtAxis} tick={{ fontSize: 12, fill: "var(--chart-tick)" }} width={70}
                 domain={[0, Math.round(yMax)]} allowDataOverflow={false} />
               <Tooltip content={<NetWorthTooltip />} cursor={{ stroke: "var(--chart-axis)", strokeWidth: 1 }} />
 
               {earliestRetireAge <= lifeExpectancy && (
                 <ReferenceLine x={earliestRetireAge} stroke="var(--chart-target)" strokeWidth={1.5} strokeDasharray="5 4" strokeOpacity={0.6}
-                  label={{ value: `Retire ${earliestRetireAge}`, position: "insideTopLeft", fontSize: 11, fill: "var(--chart-target)", offset: 6 }} />
+                  label={{ value: `Retire ${earliestRetireAge}`, position: "insideTopLeft", fontSize: 12, fill: "var(--chart-target)", offset: 6 }} />
               )}
 
               <ReferenceLine x={lifeExpectancy} stroke="var(--chart-tick)" strokeWidth={1} strokeDasharray="4 4" strokeOpacity={0.5}
-                label={{ value: `Life ${lifeExpectancy}`, position: "insideTopRight", fontSize: 11, fill: "var(--chart-tick)", offset: 6 }} />
+                label={{ value: `Life ${lifeExpectancy}`, position: "insideTopRight", fontSize: 12, fill: "var(--chart-tick)", offset: 6 }} />
 
               {firstDeficitAge && (
                 <ReferenceLine x={firstDeficitAge} stroke="var(--chart-negative)" strokeWidth={1} strokeDasharray="3 3" strokeOpacity={0.5}
-                  label={{ value: "Deficit", position: "insideTopRight", fontSize: 11, fill: "var(--chart-negative)" }} />
+                  label={{ value: "Deficit", position: "insideTopRight", fontSize: 12, fill: "var(--chart-negative)" }} />
               )}
 
               <Area type="monotone" dataKey="netWorth" stroke="var(--chart-primary)" strokeWidth={2.5} fill="url(#nwGrad)"
@@ -260,7 +261,7 @@ export default function ProjectionChart({
         </div>
 
         {policyPoints.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs" aria-label="Life insurance events">
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-help" aria-label="Life insurance events">
             {policyPoints.map((e) => (
               <span key={e.key} className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
                 <HandCoins size={ICON_SIZE.xs} style={{ color: 'var(--financial-positive)' }} />
@@ -277,7 +278,7 @@ export default function ProjectionChart({
           <div className="mt-4 border-l-2 pl-4 py-2 flex items-start gap-2"
             style={{ borderColor: 'var(--danger-border)' }}>
             <TriangleAlert size={ICON_SIZE.sm} className="mt-0.5 shrink-0" style={{ color: 'var(--danger)' }} />
-            <div className="text-xs space-y-1" style={{ color: 'var(--danger)' }}>
+            <div className="text-help space-y-1" style={{ color: 'var(--danger)' }}>
               {constrainedYears > 0 && (
                 <div>
                   <strong>Cash Flow Warning:</strong> {constrainedYears} year{constrainedYears > 1 ? "s" : ""} with negative cash flow.{" "}
@@ -302,20 +303,21 @@ export default function ProjectionChart({
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-5 sm:grid-cols-4" style={{ borderColor: 'var(--border-subtle)' }}>
-        {[
-          { label: "Peak Net Worth", value: fmt(simulation.peakNW), sub: numToWordsIndian(simulation.peakNW), color: "var(--financial-positive)" },
-          { label: "Corpus at Retire", value: retirePoint ? fmt(retirePoint.netWorthRaw) : "\u2014", sub: retirePoint ? `${fmt(retirePoint.liquidNW)} liquid · ${fmt(retirePoint.lockedNW)} locked` : "", color: "var(--value-target)" },
-          { label: "FI Age", value: simulation.fiAge || "\u2014", sub: simulation.fiAge ? (simulation.fiAgeSustained === simulation.fiAge ? `${simulation.fiAge - age} yrs away` : simulation.fiAgeSustained ? `holds from ${simulation.fiAgeSustained}` : "not sustained") : "Not reached", color: "var(--financial-projection)" },
-          { label: `NW at ${lifeExpectancy}`, value: lastPoint ? fmt(lastPoint.netWorth) : "\u2014", sub: lastPoint && lastPoint.netWorthRaw <= 0 ? "Depleted" : "", color: lastPoint && lastPoint.netWorthRaw <= 0 ? "var(--danger)" : "var(--financial-projection)" },
-        ].map((c) => (
-          <div key={c.label} className="min-w-0 py-1">
-            <div className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>{c.label}</div>
-            <div className="mt-1.5 text-xl font-bold tabular-nums" style={{ color: c.color }}>{c.value}</div>
-            <div className="mt-0.5 text-xs truncate" style={{ color: 'var(--text-muted)' }}>{c.sub}</div>
-          </div>
-        ))}
-      </div>
+      <StatGrid cols="grid-cols-2 sm:grid-cols-4" className="border-t border-[var(--border-subtle)] pt-6">
+        <StatTile label="Peak Net Worth" value={fmt(simulation.peakNW)}
+          sub={numToWordsIndian(simulation.peakNW)} tone="good" />
+        <StatTile label="Corpus at Retire" value={retirePoint ? fmt(retirePoint.netWorthRaw) : "\u2014"}
+          sub={retirePoint ? `${fmt(retirePoint.liquidNW)} liquid · ${fmt(retirePoint.lockedNW)} locked` : ""} tone="target" />
+        <StatTile label="FI Age" value={simulation.fiAge || "\u2014"}
+          sub={simulation.fiAge
+            ? (simulation.fiAgeSustained === simulation.fiAge ? `${simulation.fiAge - age} yrs away`
+              : simulation.fiAgeSustained ? `holds from ${simulation.fiAgeSustained}` : "not sustained")
+            : "Not reached"}
+          tone="projection" />
+        <StatTile label={`NW at ${lifeExpectancy}`} value={lastPoint ? fmt(lastPoint.netWorth) : "\u2014"}
+          sub={lastPoint && lastPoint.netWorthRaw <= 0 ? "Depleted" : ""}
+          tone={lastPoint && lastPoint.netWorthRaw <= 0 ? "warn" : "projection"} />
+      </StatGrid>
     </Card>
   );
 }

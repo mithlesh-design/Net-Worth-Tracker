@@ -64,7 +64,7 @@ function PostRetireInflation({ plan, setField, findingsFor }) {
           <SliderInput label="Inflation after retirement" value={plan.postRetireInflation}
             onChange={(v) => setField("postRetireInflation", v)} min={0} max={15} step={0.5} suffix="%"
             warn={findingsFor("postRetireInflation").length > 0} />
-          <p className="text-xs text-[var(--text-muted)]">
+          <p className="text-help text-[var(--text-muted)]">
             Replaces general and lifestyle inflation for every year after you retire at {plan.retirementAge}.
           </p>
           <FieldError findings={findingsFor("postRetireInflation")} />
@@ -110,7 +110,7 @@ function PremiumInput({ plan, setField, premiums }) {
     <div className="space-y-2">
       <SliderInput label="Medical insurance premium (₹/month)" value={monthly} onChange={setMonthly}
         min={0} max={50000} step={500} prefix="₹" showWords />
-      <p className="text-xs text-[var(--text-muted)]">
+      <p className="text-help text-[var(--text-muted)]">
         {frequency === "monthly"
           ? "Your own policy. Also editable under Medical Insurance below."
           : `Your own policy, paid ${frequency}: ${fmt(Number(self.premium) || 0)}. Also editable under Medical Insurance below.`}
@@ -139,7 +139,7 @@ function StopRentCallout({ plan, setField, homeGoalAge }) {
             label="Stop rent after home purchase" />
         </div>
       </div>
-      <p className="text-xs pl-8" style={{ color: 'var(--text-secondary)' }}>
+      <p className="pl-[2.75rem] text-help" style={{ color: 'var(--text-secondary)' }}>
         {homeGoalAge !== null
           ? (plan.stopRentOnHomePurchase
               ? `Rent stops at age ${homeGoalAge}, when your home goal completes.`
@@ -166,8 +166,8 @@ function CostSplit({ plan, setField, scopeFor, findingsFor }) {
   return (
     <div className="mt-2 space-y-3 border-t pt-4 border-[var(--border-subtle)]">
       <div>
-        <div className="text-xs font-semibold text-[var(--text-primary)]">Who covers these costs</div>
-        <p className="text-xs mt-0.5 text-[var(--text-muted)]">
+        <div className="text-subtitle text-[var(--text-primary)]">Who covers these costs</div>
+        <p className="mt-1 text-help text-[var(--text-muted)]">
           Each person&rsquo;s own Strategy Hub tab carries their share of expenses,
           premiums and goals. Household totals on Review always count them in full.
         </p>

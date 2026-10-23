@@ -65,7 +65,7 @@ export default function CurrentHoldings({
             min={0} max={50000000} step={10000} prefix="₹" showWords
             warn={findingsFor(`${basePath}.${f.key}`).length > 0}
           />
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          <p className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>
             {f.hint ?? "Value today."}
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function CurrentHoldings({
           onChange={(v) => setField(`${basePath}.unallocated`, v)}
           min={0} max={50000000} step={10000} prefix="₹" showWords
         />
-        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+        <p className="mt-1 text-help" style={{ color: 'var(--text-muted)' }}>
           Anything not broken down above. A previously saved net worth lands here.
         </p>
       </div>

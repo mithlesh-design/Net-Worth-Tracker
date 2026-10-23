@@ -20,7 +20,7 @@ export default function AuthLayout({ hero, children }) {
           <StepHero hero={hero} />
           <div className="w-full max-w-[540px] space-y-4">
             <Link href="/"
-              className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium transition-colors hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              className="inline-flex items-center gap-1.5 rounded-md text-label transition-colors hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               style={{ color: "var(--text-secondary)" }}>
               <ArrowLeft size={ICON_SIZE.sm} /> Back to planner
             </Link>

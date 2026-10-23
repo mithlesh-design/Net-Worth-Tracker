@@ -64,7 +64,7 @@ function PolicyCard({ policy: p, index, age, setField, findings, onRemove }) {
       <div className="flex items-center gap-2">
         <input type="text" value={p.name ?? ""} placeholder={POLICY_TYPE_LABELS[p.type] ?? "Policy name"}
           onChange={(e) => edit("name", e.target.value)} aria-label="Policy name"
-          className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none text-[var(--text-primary)] placeholder:text-[var(--text-subtle)]" />
+          className="-mx-1 min-w-0 flex-1 rounded-md bg-transparent px-1 text-subtitle text-[var(--text-primary)] outline-none transition-colors placeholder:font-normal placeholder:text-[var(--input-placeholder)] hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]" />
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRemove}
           aria-label={`Remove ${policyLabel(p)}`}>
           <Trash2 size={ICON_SIZE.sm} />
@@ -74,7 +74,7 @@ function PolicyCard({ policy: p, index, age, setField, findings, onRemove }) {
       <div className="space-y-1">
         <Label htmlFor={`${base}-type`}>Policy type</Label>
         <select id={`${base}-type`} value={p.type} onChange={(e) => edit("type", e.target.value)}
-className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base shadow-[var(--shadow-xs)] outline-none transition-all hover:border-[var(--input-border-hover)] focus:border-[var(--input-border-focus)] focus:[box-shadow:var(--input-focus-ring)]"
+className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base font-medium shadow-[var(--shadow-xs)] outline-none transition-all hover:border-[var(--input-border-hover)] focus:border-[var(--input-border-focus)] focus:[box-shadow:var(--input-focus-ring)]"
           style={{ background: "var(--input-bg)", borderColor: "var(--input-border)", color: "var(--input-text)" }}>
           {POLICY_TYPES.map((t) => <option key={t} value={t}>{POLICY_TYPE_LABELS[t]}</option>)}
         </select>
@@ -121,7 +121,7 @@ function TermFields({ p, age, edit }) {
             onChange={(v) => edit("maturityAge", v)} min={age} max={MAX_AGE} suffix=" yrs" />
           <SliderInput label="Age you started the policy" value={p.startAge}
             onChange={(v) => edit("startAge", v)} min={18} max={Math.max(18, p.premiumUntilAge)} suffix=" yrs" />
-          <p className="text-xs text-[var(--text-muted)]">
+          <p className="text-help text-[var(--text-muted)]">
             Used to count the premiums returned: {premiumYears(p)} years × {fmt(annualPolicyPremium(p))} a year.
           </p>
         </>
@@ -140,7 +140,7 @@ function MaturityFields({ p, age, edit }) {
       <SliderInput label="Approximate maturity amount (₹)" value={p.maturityAmount ?? 0}
         onChange={(v) => edit("maturityAmount", v)} min={0} max={100000000} step={50000} prefix="₹" showWords />
       {isUlip && (
-        <p className="text-xs text-[var(--text-muted)]">
+        <p className="text-help text-[var(--text-muted)]">
           A ULIP&rsquo;s value depends on the market. Use the projected figure from your policy
           statement; the plan treats it as an estimate.
         </p>
@@ -156,7 +156,7 @@ function MaturityFields({ p, age, edit }) {
             onChange={(v) => edit("incomeStartAge", v)} min={age} max={MAX_AGE} suffix=" yrs" />
           <SliderInput label="Income end age" value={p.incomeEndAge}
             onChange={(v) => edit("incomeEndAge", v)} min={p.incomeStartAge ?? age} max={MAX_AGE} suffix=" yrs" />
-          <p className="text-xs text-[var(--text-muted)]">
+          <p className="text-help text-[var(--text-muted)]">
             {payments > 0
               ? `${payments} yearly payment${payments === 1 ? "" : "s"}, from age ${p.incomeStartAge} to ${p.incomeEndAge}.`
               : "The end age must be the start age or later."}
@@ -193,8 +193,8 @@ function PolicySummary({ p, age }) {
   if (!lines.length) return null;
   return (
     <div className="rounded-lg p-3 space-y-1 bg-[var(--surface-raised)]">
-      <div className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">What this policy does</div>
-      {lines.map((l) => <p key={l} className="text-xs text-[var(--text-secondary)]">{l}</p>)}
+      <div className="text-overline uppercase text-[var(--text-muted)]">What this policy does</div>
+      {lines.map((l) => <p key={l} className="text-help text-[var(--text-secondary)]">{l}</p>)}
     </div>
   );
 }

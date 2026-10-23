@@ -38,7 +38,7 @@ function PolicyBlock({ who, label, cfg, setField, findingsFor, sharedDisabled })
               min={0} max={20000000} step={100000} prefix="₹" showWords
               disabled={!!cfg.unlimitedCoverage} disabledText="Unlimited"
             />
-            <p className="text-xs text-[var(--text-muted)]">
+            <p className="text-help text-[var(--text-muted)]">
               {cfg.unlimitedCoverage
                 ? "No amount needed: this policy has no upper limit on cover. Switch off to enter a fixed amount."
                 : "Enter the sum insured, or switch on Unlimited if the policy has no upper limit."}

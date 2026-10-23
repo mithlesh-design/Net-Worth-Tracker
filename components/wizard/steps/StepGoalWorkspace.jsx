@@ -50,7 +50,7 @@ export default function StepGoalWorkspace({
               value={!!plan.inflateGoals}
               onChange={(v) => setField("inflateGoals", v)}
             />
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            <p className="text-body" style={{ color: "var(--text-secondary)" }}>
               {plan.inflateGoals ? (
                 <>
                   Your projection charges each goal what it will actually cost by then.

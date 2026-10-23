@@ -10,7 +10,7 @@ const UNDERLINED = "Grow";
    reads as one phrase to a screen reader. */
 export default function BrandTagline({ className = "" }) {
   return (
-    <p className={cn("flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em]", className)}
+    <p className={cn("flex items-center gap-3 text-overline uppercase tracking-[0.2em]", className)}
       style={{ color: "var(--text-primary)" }}>
       {WORDS.map((w, i) => (
         <Fragment key={w}>

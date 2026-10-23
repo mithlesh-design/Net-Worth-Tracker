@@ -57,7 +57,7 @@ export default function FinancialGoals({ plan, goals, saveGoal, removeGoal, find
   return (
     <CollapsibleSection title="Financial Goals" icon={Target} badge={`${goals.length}`} defaultOpen={defaultOpen}>
       {goals.length === 0 && !editing && (
-        <p className="text-xs text-[var(--text-muted)]">
+        <p className="text-help text-[var(--text-muted)]">
           No goals yet. Add a home, education, car or anything else you are saving for.
         </p>
       )}
@@ -95,8 +95,8 @@ function SavedGoal({ goal, plan, age, findings, onEdit, onRemove, disabled }) {
           <GoalIcon type={goal.emoji} size={ICON_SIZE.md} />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold truncate text-[var(--text-primary)]">{goal.name}</div>
-          <div className="text-xs text-[var(--text-muted)]">
+          <div className="truncate text-subtitle text-[var(--text-primary)]">{goal.name}</div>
+          <div className="text-help text-[var(--text-muted)]">
             Age {goal.age} · {years > 0 ? `in ${years} yr${years === 1 ? "" : "s"}` : "not in the future"}
             {goal.hasLoan && " · financed"}
           </div>
@@ -110,10 +110,10 @@ function SavedGoal({ goal, plan, age, findings, onEdit, onRemove, disabled }) {
           <Trash2 size={ICON_SIZE.sm} />
         </Button>
       </div>
-      <div className="flex items-center gap-2 text-xs pl-[2.625rem] flex-wrap">
-        <span className="text-[var(--text-secondary)]">Today <strong className="text-[var(--text-primary)] tabular-nums">{fmt(goal.amount)}</strong></span>
-        <ArrowRight size={ICON_SIZE.xs} className="text-[var(--text-subtle)]" />
-        <span className="text-[var(--text-secondary)]">Future <strong className="text-[var(--text-primary)] tabular-nums">{fmt(future)}</strong></span>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 pl-[2.875rem] text-help">
+        <span className="text-[var(--text-secondary)]">Today <strong className="text-value-sm tabular-nums text-[var(--text-primary)]">{fmt(goal.amount)}</strong></span>
+        <ArrowRight size={ICON_SIZE.xs} className="self-center text-[var(--text-subtle)]" />
+        <span className="text-[var(--text-secondary)]">Future <strong className="text-value-sm tabular-nums text-[var(--text-primary)]">{fmt(future)}</strong></span>
         <span className="text-[var(--text-muted)]">at {rate}%/yr</span>
       </div>
       <FieldError findings={findings} />
@@ -140,7 +140,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
             const selected = draft?.emoji === t;
             return (
               <button key={t} type="button" onClick={() => pick(t)} aria-pressed={selected}
-                className="flex flex-col items-center gap-2 rounded-xl border px-2 py-4 text-sm font-medium transition-colors hover:bg-[var(--surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="flex flex-col items-center gap-2 rounded-xl border px-2 py-4 text-label font-semibold transition-colors hover:bg-[var(--surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 style={selected
                   ? { background: "var(--accent-soft)", color: "var(--accent)", borderColor: "var(--accent)" }
                   : { color: "var(--text-secondary)", borderColor: "var(--border-default)" }}>
@@ -177,7 +177,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
       title={isNew ? "Add a goal" : "Edit goal"}
       icon={draft.emoji}
       action={
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs"
+        <Button variant="link" size="sm" className="h-auto p-0"
           onClick={() => setEditing({ step: "type", draft })}>
           Change type
         </Button>
@@ -193,7 +193,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
         <SliderInput label="Target age" value={draft.age}
           onChange={(v) => set("age", v)} min={minAge} max={lifeExpectancy} suffix=" yrs" warn={!ageOk} />
         {!ageOk && (
-          <p className="text-xs text-[var(--danger)]">
+          <p className="text-help text-[var(--danger)]">
             Target age must be after your current age ({age}). Choose {minAge} or later.
           </p>
         )}
@@ -205,7 +205,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
       <div className="space-y-1">
         <SliderInput label="Expected inflation" value={rate} onChange={(v) => set("inflationRate", v)}
           min={0} max={20} step={0.5} suffix="%" />
-        <p className="text-xs text-[var(--text-muted)]">
+        <p className="text-help text-[var(--text-muted)]">
           {historical !== null
             ? <>Historical average: <strong>{historical}%</strong>. A guide only; set your own.</>
             : <>How fast this price rises each year. General inflation is {plan.inflationRate}%.</>}
@@ -221,19 +221,19 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
 
       <ToggleSwitch value={draft.hasLoan} onChange={(v) => set("hasLoan", v)} label="Finance via loan" />
       {draft.hasLoan && (
-        <div className="space-y-3 pl-4 border-l-2" style={{ borderColor: "var(--info-rose-border)" }}>
+        <div className="space-y-5 border-l-2 pl-4" style={{ borderColor: "var(--border-strong)" }}>
           <SliderInput label="Down payment %" value={draft.downPaymentPct} onChange={(v) => set("downPaymentPct", v)} min={5} max={80} step={5} suffix="%" />
           <SliderInput label="Loan interest rate" value={draft.loanRate} onChange={(v) => set("loanRate", v)} min={5} max={15} step={0.25} suffix="%" />
           <SliderInput label="Loan tenure" value={draft.loanTenure} onChange={(v) => set("loanTenure", v)} min={1} max={30} suffix=" yrs" />
-          <div className="text-xs" style={{ color: "var(--info-rose-text)" }}>
-            Loan: {fmt(loanAmt)} · EMI: {fmt(emi)}/mo, in today&rsquo;s rupees
+          <div className="text-help tabular-nums" style={{ color: "var(--text-secondary)" }}>
+            Loan <strong className="text-value-sm text-[var(--text-primary)]">{fmt(loanAmt)}</strong> · EMI <strong className="text-value-sm text-[var(--text-primary)]">{fmt(emi)}</strong>/mo, in today&rsquo;s rupees
           </div>
         </div>
       )}
 
       {isHome && (
         <div className="space-y-3">
-          <div className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--value-target)" }}>After you buy</div>
+          <div className="text-overline uppercase" style={{ color: "var(--gold-text)" }}>After you buy</div>
           <SliderInput label="Property appreciation" value={draft.appreciationRate} onChange={(v) => set("appreciationRate", v)} min={0} max={15} step={0.5} suffix="%" />
           <SliderInput label="Annual maintenance %" value={draft.maintenancePct} onChange={(v) => set("maintenancePct", v)} min={0} max={5} step={0.25} suffix="%" />
         </div>
@@ -243,7 +243,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
         <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
         <Button size="sm" onClick={() => onSave(draft)} disabled={!canSave}>Save goal</Button>
       </div>
-      {!nameOk && <p className="text-xs text-right text-[var(--danger)]">Give the goal a name.</p>}
+      {!nameOk && <p className="text-right text-help text-[var(--danger)]">Give the goal a name.</p>}
     </EditorFrame>
   );
 }
@@ -259,8 +259,8 @@ function EditorFrame({ title, subtitle = null, icon = null, action = null, child
           </span>
         )}
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[var(--text-primary)]">{title}</div>
-          {subtitle && <div className="text-xs text-[var(--text-muted)]">{subtitle}</div>}
+          <div className="text-subtitle text-[var(--text-primary)]">{title}</div>
+          {subtitle && <div className="text-help text-[var(--text-muted)]">{subtitle}</div>}
         </div>
         {action}
       </div>

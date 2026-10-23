@@ -1,26 +1,8 @@
 "use client";
 
 import { LayoutDashboard } from "lucide-react";
-import { SectionCard, InfoStrip } from "@/components/ui";
+import { SectionCard, InfoStrip, StatGrid, StatTile } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
-
-function Tile({ label, value, sub, tone = "default" }) {
-  const color = {
-    default: 'var(--value-primary)',
-    good: 'var(--value-positive)',
-    warn: 'var(--value-negative)',
-    muted: 'var(--value-muted)',
-  }[tone];
-  return (
-    <div className="py-2">
-      <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
-        {label}
-      </div>
-      <div className="mt-1 text-sm font-bold" style={{ color }}>{value}</div>
-      {sub && <div className="mt-0.5 text-xs" style={{ color: 'var(--text-muted)' }}>{sub}</div>}
-    </div>
-  );
-}
 
 /* `household` names who is included ("You, Priya"), or is null when you are
    planning alone. */
@@ -63,32 +45,32 @@ export default function MonthlySummary({
 
   return (
     <SectionCard title="Monthly Summary" icon={LayoutDashboard}>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Tile label="Monthly Income" value={fmt(incomeMonthly)}
+      <StatGrid>
+        <StatTile label="Monthly Income" value={fmt(incomeMonthly)}
           sub={`${fmt(incomeMonthly * 12)}/yr${household ? ` · ${household}` : ""}`} tone="good" />
-        <Tile label="Living Expenses" value={fmt(living)}
+        <StatTile label="Living Expenses" value={fmt(living)}
           sub={`household ${fmt(plan.expenses.household)} · rent ${fmt(plan.expenses.rent)}`} />
-        <Tile label="Insurance Premium" value={fmt(premiumMonthly)}
+        <StatTile label="Insurance Premium" value={fmt(premiumMonthly)}
           sub={lifeMonthly > 0
             ? `medical ${fmt(medicalMonthly)} · life ${fmt(lifeMonthly)}`
             : "monthly equivalent"} />
-        <Tile label="Planned Contributions" value={fmt(contributionsMonthly)}
+        <StatTile label="Planned Contributions" value={fmt(contributionsMonthly)}
           sub={payrollMonthly > 0
             ? `${fmt(payrollMonthly)} payroll · ${fmt(cashMonthly)} cash`
             : "from take-home cash"} />
-        <Tile
+        <StatTile
           label={surplus < 0 ? "Monthly Shortfall" : "Remaining Surplus"}
           value={fmt(Math.abs(surplus))}
           sub={surplus < 0 ? "planned outgoings exceed income" : "after all outgoings"}
           tone={surplus < 0 ? "warn" : "good"} />
-        <Tile label="Starting Portfolio" value={fmt(startingPortfolio)}
+        <StatTile label="Starting Portfolio" value={fmt(startingPortfolio)}
           sub={illiquid > 0
             ? `${fmt(liquid)} liquid · ${fmt(locked)} locked · ${fmt(illiquid)} property`
             : `${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
-      </div>
+      </StatGrid>
 
       {surplus < 0 && (
-        <div className="mt-3">
+        <div className="mt-6">
           <InfoStrip tone="red">
             Your planned contributions and expenses exceed your income by{" "}
             <strong>{fmt(Math.abs(surplus))}/month</strong>. The projection funds only

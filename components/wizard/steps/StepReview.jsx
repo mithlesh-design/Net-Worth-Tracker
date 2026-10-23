@@ -43,7 +43,7 @@ export default function StepReview({
         </div>
       </div>
       <div className="text-center pt-6 pb-2">
-        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Not financial advice · Consult a SEBI-registered advisor</p>
+        <p className="text-help" style={{ color: 'var(--text-muted)' }}>Not financial advice · Consult a SEBI-registered advisor</p>
       </div>
     </div>
   );

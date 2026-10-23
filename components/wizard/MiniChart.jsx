@@ -28,9 +28,9 @@ export default function MiniChart({
               </linearGradient>
             </defs>
             <XAxis dataKey="age" type="number" domain={[currentAge, lifeExpectancy]}
-              tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-tick)" }} />
+              tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: "var(--chart-tick)" }} />
             <YAxis tickLine={false} axisLine={false} tickFormatter={fmtAxis}
-              tick={{ fontSize: 11, fill: "var(--chart-tick)" }} width={50} />
+              tick={{ fontSize: 12, fill: "var(--chart-tick)" }} width={62} />
             {retirementAge <= lifeExpectancy && (
               <ReferenceLine x={retirementAge} stroke="var(--chart-target)" strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.5} />
             )}

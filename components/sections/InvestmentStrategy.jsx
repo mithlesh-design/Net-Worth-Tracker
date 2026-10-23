@@ -86,7 +86,7 @@ export default function InvestmentStrategy({
       </InfoStrip>
       <div className="mt-4 space-y-2">
         <ToggleSwitch value={investSurplus} onChange={(v) => setField("investSurplus", v)} label="Invest all surplus cash" />
-        <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-help" style={{ color: 'var(--text-secondary)' }}>
           {investSurplus
             ? "All cash after expenses/EMIs goes into investments."
             : "Only the Target SIP is invested. Remaining surplus is spent (lifestyle)."}

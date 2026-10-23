@@ -26,30 +26,30 @@ function GoalRow({ goal, inflateGoals }) {
   const pct = Math.round(goal.fundedPct * 100);
 
   return (
-    <div className="py-3 border-b last:border-b-0" style={{ borderColor: "var(--border-subtle)" }}>
+    <div className="py-4 border-b last:border-b-0" style={{ borderColor: "var(--border-subtle)" }}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-medium truncate inline-flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
+        <span className="inline-flex min-w-0 items-center gap-2 truncate text-subtitle" style={{ color: "var(--text-primary)" }}>
           <GoalIcon type={goal.emoji} size={ICON_SIZE.sm} style={{ color: "var(--text-muted)" }} />
           <span className="truncate">{goal.name}</span>
         </span>
-        <span className="text-[0.65rem] font-semibold whitespace-nowrap" style={{ color: s.color }}>
+        <span className="whitespace-nowrap text-overline uppercase" style={{ color: s.color }}>
           {s.label}
         </span>
       </div>
 
       {excluded ? (
-        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+        <p className="mt-1.5 text-help" style={{ color: "var(--text-muted)" }}>
           {goal.status === "outOfHorizon"
             ? `Set for age ${goal.age}, beyond the horizon you're planning to — so the projection never charges it.`
             : `Set for age ${goal.age}, which is already behind you.`}
         </p>
       ) : (
         <>
-          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+          <p className="mt-1.5 text-help" style={{ color: "var(--text-muted)" }}>
             Today&rsquo;s cost {fmt(goal.fullCostToday)} &rarr; future cost{" "}
-            <strong style={{ color: "var(--text-primary)" }}>{fmt(futureCostOf(goal))}</strong> at {goal.age}
+            <strong className="text-value-sm tabular-nums" style={{ color: "var(--text-primary)" }}>{fmt(futureCostOf(goal))}</strong> at {goal.age}
           </p>
-          <div className="flex items-baseline justify-between gap-3 mt-1.5 text-xs">
+          <div className="mt-2 flex items-baseline justify-between gap-3 text-help">
             {/* The bar measures what the plan pays against what it is charged,
                 so the figure beside it has to be that same charge — pairing the
                 bar with the real cost would make a 100%%-funded goal look
@@ -57,7 +57,7 @@ function GoalRow({ goal, inflateGoals }) {
             <span style={{ color: "var(--text-secondary)" }}>
               Plan pays {fmt(goal.requiredToday)} at {goal.age}
             </span>
-            <span className="font-semibold tabular-nums" style={{ color: "var(--text-secondary)" }}>
+            <span className="text-value-sm tabular-nums" style={{ color: "var(--text-secondary)" }}>
               {pct}% funded
             </span>
           </div>
@@ -73,13 +73,13 @@ function GoalRow({ goal, inflateGoals }) {
               wrong amount. Saving more fixes the first; the future-rupees
               toggle fixes the second. */}
           {goal.gap > 1 && (
-            <p className="text-xs mt-1.5" style={{ color: "var(--danger)" }}>
+            <p className="mt-2 text-help" style={{ color: "var(--danger)" }}>
               Your plan comes up {fmt(goal.gap)} short of paying for this.
             </p>
           )}
 
           {!inflateGoals && goal.inflationGap > 1 && (
-            <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
+            <p className="mt-2 text-help" style={{ color: "var(--text-muted)" }}>
               Charged at {fmt(goal.requiredToday)}, its price today. By {goal.age} it
               should cost about {fmt(goal.requiredInflated)}
               {goal.inflationUsed !== undefined && ` at ${goal.inflationUsed}%/yr`}.
@@ -87,7 +87,7 @@ function GoalRow({ goal, inflateGoals }) {
           )}
 
           {goal.hasLoan && (
-            <p className="text-[0.65rem] mt-1" style={{ color: "var(--text-subtle)" }}>
+            <p className="mt-1.5 text-help" style={{ color: "var(--text-muted)" }}>
               Financed · {fmt(goal.fullCostToday)} total, only the down payment comes from your portfolio
             </p>
           )}
@@ -104,7 +104,7 @@ export default function GoalFundingTable({ goalGap, plan }) {
   if (!goals.length) {
     return (
       <SectionCard title="Goal funding" icon={PiggyBank}>
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+        <p className="text-body" style={{ color: "var(--text-muted)" }}>
           Add a goal above and this will show whether your plan gets you there.
         </p>
       </SectionCard>
@@ -114,13 +114,13 @@ export default function GoalFundingTable({ goalGap, plan }) {
   return (
     <SectionCard title="Goal funding" icon={PiggyBank}>
       {hasGoals && (
-        <div className="pb-3 mb-1 border-b" style={{ borderColor: "var(--border-default)" }}>
+        <div className="mb-1 border-b pb-4" style={{ borderColor: "var(--border-default)" }}>
           <div className="flex items-baseline justify-between gap-3">
-            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
+            <span className="text-label" style={{ color: "var(--text-secondary)" }}>
               {allFunded ? "Real cost of all your goals" : "Total shortfall"}
             </span>
             <span
-              className="text-lg font-bold tabular-nums"
+              className="text-value-lg tabular-nums"
               style={{ color: allFunded ? "var(--text-primary)" : "var(--danger)" }}
             >
               {allFunded ? fmt(totals.requiredInflated) : fmt(totals.gap)}
@@ -131,14 +131,14 @@ export default function GoalFundingTable({ goalGap, plan }) {
             const today = live.reduce((t, g) => t + g.fullCostToday, 0);
             const future = live.reduce((t, g) => t + futureCostOf(g), 0);
             return live.length > 0 && (
-              <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+              <p className="mt-1.5 text-help" style={{ color: "var(--text-muted)" }}>
                 Today&rsquo;s cost {fmt(today)} &rarr; future cost{" "}
                 <strong style={{ color: "var(--text-primary)" }}>{fmt(future)}</strong>
               </p>
             );
           })()}
           {!plan?.inflateGoals && totals.inflationGap > 1 && (
-            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+            <p className="mt-1.5 text-help" style={{ color: "var(--text-muted)" }}>
               Your projection charges {fmt(totals.requiredToday)} for these —
               {" "}{fmt(totals.inflationGap)} less than they should cost by then.
             </p>
