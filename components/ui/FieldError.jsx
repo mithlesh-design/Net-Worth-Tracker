@@ -13,7 +13,7 @@ export default function FieldError({ findings }) {
         <Alert
           key={`${f.path}-${i}`}
           variant={f.severity === "warning" ? "warning" : "danger"}
-          className="flex items-start gap-2 px-0 py-1 border-0 bg-transparent text-[0.8125rem]"
+          className="flex items-start gap-2 px-0 py-1 border-0 bg-transparent text-help"
         >
           <TriangleAlert size={ICON_SIZE.xs} className="mt-0.5 shrink-0" />
           <span className="flex-1">{f.message}</span>

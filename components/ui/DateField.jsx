@@ -16,7 +16,7 @@ export default function DateField({ label, value, onChange, max = undefined, hin
         className={cn(invalid && "border-[var(--danger-border)]")}
         style={{ colorScheme: "inherit" }}
       />
-      {hint && <p className="text-xs text-[var(--text-muted)]">{hint}</p>}
+      {hint && <p className="text-help text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }

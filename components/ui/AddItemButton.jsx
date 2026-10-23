@@ -11,7 +11,7 @@ export default function AddItemButton({ onClick, label, tone = "emerald" }) {
       variant="outline"
       onClick={onClick}
       className={cn(
-        "w-full border-dashed py-3.5 h-auto text-sm font-semibold",
+        "w-full border-dashed py-3.5 h-auto text-label font-semibold",
         "border-[var(--gold-line)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--gold-soft)] hover:border-[var(--gold-rule)]"
       )}
     >

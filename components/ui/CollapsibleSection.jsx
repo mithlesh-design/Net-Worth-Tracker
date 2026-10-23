@@ -33,7 +33,7 @@ export default function CollapsibleSection({ title, icon = null, children, defau
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="mt-5 space-y-5 sm:mt-6">{children}</div>
+          <div className="mt-5 space-y-6 sm:mt-6">{children}</div>
         </CollapsibleContent>
       </Collapsible>
     </Card>

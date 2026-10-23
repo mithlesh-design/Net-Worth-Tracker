@@ -15,7 +15,7 @@ export default function TextField({ label, value, onChange, placeholder = "", hi
         placeholder={placeholder}
         className={cn(invalid && "border-[var(--danger-border)]")}
       />
-      {hint && <p className="text-xs text-[var(--text-muted)]">{hint}</p>}
+      {hint && <p className="text-help text-[var(--text-muted)]">{hint}</p>}
     </div>
   );
 }

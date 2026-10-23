@@ -26,7 +26,7 @@ export default function SegmentedControl({ label, options, value, onChange, disa
             disabled={disabled}
             className={cn(
               wrap ? "grow" : "flex-1",
-              "rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-150",
+              "rounded-lg px-4 py-2 text-label font-semibold transition-all duration-150",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
               value === it.value
                 ? "bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] shadow-sm"

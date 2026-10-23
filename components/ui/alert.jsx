@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const alertVariants = cva(
-  "relative w-full rounded-xl px-4 py-2.5 text-sm leading-relaxed",
+  "relative w-full rounded-xl px-4 py-2.5 text-body",
   {
     variants: {
       variant: {
@@ -35,7 +35,7 @@ const AlertTitle = React.forwardRef(({ className, ...props }, ref) => (
 AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props} />
+  <div ref={ref} className={cn("text-body", className)} {...props} />
 ));
 AlertDescription.displayName = "AlertDescription";
 

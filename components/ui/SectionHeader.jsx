@@ -18,7 +18,11 @@ export function SectionIcon({ icon: Icon }) {
 
 /* Every card header in the product:
 
-     (icon)  SECTION TITLE  ─────────────────────  KICKER  [action]
+     (icon)  Section title  ─────────────────────  KICKER  [action]
+
+   The title is sentence case, navy, `text-title` (Manrope Bold — the
+   heading face is kept for the large headings); the gold is in the icon
+   disc, the hairline and the small uppercase kicker.
 
    `kicker` is a quiet right-hand note (a count, an amount, a short phrase);
    `action` is a control such as a collapsible's chevron. `titleAs` lets a
@@ -33,11 +37,10 @@ export default function SectionHeader({
     <div className={cn("flex min-w-0 items-center gap-3 sm:gap-4", className)}>
       {icon && <SectionIcon icon={icon} />}
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-0.5">
-        <Title className="eyebrow leading-snug">{title}</Title>
+        <Title className="text-title text-[var(--text-primary)]">{title}</Title>
         <span aria-hidden className="hidden h-px min-w-4 flex-1 sm:block" style={{ background: "var(--gold-line)" }} />
         {kicker && (
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] tabular-nums"
-            style={{ color: "var(--gold-text)" }}>
+          <span className="ml-auto text-overline uppercase tabular-nums text-[var(--gold-text)]">
             {kicker}
           </span>
         )}

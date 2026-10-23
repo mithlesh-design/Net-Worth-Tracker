@@ -22,7 +22,7 @@ const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
   <h3
     ref={ref}
     className={cn(
-      "eyebrow",
+      "text-title text-[var(--text-primary)]",
       className
     )}
     {...props}
@@ -31,7 +31,7 @@ const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
 CardTitle.displayName = "CardTitle";
 
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn("text-sm text-[var(--text-secondary)]", className)} {...props} />
+  <p ref={ref} className={cn("text-body text-[var(--text-secondary)]", className)} {...props} />
 ));
 CardDescription.displayName = "CardDescription";
 

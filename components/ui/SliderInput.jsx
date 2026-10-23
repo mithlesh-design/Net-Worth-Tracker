@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { toWords } from "@/lib/finance/format.mjs";
+import { toWords, groupIN } from "@/lib/finance/format.mjs";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 
 /* Label on the left, the value on the right in bold with its unit muted
-   ("75 yrs"), then a thin track with a gold thumb. The value is an editable
-   box that reads as text until it is touched.
+   ("75 yrs", "₹ 1,37,433"), then a thin track with a gold thumb. The value is
+   an editable box that reads as text until it is touched.
 
    `disabled` locks both the box and the track. `disabledText`, when given,
    replaces the number shown while locked, so a field that no longer applies
@@ -17,43 +17,64 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
   const fill = warn ? "var(--danger)" : "var(--slider-fill)";
   const unit = suffix.trim();
 
-  /* What is in the box while it has focus. A number input bound straight to
-     the numeric value keeps a typed-over zero: "0" + "1000" reads "01000", and
-     React will not rewrite it because 01000 === 1000. It also snaps an emptied
-     box back to "0" mid-edit. Holding the text here lets the box be empty while
-     typing and drops leading zeros as they appear; the plan still receives a
-     number on every keystroke. Outside an edit the box shows the value, so a
-     slider drag is always reflected. */
-  const [draft, setDraft] = useState(null);
+  /* What is in the box while it has focus. Outside an edit the box shows the
+     value grouped the Indian way (1,37,433), so a figure can be read at a
+     glance and a slider drag is always reflected. On focus it switches to the
+     plain digits, which is what gets typed over.
 
-  const handleType = (e) => {
-    const text = e.target.value.replace(/^(-?)0+(?=\d)/, "$1");
+     Held as text, not bound to the number: a typed-over zero would otherwise
+     read "01000", and an emptied box would snap back to "0" mid-edit. Leading
+     zeros drop as they appear; the plan still receives a number on every
+     keystroke. A text box rather than type="number", because a number box
+     cannot show the grouping separators. */
+  const [draft, setDraft] = useState(null);
+  const shown = draft ?? groupIN(value);
+  /* The box is as wide as what it shows. `ch` is one digit (the figures are
+     tabular), but a comma or point is much narrower, so counting every
+     character as a digit leaves a gap between the ₹ and "1,37,433". */
+  const width = [...shown].reduce((w, c) => w + (/\d/.test(c) ? 1 : 0.42), 0.35);
+
+  const commit = (text) => {
     setDraft(text);
     onChange(Number(text) || 0);
   };
+  const handleType = (e) => {
+    commit(e.target.value.replace(/[^\d.-]/g, "").replace(/^(-?)0+(?=\d)/, "$1"));
+  };
+  /* The arrow keys a number box gave for free. */
+  const handleKey = (e) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const next = +((Number(value) || 0) + (e.key === "ArrowUp" ? step : -step)).toFixed(6);
+    commit(String(next));
+  };
+
   return (
     <div className={cn("space-y-1.5", disabled && "opacity-60")} aria-disabled={disabled || undefined}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-baseline justify-between gap-3">
         <Label>{label}</Label>
         {disabled && disabledText !== null ? (
-          <span className="text-sm font-semibold text-[var(--text-secondary)]">{disabledText}</span>
+          <span className="text-value-sm text-[var(--text-secondary)]">{disabledText}</span>
         ) : (
-          <div className={cn("flex items-baseline gap-1 tabular-nums", warn ? "text-[var(--danger)]" : "text-[var(--text-primary)]")}>
-            {prefix && <span className="text-sm font-medium text-[var(--text-muted)]">{prefix}</span>}
+          <div className={cn("flex shrink-0 items-baseline gap-1 tabular-nums", warn ? "text-[var(--danger)]" : "text-[var(--text-primary)]")}>
+            {prefix && <span className="text-label text-[var(--text-muted)]">{prefix}</span>}
             <input
-              type="number"
-              value={draft ?? value}
+              type="text"
+              inputMode="decimal"
+              value={shown}
               onChange={handleType}
-              /* Selecting on focus means the first key replaces a 0 outright. */
-              onFocus={(e) => { setDraft(String(value)); e.target.select(); }}
+              onKeyDown={handleKey}
+              /* Selecting on focus means the first key replaces the figure outright. */
+              onFocus={(e) => { setDraft(String(value)); requestAnimationFrame(() => e.target.select()); }}
               onBlur={() => setDraft(null)}
               disabled={disabled}
               aria-label={typeof label === "string" ? label : undefined}
-              className="w-24 rounded-md bg-transparent px-1 text-right text-lg font-bold outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)] sm:w-28"
-              step={step}
-              style={{ color: "inherit" }}
+              /* Sized to what it shows, so the ₹ and the unit sit against the
+                 figure instead of floating at the edge of a fixed box. */
+              style={{ width: `${Math.max(width, 1.35)}ch`, color: "inherit" }}
+              className="min-w-[2ch] rounded-md bg-transparent px-0.5 text-right text-value tabular-nums outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]"
             />
-            {unit && <span className="text-sm font-medium text-[var(--text-muted)]">{unit}</span>}
+            {unit && <span className="text-label text-[var(--text-muted)]">{unit}</span>}
           </div>
         )}
       </div>
@@ -74,7 +95,7 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
         />
       </div>
       {showWords && value > 0 && !disabled && (
-        <p className="truncate text-xs italic text-[var(--text-muted)]">{toWords(value)}</p>
+        <p className="truncate text-help text-[var(--text-muted)]">{toWords(value)}</p>
       )}
     </div>
   );

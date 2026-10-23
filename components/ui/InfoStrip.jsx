@@ -29,7 +29,7 @@ export default function InfoStrip({ tone = "blue", children, icon = null, classN
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-xl border px-4 py-3 text-sm leading-relaxed",
+        "flex items-start gap-3 rounded-xl border px-4 py-3 text-body",
         "[&_strong]:font-bold [&_strong]:text-[var(--callout-strong)]",
         className
       )}

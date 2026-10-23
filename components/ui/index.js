@@ -15,6 +15,7 @@ export { default as FieldError } from "./FieldError";
 export { default as PersonAvatar } from "./PersonAvatar";
 export { default as SectionHeader, SectionIcon } from "./SectionHeader";
 export { default as GroupHeading } from "./GroupHeading";
+export { StatGrid, StatTile } from "./StatGrid";
 
 // shadcn primitives (available for direct use)
 export { Button, buttonVariants } from "./button";
