@@ -1,3 +1,5 @@
+const { TYPE_SCALE } = require("./lib/ui/type-scale.cjs");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -27,8 +29,11 @@ module.exports = {
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
+        display: ["var(--font-display)"],
       },
+      /* Role sizes: text-display, text-title, text-label, text-value-lg …
+         See lib/ui/type-scale.cjs for what each is for. */
+      fontSize: TYPE_SCALE,
       borderRadius: {
         lg: "var(--radius-lg)",
         md: "var(--radius-md)",

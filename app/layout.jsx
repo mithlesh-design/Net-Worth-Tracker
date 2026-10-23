@@ -1,23 +1,30 @@
 import "./globals.css";
-import { Manrope, Playfair_Display } from "next/font/google";
+import { Manrope, DM_Serif_Display } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
 import { DemoAuthProvider } from "@/components/DemoAuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import IconProvider from "@/components/IconProvider";
 
 /* Self-hosted at build time by next/font, so there is no request to Google at
-   runtime. Exposed as variables that --font-sans / --font-serif in
-   globals.css resolve through. */
+   runtime. Exposed as variables that --font-sans / --font-display in
+   globals.css resolve through.
+
+   Manrope is the interface — body, labels, card titles, fields, every
+   number — and is variable, loaded as such (no `weight` list), so one file
+   covers every weight the type scale uses.
+
+   DM Serif Display is for the large headings only: the step headline and
+   group headings. It is a display face with a single, already-heavy weight,
+   so there is one upright file and no italic. */
 const sans = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-manrope",
   display: "swap",
 });
-const serif = Playfair_Display({
+const display = DM_Serif_Display({
   subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-playfair",
+  weight: "400",
+  variable: "--font-dm-serif",
   display: "swap",
 });
 
@@ -29,7 +36,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="light" className={`${sans.variable} ${serif.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="light" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <body>
         <SessionProvider>
           {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —

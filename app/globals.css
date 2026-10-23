@@ -511,12 +511,13 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Typography. --font-manrope / --font-playfair come from next/font in
+  /* Typography. --font-manrope / --font-dm-serif come from next/font in
      app/layout.jsx; the named fallbacks cover a build without it.
-     The serif is for headline WORDS only (StepHero, GroupHeading). Every
-     number — amounts, ages, percentages, chart figures — is Manrope. */
+     DM Serif Display is for the large headings only (the display and heading
+     roles carry it; see HEADINGS below). Every number — amounts, ages,
+     percentages, chart figures — is Manrope. */
   --font-sans: var(--font-manrope), "Manrope", "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-display: var(--font-dm-serif), "DM Serif Display", Georgia, serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -592,14 +593,33 @@ body {
               color var(--motion-base) var(--ease-standard);
 }
 
-/* The section eyebrow: gold, uppercase, letter-spaced. One definition, used
-   by every card header and the brand tagline. */
-.eyebrow {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--gold-text);
+/* ═══════════════════════════════════════════════════════════════════
+   HEADINGS — the two large heading roles carry DM Serif Display themselves,
+   so no screen has to remember `font-display`, and nothing smaller can pick
+   it up by accident: a card title is Manrope Bold, like the content it heads.
+
+   Headlines are bold, upright and navy: no italic, no accent colour. The
+   gold lives in the rule under the headline, the icon discs and kickers.
+
+   Balanced wrapping keeps a headline from leaving one word alone on its last
+   line; paragraphs get the same protection, more lightly.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer utilities {
+  .text-display,
+  .text-heading {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+  .text-title {
+    text-wrap: balance;
+  }
+  /* Running text: no single word stranded on the last line. */
+  .text-lead,
+  .text-body,
+  .text-help {
+    text-wrap: pretty;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -743,4 +763,13 @@ input[type="number"] {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CHART TEXT — axis figures line up as a column, like every other number
+   ═══════════════════════════════════════════════════════════════════ */
+
+.recharts-cartesian-axis-tick-value,
+.recharts-label {
+  font-variant-numeric: tabular-nums;
 }
