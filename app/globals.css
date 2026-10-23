@@ -39,12 +39,14 @@
   --page-bg: #F6F2EA;
   /* Over the photograph: clear over the knight on the left, washing to cream
      where the cards sit. Phones get a near-solid wash. */
+  /* The sky in the photograph runs blue at the top, so the wash is a little
+     stronger there and on the right than the bars on the left need. */
   --page-overlay: linear-gradient(90deg,
-      rgba(246, 242, 234, 0.10) 0%,
+      rgba(246, 242, 234, 0.08) 0%,
       rgba(246, 242, 234, 0.30) 18%,
-      rgba(246, 242, 234, 0.72) 38%,
-      rgba(246, 242, 234, 0.84) 100%),
-    linear-gradient(180deg, rgba(246, 242, 234, 0.55) 0%, rgba(246, 242, 234, 0) 22%);
+      rgba(246, 242, 234, 0.76) 38%,
+      rgba(246, 242, 234, 0.86) 100%),
+    linear-gradient(180deg, rgba(246, 242, 234, 0.65) 0%, rgba(246, 242, 234, 0) 26%);
   --page-overlay-mobile: linear-gradient(180deg,
       rgba(246, 242, 234, 0.90) 0%, rgba(246, 242, 234, 0.94) 100%);
   --page-image-opacity: 1;
