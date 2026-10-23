@@ -36,7 +36,9 @@ const src = collect(join(root, "app"))
 const plan = migrate(FIRST_RUN_V0);
 const at = (path) => path.split(".").reduce((o, k) => (o == null ? o : o[k]), plan);
 
-/* label: text the user sees. path: where the answer is stored. */
+/* label: text the user sees. path: where the answer is stored. 25-33 are the
+   holdings the client added to the intake list later; real estate (in it too)
+   is the Property You Own list, shown on the holdings card as a total. */
 const FIELDS = [
   [1,  "Full Name",                            "Full Name",                          "personal.fullName"],
   [2,  "Date of Birth",                        "Date of Birth",                      "personal.dob"],
@@ -54,14 +56,23 @@ const FIELDS = [
   [14, "Recurring Deposits (monthly)",         "Recurring Deposits (RDs)",           "contributions.rd.amount"],
   [15, "LIC Premiums (monthly)",               "LIC Insurance Premiums",             "contributions.lic.amount"],
   [16, "Other (please specify)",               "Add Other Contribution",             "contributions.other"],
-  [17, "Current Value of Mutual Funds",        "Current Value of Mutual Funds",      "holdings.mf"],
+  [17, "Current Value of Equity Mutual Funds", "Current Value of Equity Mutual Funds", "holdings.mf"],
   [18, "Current Value of FD/RD",               "Combined FD / RD",                   "holdings.fd"],
   [19, "Current Value of PPF",                 "Current Value of PPF",               "holdings.ppf"],
   [20, "Current Value of NPS",                 "Current Value of NPS",               "holdings.nps"],
   [21, "Current Value of EPF",                 "Current Value of EPF",               "holdings.epf"],
   [22, "Current Value of Stocks",              "Current Value of Stocks",            "holdings.stocks"],
-  [23, "Current value of Crypto",              "Current value of Crypto",            "holdings.crypto"],
+  [23, "Current Value of Crypto",              "Current Value of Crypto",            "holdings.crypto"],
   [24, "Life Insurance value (Rs)",            "Life Insurance value",               "lifeInsurance.value"],
+  [25, "Current Value of Debt/Arbitrage MF",   "Current Value of Debt / Arbitrage Mutual Funds", "holdings.debtMf"],
+  [26, "Current Value of Cash / Savings A/c",  "Current Value of Cash / Savings A/c", "holdings.cash"],
+  [27, "Current Value of SSY",                 "Current Value of SSY",               "holdings.ssy"],
+  [28, "Current Value of ULIP",                "Current Value of ULIP",              "holdings.ulip"],
+  [29, "Current Value of Real Estate",         "Current Value of Real Estate",       "properties"],
+  [30, "Current Value of Stocks - US",         "Current Value of Stocks – US",       "holdings.usStocks"],
+  [31, "Gold / silver ETF and SGBs",           "Current Value of Gold",              "holdings.gold"],
+  [32, "Private equity",                       "Current Value of Private Equity",    "holdings.privateEquity"],
+  [33, "RSU current value",                    "Current Value of RSUs",              "holdings.rsu"],
 ];
 
 console.log(`\nClient field coverage — ${FIELDS.length} required fields\n`);

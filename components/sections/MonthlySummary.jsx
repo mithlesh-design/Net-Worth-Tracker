@@ -40,7 +40,8 @@ export default function MonthlySummary({
 
   const liquid = simulation.data[0]?.liquidNW ?? 0;
   const locked = simulation.data[0]?.lockedNW ?? 0;
-  const illiquid = simulation.data[0]?.illiquidNW ?? 0;
+  const property = simulation.data[0]?.buckets?.property ?? 0;
+  const privateEquity = simulation.data[0]?.buckets?.privateEquity ?? 0;
   const startingPortfolio = simulation.openingPortfolio ?? totalHoldings;
 
   return (
@@ -64,9 +65,12 @@ export default function MonthlySummary({
           sub={surplus < 0 ? "planned outgoings exceed income" : "after all outgoings"}
           tone={surplus < 0 ? "warn" : "good"} />
         <StatTile label="Starting Portfolio" value={fmt(startingPortfolio)}
-          sub={illiquid > 0
-            ? `${fmt(liquid)} liquid · ${fmt(locked)} locked · ${fmt(illiquid)} property`
-            : `${fmt(liquid)} liquid · ${fmt(locked)} locked`} />
+          sub={[
+            `${fmt(liquid)} liquid`,
+            `${fmt(locked)} locked`,
+            property > 0 && `${fmt(property)} property`,
+            privateEquity > 0 && `${fmt(privateEquity)} private equity`,
+          ].filter(Boolean).join(" · ")} />
       </StatGrid>
 
       {surplus < 0 && (

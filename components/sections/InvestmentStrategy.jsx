@@ -36,9 +36,10 @@ export default function InvestmentStrategy({
   };
 
   /* Named part by part: the starting portfolio also holds owned property,
-     which this card does not list. */
+     which this card does not list. Property alone, not the whole illiquid
+     tier: private equity is a holding, already in the holdings total. */
   const today = simulation.data[0];
-  const property = today?.illiquidNW ?? 0;
+  const property = today?.buckets?.property ?? 0;
   const parts = [
     `${fmt(totalHoldings)} holdings`,
     property > 0 && `${fmt(property)} property`,

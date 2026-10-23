@@ -52,7 +52,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
       )}
 
       <ContributionBlock {...common} keyName="mfSip" label="Mutual Fund SIPs" cfg={c.mfSip}
-        bucket="mf" holdingKey="mf" holdingLabel="Current value of Mutual Funds (₹)" />
+        bucket="mf" holdingKey="mf" holdingLabel="Current value of Equity Mutual Funds (₹)" />
 
       <ContributionBlock {...common} keyName="nps" label="NPS Contribution" cfg={c.nps}
         bucket="nps" holdingKey="nps" holdingLabel="Current value of NPS (₹)"
@@ -69,7 +69,7 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
           <SliderInput label="Account opened (year)"
             value={plan.ppfOpenedYear ?? thisYear}
             onChange={(v) => setField("ppfOpenedYear", v)}
-            min={thisYear - 40} max={thisYear} step={1} />
+            min={thisYear - 40} max={thisYear} step={1} grouped={false} />
         }
         note={<>
           {ppfAnnual > PPF_ANNUAL_CAP && (

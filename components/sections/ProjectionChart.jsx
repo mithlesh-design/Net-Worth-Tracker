@@ -21,6 +21,10 @@ import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
    net worth is made of. Shown in the tooltip, or in the readout on a phone. */
 function NetWorthBreakdown({ d }) {
   const out = (v) => `\u2212${fmt(v)}`;
+  /* The illiquid tier is owned property plus private equity; each is named
+     for what it is, read per instrument. */
+  const property = d.buckets?.property ?? 0;
+  const privateEquity = d.buckets?.privateEquity ?? 0;
   return (
     <>
       <div className="flex flex-wrap items-center gap-x-2 mb-2">
@@ -49,12 +53,13 @@ function NetWorthBreakdown({ d }) {
         {/* Owned property is IN net worth; a home goal's property is not. One
             "Property Assets" row covering both would imply they are treated
             alike, which is the whole thing this split exists to prevent. */}
-        {d.illiquidNW > 0 && <BreakdownRow label="Property owned" value={fmt(d.illiquidNW)} tone="var(--value-target)" />}
+        {property > 0 && <BreakdownRow label="Property owned" value={fmt(property)} tone="var(--value-target)" />}
+        {privateEquity > 0 && <BreakdownRow label="Private equity" value={fmt(privateEquity)} tone="var(--value-target)" />}
         {d.propertyDebt > 0 && <BreakdownRow label="Property loan" value={out(d.propertyDebt)} tone="var(--danger)" />}
-        {d.totalPropertyValue - d.illiquidNW > 0 && <BreakdownRow label="Future home (not counted)" value={fmt(d.totalPropertyValue - d.illiquidNW)} labelTone="var(--text-muted)" tone="var(--text-muted)" />}
+        {d.totalPropertyValue - property > 0 && <BreakdownRow label="Future home (not counted)" value={fmt(d.totalPropertyValue - property)} labelTone="var(--text-muted)" tone="var(--text-muted)" />}
         {d.totalLoanOutstanding - d.propertyDebt > 0 && <BreakdownRow label="Home loan (not counted)" value={fmt(d.totalLoanOutstanding - d.propertyDebt)} labelTone="var(--text-muted)" tone="var(--text-muted)" />}
         {(d.lockedNW > 0 || d.illiquidNW > 0) && (
-          <BreakdownRow rule label={`Liquid / Locked${d.illiquidNW > 0 ? " / Property" : ""}`}
+          <BreakdownRow rule label={`Liquid / Locked${d.illiquidNW > 0 ? (privateEquity > 0 ? " / Illiquid" : " / Property") : ""}`}
             value={`${fmt(d.liquidNW)} / ${fmt(d.lockedNW)}${d.illiquidNW > 0 ? ` / ${fmt(d.illiquidNW)}` : ""}`} />
         )}
         {d.unfundedThisYear > 0 && <BreakdownRow label="Unfunded this year" value={fmt(d.unfundedThisYear)} tone="var(--danger)" />}

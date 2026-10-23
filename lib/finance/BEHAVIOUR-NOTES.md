@@ -589,3 +589,35 @@ It is off for new profiles (`DEFAULTS` and the first-run profile in
 Saved profiles keep their stored value; a v0 document without the field
 migrates to on, the behaviour it was projected with. Monthly Investments says
 so while the switch is on.
+
+## Expanded holdings (2026-10-23, no schema bump)
+
+The client's intake list grew from eight holdings to sixteen. Each new holding
+opens its own bucket, because each behaves differently enough that folding it
+into an existing one would misprice it:
+
+| Holding key | Bucket | Tier | Default return | Why its own bucket |
+|---|---|---|---|---|
+| `debtMf` | `debt` | liquid | 7.0% (estimate) | near-FD risk, not equity |
+| `cash` | `cash` | liquid | 3.0% (estimate) | no exit tax (`defaultExitTax: 0`): a withdrawal is not a sale |
+| `ssy` | `ssy` | locked | 8.2% | locked 21 years from `ssyOpenedYear`, like PPF's tenure lock |
+| `ulip` | `ulip` | liquid | 9.0% (estimate) | a fund mix after charges |
+| `usStocks` | `usStocks` | liquid | inherits XIRR | index risk plus the rupee |
+| `gold` | `gold` | liquid | 8.0% (estimate) | its own long cycles |
+| `privateEquity` | `privateEquity` | illiquid | 12.0% (estimate) | never sold to cover a shortfall, like property |
+| `rsu` | `rsu` | liquid | inherits XIRR | one company's stock; volatility 30 |
+
+`mf` is now labelled Equity Mutual Funds; it is still the bucket the MF SIP
+feeds, so no saved data moves. Real estate is not a holding: it stays the
+`properties` list, and the holdings card shows its total.
+
+No migration step. `fillDefaults` gives a saved profile a zero for every new
+key, and member holdings (taken wholesale as part of the members array) are
+read through `num()`, so a profile saved before this change projects exactly
+as it did. Every row's `buckets` object gains the new keys at zero; the v1
+snapshots were regenerated and differ only by those zero-valued keys.
+
+SSY's 50% education withdrawal from age 18 is not modelled: the whole balance
+stays locked to maturity, which understates early liquidity rather than
+overstating it. A ULIP entered both as a holding and as a ULIP policy with a
+maturity amount is counted twice; both cards warn when that happens.

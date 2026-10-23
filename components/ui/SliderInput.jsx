@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 
    `disabled` locks both the box and the track. `disabledText`, when given,
    replaces the number shown while locked, so a field that no longer applies
-   says so instead of showing a stale figure. */
-export default function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, prefix = "", suffix = "", showWords = false, warn = false, disabled = false, disabledText = null }) {
+   says so instead of showing a stale figure. `grouped={false}` is for a
+   figure that is not an amount, such as a year ("2026", never "2,026"). */
+export default function SliderInput({ label, value, onChange, min = 0, max = 100, step = 1, prefix = "", suffix = "", showWords = false, warn = false, disabled = false, disabledText = null, grouped = true }) {
   const pct = ((Math.min(Math.max(value, min), max) - min) / (max - min)) * 100;
   const fill = warn ? "var(--danger)" : "var(--slider-fill)";
   const unit = suffix.trim();
@@ -28,7 +29,7 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
      keystroke. A text box rather than type="number", because a number box
      cannot show the grouping separators. */
   const [draft, setDraft] = useState(null);
-  const shown = draft ?? groupIN(value);
+  const shown = draft ?? (grouped ? groupIN(value) : String(Number(value) || 0));
   /* The box is as wide as what it shows. `ch` is one digit (the figures are
      tabular), but a comma or point is much narrower, so counting every
      character as a digit leaves a gap between the ₹ and "1,37,433". */

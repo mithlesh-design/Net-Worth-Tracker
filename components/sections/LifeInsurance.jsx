@@ -24,6 +24,8 @@ export default function LifeInsurance({ plan, setField, findingsFor, makeId }) {
   const policies = Array.isArray(plan.lifePolicies) ? plan.lifePolicies : [];
   const age = effectiveAge(plan);
   const totalPremium = policies.reduce((t, p) => t + annualPolicyPremium(p), 0);
+  /* A ULIP's fund value may also be entered under Current Holdings. */
+  const ulipHolding = Number(plan.holdings?.ulip) || 0;
 
   const add = () => setField("lifePolicies", [
     ...policies, newPolicy(makeId(), { age, retirementAge: plan.retirementAge }),
@@ -35,6 +37,7 @@ export default function LifeInsurance({ plan, setField, findingsFor, makeId }) {
       badge={policies.length ? `${policies.length} · ${fmt(totalPremium / 12)}/mo` : "None"}>
       {policies.map((p, i) => (
         <PolicyCard key={p.id} policy={p} index={i} age={age} setField={setField}
+          ulipHolding={ulipHolding}
           findings={findingsFor(`lifePolicies.${i}`)} onRemove={() => remove(p.id)} />
       ))}
 
@@ -49,7 +52,7 @@ export default function LifeInsurance({ plan, setField, findingsFor, makeId }) {
   );
 }
 
-function PolicyCard({ policy: p, index, age, setField, findings, onRemove }) {
+function PolicyCard({ policy: p, index, age, setField, ulipHolding, findings, onRemove }) {
   const base = `lifePolicies.${index}`;
   const set = (key, v) => setField(`${base}.${key}`, v);
   /* Editing a moved policy is the review the migration asked for; once the
@@ -96,7 +99,7 @@ className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base fon
       {/* ── By type ── */}
       <div className="border-t pt-3 space-y-3 border-[var(--border-subtle)]">
         {p.type === "term" && <TermFields p={p} age={age} edit={edit} />}
-        {(p.type === "endowment" || p.type === "ulip") && <MaturityFields p={p} age={age} edit={edit} />}
+        {(p.type === "endowment" || p.type === "ulip") && <MaturityFields p={p} age={age} edit={edit} ulipHolding={ulipHolding} />}
       </div>
 
       <PolicySummary p={p} age={age} />
@@ -130,7 +133,7 @@ function TermFields({ p, age, edit }) {
   );
 }
 
-function MaturityFields({ p, age, edit }) {
+function MaturityFields({ p, age, edit, ulipHolding = 0 }) {
   const isUlip = p.type === "ulip";
   const payments = Math.max(0, (p.incomeEndAge ?? 0) - (p.incomeStartAge ?? 0) + 1);
   return (
@@ -144,6 +147,12 @@ function MaturityFields({ p, age, edit }) {
           A ULIP&rsquo;s value depends on the market. Use the projected figure from your policy
           statement; the plan treats it as an estimate.
         </p>
+      )}
+      {isUlip && ulipHolding > 0 && (p.maturityAmount ?? 0) > 0 && (
+        <InfoStrip tone="amber">
+          Your ULIP&rsquo;s current value is also entered under Current Holdings. They are the
+          same money, so enter it in one place only, or it is counted twice.
+        </InfoStrip>
       )}
 
       <ToggleSwitch value={!!p.hasIncome} onChange={(v) => edit("hasIncome", v)}
