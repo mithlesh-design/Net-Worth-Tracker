@@ -9,20 +9,24 @@ import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
 /* The brand bar every screen shares: deep navy, the gold logo, the theme pill
    and whatever the page puts on the right (the account button). The logo is
-   drawn in gold for a dark ground, so the bar stays navy in both themes. */
+   drawn in gold for a dark ground, so the bar stays navy in both themes.
+
+   The account button is always the LAST thing on the bar, after the theme
+   pill. At 320px the logo steps down a size so logo, pill and a labelled
+   "Sign in" still fit on one line. */
 export default function AppHeader({ children = null }) {
   return (
     <header
       className="sticky top-0 z-50 border-b"
       style={{ background: "var(--header-bg)", borderColor: "var(--header-border)" }}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1520px] items-center justify-between gap-4 px-4 sm:h-20 sm:px-8">
-        <Link href="/" className="shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
-          <img src={logo.src} alt="Avdesh Mishra Capitals" className="h-9 w-auto sm:h-11 lg:h-[52px]" />
+      <div className="mx-auto flex h-16 w-full max-w-[1520px] items-center justify-between gap-3 px-4 sm:h-20 sm:px-8">
+        <Link href="/" className="min-w-0 shrink rounded-md py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+          <img src={logo.src} alt="Avdesh Mishra Capitals" className="h-8 w-auto max-w-full min-[375px]:h-9 sm:h-11 lg:h-[52px]" />
         </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
-          {children}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemePill />
+          {children}
         </div>
       </div>
     </header>
@@ -47,7 +51,10 @@ function ThemePill() {
           <button key={id} type="button" onClick={() => setTheme(id)}
             aria-label={label} aria-pressed={on}
             className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full transition-colors duration-150 sm:h-9 sm:w-9",
+              /* 36px discs, 40×48 to the touch: the ::after reaches into
+                 the pill's padding and the bar's height. */
+              "relative flex h-9 w-9 items-center justify-center rounded-full transition-colors duration-150",
+              "after:absolute after:-inset-x-0.5 after:-inset-y-1.5 after:content-['']",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
               on ? "shadow-sm" : "hover:bg-white/10"
             )}

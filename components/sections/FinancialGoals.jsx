@@ -101,12 +101,12 @@ function SavedGoal({ goal, plan, age, findings, onEdit, onRemove, disabled }) {
             {goal.hasLoan && " · financed"}
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onEdit} disabled={disabled}
-          aria-label={`Edit ${goal.name}`} className="h-8 w-8">
+        <Button variant="ghost" size="iconSm" onClick={onEdit} disabled={disabled}
+          aria-label={`Edit ${goal.name}`}>
           <Pencil size={ICON_SIZE.sm} />
         </Button>
-        <Button variant="ghost" size="icon" onClick={onRemove} disabled={disabled}
-          aria-label={`Remove ${goal.name}`} className="h-8 w-8">
+        <Button variant="ghost" size="iconSm" onClick={onRemove} disabled={disabled}
+          aria-label={`Remove ${goal.name}`}>
           <Trash2 size={ICON_SIZE.sm} />
         </Button>
       </div>

@@ -65,7 +65,7 @@ function PolicyCard({ policy: p, index, age, setField, findings, onRemove }) {
         <input type="text" value={p.name ?? ""} placeholder={POLICY_TYPE_LABELS[p.type] ?? "Policy name"}
           onChange={(e) => edit("name", e.target.value)} aria-label="Policy name"
           className="-mx-1 min-w-0 flex-1 rounded-md bg-transparent px-1 text-subtitle text-[var(--text-primary)] outline-none transition-colors placeholder:font-normal placeholder:text-[var(--input-placeholder)] hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]" />
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRemove}
+        <Button variant="ghost" size="iconSm" onClick={onRemove}
           aria-label={`Remove ${policyLabel(p)}`}>
           <Trash2 size={ICON_SIZE.sm} />
         </Button>
@@ -108,7 +108,7 @@ className="h-[var(--control-md)] w-full rounded-[10px] border px-4 text-base fon
 function TermFields({ p, age, edit }) {
   return (
     <>
-      <SegmentedControl label="Return type" wrap
+      <SegmentedControl label="Return type"
         options={[
           { value: "none", label: "Without return of premium" },
           { value: "rop", label: "Return of premium" },

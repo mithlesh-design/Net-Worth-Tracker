@@ -42,14 +42,20 @@ export default function IncomeSources({
         </InfoStrip>
       )}
       {incomes.map((inc) => (
-        <div key={inc.id} className="space-y-5 rounded-xl border border-[var(--border-subtle)] p-4 sm:p-5"
+        <div key={inc.id} className="space-y-5 rounded-xl border border-[var(--border-subtle)] p-item"
           style={{ background: 'var(--bg-tertiary)' }}>
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <input type="text" value={inc.name} onChange={(e) => updateIncome(inc.id, "name", e.target.value)}
               aria-label="Income name" className="-mx-1 min-w-0 flex-1 rounded-md bg-transparent px-1 text-subtitle outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]" style={{ color: 'var(--text-primary)' }} />
             <div className="flex shrink-0 items-center gap-2">
               <span className="text-value-sm tabular-nums" style={{ color: 'var(--financial-projection)' }}>{fmt(toAnnual(inc.amount, inc.frequency))}/yr</span>
-              {incomes.length > minItems && <button onClick={() => removeIncome(inc.id)} aria-label={`Remove ${inc.name || "income"}`} className="hover:text-[var(--danger)]" style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>}
+              {incomes.length > minItems && (
+                <Button variant="ghost" size="iconSm" onClick={() => removeIncome(inc.id)}
+                  aria-label={`Remove ${inc.name || "income"}`}
+                  className="-my-2 text-[var(--text-muted)] hover:text-[var(--danger)]">
+                  <X size={ICON_SIZE.sm} />
+                </Button>
+              )}
             </div>
           </div>
           <SliderInput label={`Amount (${inc.frequency})`} value={inc.amount} onChange={(v) => updateIncome(inc.id, "amount", v)}
@@ -68,7 +74,7 @@ export default function IncomeSources({
         </div>
       ))}
       {showAddIncome ? (
-        <div className="space-y-5 rounded-xl border border-[var(--border-subtle)] p-4 sm:p-5"
+        <div className="space-y-5 rounded-xl border border-[var(--border-subtle)] p-item"
           style={{ background: 'var(--bg-tertiary)' }}>
           <div className="text-overline uppercase" style={{ color: 'var(--text-muted)' }}>New Income</div>
           <input type="text" value={newInc.name} onChange={(e) => setNewInc({ ...newInc, name: e.target.value })}

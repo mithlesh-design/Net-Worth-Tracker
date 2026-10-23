@@ -8,6 +8,8 @@ const Switch = React.forwardRef(({ className, ...props }, ref) => (
   <SwitchPrimitives.Root
     className={cn(
       "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-all duration-150",
+      /* A 44×24 track, 44×40 to the touch. */
+      "relative after:absolute after:-inset-y-2 after:inset-x-0 after:content-['']",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "data-[state=checked]:bg-[var(--toggle-on-bg)] data-[state=unchecked]:bg-[var(--toggle-off-bg)]",

@@ -72,15 +72,18 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
               /* Sized to what it shows, so the ₹ and the unit sit against the
                  figure instead of floating at the edge of a fixed box. */
               style={{ width: `${Math.max(width, 1.35)}ch`, color: "inherit" }}
-              className="min-w-[2ch] rounded-md bg-transparent px-0.5 text-right text-value tabular-nums outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)]"
+              /* On a touch screen there is no hover to reveal that the
+                 figure can be typed in, so it carries a faint field tint. */
+              className="min-w-[2ch] rounded-md bg-transparent px-0.5 text-right text-value tabular-nums outline-none transition-colors hover:bg-[var(--surface-hover)] focus:bg-[var(--surface-hover)] focus:ring-2 focus:ring-[var(--gold-line)] [@media(hover:none)]:bg-[var(--surface-hover)]"
             />
             {unit && <span className="text-label text-[var(--text-muted)]">{unit}</span>}
           </div>
         )}
       </div>
-      {/* Padded by the thumb's overhang (20px thumb on a 4px track), so the
-          thumb stays inside this component and never sits on a hint below. */}
-      <div className="py-2">
+      {/* The range input is a 24px band (see globals.css) with the 4px track
+          drawn through its middle, so the thumb, 24px at most, stays inside
+          this component and never sits on a hint below. */}
+      <div>
         <input
           type="range"
           min={min}
@@ -90,8 +93,8 @@ export default function SliderInput({ label, value, onChange, min = 0, max = 100
           onChange={(e) => onChange(Number(e.target.value))}
           disabled={disabled}
           aria-label={typeof label === "string" ? label : undefined}
-          className={cn("block w-full appearance-none rounded-full", disabled ? "cursor-not-allowed" : "cursor-pointer")}
-          style={{ background: `linear-gradient(to right, ${fill} ${pct}%, var(--slider-track-bg) ${pct}%)` }}
+          className="block w-full"
+          style={{ "--range-fill": `linear-gradient(to right, ${fill} ${pct}%, var(--slider-track-bg) ${pct}%)` }}
         />
       </div>
       {showWords && value > 0 && !disabled && (

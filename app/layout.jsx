@@ -28,6 +28,14 @@ const display = DM_Serif_Display({
   display: "swap",
 });
 
+/* The phone browser's own bar in the header's navy, which is the same in
+   both themes, so the page reads as one surface up to the status bar. */
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#08203F",
+};
+
 export const metadata = {
   title: "Avdesh Mishra Capitals — Financial Planner",
   description:

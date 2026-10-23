@@ -44,7 +44,7 @@ export default function StepGoalWorkspace({
             lifeExpectancy={lifeExpectancy} earliestRetireAge={earliestRetireAge}
           />
 
-          <Card className="space-y-3 p-5 sm:p-7">
+          <Card className="space-y-3 p-card">
             <ToggleSwitch
               label="Price my goals in future rupees"
               value={!!plan.inflateGoals}

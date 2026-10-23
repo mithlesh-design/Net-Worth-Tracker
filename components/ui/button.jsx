@@ -27,10 +27,15 @@ const buttonVariants = cva(
       },
       size: {
         default: "h-11 px-5",
-        sm: "h-9 rounded-lg px-3 text-help font-semibold",
+        /* 36px for a mouse, 40px for a fingertip. */
+        sm: "h-9 rounded-lg px-3 text-help font-semibold [@media(pointer:coarse)]:h-10",
         lg: "h-12 px-6 text-label font-semibold",
         xl: "h-[52px] px-8 text-base",
         icon: "h-10 w-10",
+        /* Row actions (edit, remove): a quiet 36px button whose touch area
+           reaches 44px through the ::after inset, so a row of them stays
+           compact without becoming a fingertip miss. */
+        iconSm: "relative h-9 w-9 shrink-0 rounded-lg after:absolute after:-inset-1 after:content-['']",
       },
     },
     defaultVariants: {

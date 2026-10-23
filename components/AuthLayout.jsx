@@ -12,7 +12,7 @@ import { ICON_SIZE } from "@/lib/ui/icons.mjs";
    be. Nothing here knows about authentication. */
 export default function AuthLayout({ hero, children }) {
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-dvh flex-col">
       <PageBackground />
       <AppHeader />
       <main className="relative z-[1] mx-auto w-full max-w-[1520px] flex-1 px-4 py-8 sm:px-8 lg:py-14">

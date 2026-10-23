@@ -35,12 +35,14 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
   if (!session) {
     return (
       /* Lives on the navy header bar in both themes, so it is styled for a
-         dark ground rather than from the card tokens. */
-      <button onClick={() => signIn()} aria-label="Sign in"
-        className="inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+         dark ground rather than from the card tokens. Always labelled: an
+         icon alone in a gold-ringed pill read as a broken button. The icon
+         is the part that gives way on the narrowest phones. */
+      <button onClick={() => signIn()}
+        className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-semibold transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-4"
         style={{ borderColor: "var(--brand-gold-500)", color: "var(--header-text)" }}>
-        <LogIn size={ICON_SIZE.sm} />
-        <span className="hidden sm:inline">Sign In</span>
+        <LogIn size={ICON_SIZE.sm} className="hidden min-[375px]:block" aria-hidden="true" />
+        Sign in
       </button>
     );
   }
@@ -54,7 +56,8 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
     <DropdownMenu onOpenChange={(open) => { if (open) onRefreshProfiles?.(); }}>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex items-center gap-2 rounded-full border pl-1 pr-3 py-1 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          aria-label={`Account: ${user.name || user.email || "signed in"}`}
+          className="flex h-10 items-center gap-2 rounded-full border pl-1 pr-3 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           style={{ borderColor: "rgba(255, 255, 255, 0.35)", background: "rgba(255, 255, 255, 0.06)" }}
         >
           {user.image ? (
@@ -75,7 +78,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent align="end" className="w-72 max-w-[calc(100vw-24px)]">
         {/* User info */}
         <div className="px-3 py-2.5">
           <div className="flex items-center gap-1.5">
@@ -110,7 +113,8 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                   value={saveName}
                   onChange={(e) => setSaveName(e.target.value)}
                   placeholder="Profile name..."
-                  className="flex-1 h-9 text-help"
+                  /* 16px: anything smaller and iOS zooms the page on focus. */
+                  className="h-10 min-w-0 flex-1 text-base"
                   autoFocus
                   onKeyDown={(e) => {
                     e.stopPropagation();
@@ -123,7 +127,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                 />
                 <Button
                   size="sm"
-                  className="h-9 px-3"
+                  className="h-10 px-3"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (saveName.trim()) {
@@ -135,9 +139,10 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                 >
                   Save
                 </Button>
-                <button onClick={() => setShowSaveInput(false)} className="text-[var(--text-muted)]">
+                <Button variant="ghost" size="iconSm" onClick={() => setShowSaveInput(false)}
+                  aria-label="Cancel saving" className="h-10 w-10 text-[var(--text-muted)]">
                   <X size={ICON_SIZE.sm} />
-                </button>
+                </Button>
               </div>
             ) : (
               <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowSaveInput(true); }}>
@@ -155,7 +160,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
           <div className="px-2 py-1.5">
             <button
               onClick={() => setProfilesOpen(!profilesOpen)}
-              className="flex items-center justify-between w-full rounded-lg px-2.5 py-2 text-label transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
+              className="flex min-h-10 items-center justify-between w-full rounded-lg px-2.5 py-2 text-label transition text-[var(--text-secondary)] hover:bg-[var(--surface-hover)]"
             >
               <span className="flex items-center gap-2">
                 <FolderOpen size={ICON_SIZE.sm} className="text-[var(--info-blue-text)]" />
@@ -190,12 +195,15 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
                           {new Date(p.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                         </p>
                       </button>
-                      <button
+                      {/* Shown until hover only where there IS hover: a touch
+                          screen would otherwise never reveal it. */}
+                      <Button variant="ghost" size="iconSm"
                         onClick={(e) => { e.stopPropagation(); onDeleteProfile?.(p.id); }}
-                        className="opacity-0 group-hover:opacity-100 hover:text-[var(--danger)] transition p-1 text-[var(--text-muted)]"
+                        aria-label={`Delete ${p.name}`}
+                        className="text-[var(--text-muted)] hover:text-[var(--danger)] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 focus-visible:opacity-100"
                       >
-                        <Trash2 size={ICON_SIZE.xs} />
-                      </button>
+                        <Trash2 size={ICON_SIZE.sm} />
+                      </Button>
                     </div>
                   ))
                 )}

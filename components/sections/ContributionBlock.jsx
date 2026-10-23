@@ -36,7 +36,8 @@ export default function ContributionBlock({
 
   return (
     <div className="rounded-xl border" style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-secondary)' }}>
-      <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full text-left px-3 py-2.5">
+      <button type="button" onClick={() => setOpen(!open)} aria-expanded={open}
+        className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left">
         <span className="text-subtitle" style={{ color: 'var(--text-primary)' }}>{label}</span>
         <span className="flex items-center gap-2">
           <span className="text-value-sm tabular-nums" style={{ color: 'var(--financial-projection)' }}>{fmt(monthly)}/mo</span>

@@ -96,7 +96,7 @@ export default function CurrentHoldings({
               <strong>{fmt(namedTotal)}</strong> = <strong>{fmt(totalHoldings)}</strong> total.
               If the entered holdings are part of the unallocated figure, reduce it.
             </div>
-            <div className="flex gap-2 pt-0.5">
+            <div className="flex flex-wrap gap-2 pt-0.5">
               <Button size="sm" onClick={reduceUnallocated}>
                 Reduce unallocated by {fmt(namedTotal)}
               </Button>

@@ -8,14 +8,18 @@ const DropdownMenu = DropdownMenuPrimitive.Root;
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 
+/* Kept 12px off the screen edges and never taller than the room Radix
+   measures below (or above) the trigger, scrolling inside instead: on a
+   phone a long menu otherwise runs off the bottom of the screen. */
 const DropdownMenuContent = React.forwardRef(
-  ({ className, sideOffset = 4, ...props }, ref) => (
+  ({ className, sideOffset = 4, collisionPadding = 12, ...props }, ref) => (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
+        collisionPadding={collisionPadding}
         className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-2xl border p-1.5 shadow-[var(--shadow-lg)] animate-in fade-in-0 zoom-in-95",
+          "z-50 min-w-[8rem] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto overflow-x-hidden rounded-2xl border p-1.5 shadow-[var(--shadow-lg)] animate-in fade-in-0 zoom-in-95",
           "bg-[var(--bg-secondary)] border-[var(--border-default)] text-[var(--text-primary)]",
           className
         )}
@@ -30,7 +34,7 @@ const DropdownMenuItem = React.forwardRef(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none transition-colors",
+      "relative flex min-h-10 cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none transition-colors",
       "focus:bg-[var(--surface-hover)] text-[var(--text-secondary)]",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className

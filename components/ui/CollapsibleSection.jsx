@@ -13,7 +13,7 @@ import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 export default function CollapsibleSection({ title, icon = null, children, defaultOpen = true, badge = null }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="p-5 sm:p-7">
+    <Card className="p-card">
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger asChild>
           <button className="w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--card-bg)]">

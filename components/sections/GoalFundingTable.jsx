@@ -49,7 +49,7 @@ function GoalRow({ goal, inflateGoals }) {
             Today&rsquo;s cost {fmt(goal.fullCostToday)} &rarr; future cost{" "}
             <strong className="text-value-sm tabular-nums" style={{ color: "var(--text-primary)" }}>{fmt(futureCostOf(goal))}</strong> at {goal.age}
           </p>
-          <div className="mt-2 flex items-baseline justify-between gap-3 text-help">
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 text-help">
             {/* The bar measures what the plan pays against what it is charged,
                 so the figure beside it has to be that same charge — pairing the
                 bar with the real cost would make a 100%%-funded goal look
@@ -57,7 +57,7 @@ function GoalRow({ goal, inflateGoals }) {
             <span style={{ color: "var(--text-secondary)" }}>
               Plan pays {fmt(goal.requiredToday)} at {goal.age}
             </span>
-            <span className="text-value-sm tabular-nums" style={{ color: "var(--text-secondary)" }}>
+            <span className="ml-auto whitespace-nowrap text-value-sm tabular-nums" style={{ color: "var(--text-secondary)" }}>
               {pct}% funded
             </span>
           </div>

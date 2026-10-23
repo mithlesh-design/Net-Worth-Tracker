@@ -309,7 +309,7 @@ export default function FinancialPlanner() {
      ═══════════════════════════════════════════════════════════════════════ */
 
   return (
-    <div className="relative flex flex-col min-h-screen">
+    <div className="relative flex flex-col min-h-dvh">
       <PageBackground />
 
       <AppHeader>

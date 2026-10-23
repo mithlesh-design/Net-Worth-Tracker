@@ -29,7 +29,8 @@ export function SectionIcon({ icon: Icon }) {
    header sit inside a button, where a heading element is not allowed.
 
    On a phone there is no room for title, rule and kicker on one line, so the
-   rule goes and the kicker wraps under the title. */
+   rule goes and the kicker wraps under the title, aligned with it; it moves
+   to the right edge only from sm, where it shares the title's line. */
 export default function SectionHeader({
   icon = null, title, kicker = null, action = null, titleAs: Title = "h3", className = "",
 }) {
@@ -40,7 +41,7 @@ export default function SectionHeader({
         <Title className="text-title text-[var(--text-primary)]">{title}</Title>
         <span aria-hidden className="hidden h-px min-w-4 flex-1 sm:block" style={{ background: "var(--gold-line)" }} />
         {kicker && (
-          <span className="ml-auto text-overline uppercase tabular-nums text-[var(--gold-text)]">
+          <span className="text-overline uppercase tabular-nums text-[var(--gold-text)] sm:ml-auto">
             {kicker}
           </span>
         )}

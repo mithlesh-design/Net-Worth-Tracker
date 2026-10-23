@@ -123,29 +123,28 @@ function PremiumInput({ plan, setField, premiums }) {
 }
 
 /* Easy to miss as a plain toggle, and it moves the plan by years of rent, so it
-   sits right under Rent in the milestone gold the home goal uses on the charts. */
+   sits right under Rent in the milestone gold the home goal uses on the charts.
+   On the gold callout roles, so it follows the theme like every other note. */
 function StopRentCallout({ plan, setField, homeGoalAge }) {
   return (
-    <div className="rounded-xl border p-4 space-y-2"
-      style={{ background: 'var(--brand-gold-050)', borderColor: 'var(--brand-gold-400)' }}>
-      <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
-          style={{ background: 'var(--brand-gold-100)', color: 'var(--brand-gold-600)' }}>
-          <House size={ICON_SIZE.sm} />
-        </span>
-        <div className="flex-1 min-w-0">
-          <ToggleSwitch value={plan.stopRentOnHomePurchase}
-            onChange={(v) => setField("stopRentOnHomePurchase", v)}
-            label="Stop rent after home purchase" />
-        </div>
+    <div className="flex items-start gap-3 rounded-xl border p-item"
+      style={{ background: 'var(--callout-gold-bg)', borderColor: 'var(--callout-gold-border)' }}>
+      <span aria-hidden className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+        style={{ background: 'var(--gold-soft)', color: 'var(--gold-icon)' }}>
+        <House size={ICON_SIZE.sm} />
+      </span>
+      <div className="min-w-0 flex-1 space-y-2">
+        <ToggleSwitch value={plan.stopRentOnHomePurchase}
+          onChange={(v) => setField("stopRentOnHomePurchase", v)}
+          label="Stop rent after home purchase" />
+        <p className="text-help" style={{ color: 'var(--text-secondary)' }}>
+          {homeGoalAge !== null
+            ? (plan.stopRentOnHomePurchase
+                ? `Rent stops at age ${homeGoalAge}, when your home goal completes.`
+                : `Rent continues alongside the EMI from age ${homeGoalAge}.`)
+            : "No home goal set yet. Add one in the Goal Workspace for this to take effect."}
+        </p>
       </div>
-      <p className="pl-[2.75rem] text-help" style={{ color: 'var(--text-secondary)' }}>
-        {homeGoalAge !== null
-          ? (plan.stopRentOnHomePurchase
-              ? `Rent stops at age ${homeGoalAge}, when your home goal completes.`
-              : `Rent continues alongside the EMI from age ${homeGoalAge}.`)
-          : "No home goal set yet. Add one in the Goal Workspace for this to take effect."}
-      </p>
     </div>
   );
 }

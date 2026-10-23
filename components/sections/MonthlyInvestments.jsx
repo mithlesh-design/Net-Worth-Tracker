@@ -3,7 +3,7 @@
 import { X, Repeat } from "lucide-react";
 import {
   CollapsibleSection, SliderInput, SegmentedControl, ItemCard,
-  AddItemButton, InfoStrip, DerivedStat, TextField, FieldError,
+  AddItemButton, InfoStrip, DerivedStat, TextField, FieldError, Button,
 } from "@/components/ui";
 import ContributionBlock from "./ContributionBlock";
 import { fmt, monthlyEquivalent, toAnnual } from "@/lib/finance/format.mjs";
@@ -131,8 +131,11 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
                 <span className="shrink-0 text-value-sm tabular-nums" style={{ color: 'var(--financial-projection)' }}>
                   {fmt(monthlyEquivalent(o.amount, o.frequency))}/mo
                 </span>
-                <button onClick={() => removeOther(o.id)} aria-label="Remove contribution" className="hover:text-[var(--danger)] shrink-0"
-                  style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>
+                <Button variant="ghost" size="iconSm" onClick={() => removeOther(o.id)}
+                  aria-label={`Remove ${o.name || "contribution"}`}
+                  className="-my-2 text-[var(--text-muted)] hover:text-[var(--danger)]">
+                  <X size={ICON_SIZE.sm} />
+                </Button>
               </div>
               <SliderInput label={`Amount (${o.frequency})`} value={o.amount}
                 onChange={(v) => updateOther(o.id, "amount", v)}

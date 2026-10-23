@@ -2,7 +2,7 @@
 
 import { X, Building2 } from "lucide-react";
 import {
-  CollapsibleSection, SliderInput, InfoStrip, DerivedStat, ItemCard, AddItemButton,
+  CollapsibleSection, SliderInput, InfoStrip, DerivedStat, ItemCard, AddItemButton, Button,
 } from "@/components/ui";
 import { fmt } from "@/lib/finance/format.mjs";
 import { BUCKET_DEFS } from "@/lib/finance/assumptions.mjs";
@@ -61,8 +61,11 @@ export default function PropertyInvestments({
                 style={{ color: 'var(--financial-projection)' }}>
                 {fmt((Number(p.value) || 0) - (Number(p.loanOutstanding) || 0))} equity
               </span>
-              <button onClick={() => remove(p.id)} aria-label="Remove property" className="hover:text-[var(--danger)] shrink-0"
-                style={{ color: 'var(--text-muted)' }}><X size={ICON_SIZE.xs} /></button>
+              <Button variant="ghost" size="iconSm" onClick={() => remove(p.id)}
+                aria-label={`Remove ${p.name || "property"}`}
+                className="-my-2 text-[var(--text-muted)] hover:text-[var(--danger)]">
+                <X size={ICON_SIZE.sm} />
+              </Button>
             </div>
 
             <SliderInput label="Market value today (₹)" value={p.value ?? 0}

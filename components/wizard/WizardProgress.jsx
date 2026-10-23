@@ -24,7 +24,7 @@ export default function WizardProgress({ currentStep, onStepClick }) {
                 type="button"
                 onClick={() => onStepClick(i)}
                 aria-current={active ? "step" : undefined}
-                className="group relative z-[1] flex flex-col items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                className="group relative z-[1] flex min-w-11 flex-col items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               >
                 <span
                   className={cn(
