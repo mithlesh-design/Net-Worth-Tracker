@@ -32,3 +32,7 @@ export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./tool
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuGroup } from "./dropdown-menu";
 export { Progress } from "./progress";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
+export {
+  AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel,
+} from "./alert-dialog";

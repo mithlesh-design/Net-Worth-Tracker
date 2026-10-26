@@ -17,9 +17,11 @@ import { WIZARD_STEPS, STEP_COUNT } from "./wizardSteps";
 
    The hero is a fixed-width column from lg up and stacks above the content
    below it. Dashboard steps lay their own cards out inside the content
-   column, side by side only from 2xl, where there is room. */
-export default function WizardShell(props) {
-  const [currentStep, setCurrentStep] = useState(0);
+   column, side by side only from 2xl, where there is room.
+
+   The step is held by the page, not here: the header's Home control needs to
+   know how far the user has got, and to send them back to the first step. */
+export default function WizardShell({ currentStep, onStepChange, ...props }) {
   const [direction, setDirection] = useState("forward");
   const [animating, setAnimating] = useState(false);
   const mounted = useRef(false);
@@ -28,8 +30,8 @@ export default function WizardShell(props) {
     if (step < 0 || step >= STEP_COUNT || step === currentStep) return;
     setDirection(step > currentStep ? "forward" : "back");
     setAnimating(true);
-    setCurrentStep(step);
-  }, [currentStep]);
+    onStepChange(step);
+  }, [currentStep, onStepChange]);
 
   /* A new step starts at the top of the page, stepper and headline in view.
      Not on first load: the page is already there, and scrolling it would hide

@@ -14,12 +14,14 @@ import { annualPremium } from "@/lib/finance/insurance.mjs";
 import { householdPolicyEvents } from "@/lib/finance/lifePolicies.mjs";
 import { newMember, personPrefix, MAX_MEMBERS } from "@/lib/household/members.mjs";
 import { migrate } from "@/lib/profile/migrate.mjs";
-import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
+import { serialize } from "@/lib/profile/schema.mjs";
+import { firstRunPlan, hasEnteredData } from "@/lib/profile/firstRun.mjs";
 import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
 import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
 import { getProfileStore } from "@/lib/profile/store.mjs";
 
 import WizardShell from "@/components/wizard/WizardShell";
+import ResetToHomeDialog from "@/components/wizard/ResetToHomeDialog";
 
 /* Pure state writers. Array indices in a path ("members.2.holdings.mf") walk
    like object keys. */
@@ -53,10 +55,13 @@ export default function FinancialPlanner() {
      projected at today's prices; a NEW user gets the current default, future
      rupees, so the plan pays the future cost the goal form shows. Likewise
      investSurplus: v0 invested every spare rupee, which made the SIP amounts
-     irrelevant; a new user invests what they enter and spends the rest. */
-  const [plan, setPlan] = useState(() => ({
-    ...migrate(FIRST_RUN_V0), inflateGoals: true, investSurplus: false,
-  }));
+     irrelevant; a new user invests what they enter and spends the rest.
+     firstRunPlan() builds it, and is also what Home resets to. */
+  const [plan, setPlan] = useState(firstRunPlan);
+
+  /* The wizard's step lives here, beside the plan, so the Home control can
+     tell how far the user has got and send them back to the start. */
+  const [currentStep, setCurrentStep] = useState(0);
 
   /* Writes one field by dotted path, e.g. setField("expenses.rent", 12000). */
   const setField = useCallback((path, value) => {
@@ -305,6 +310,44 @@ export default function FinancialPlanner() {
   );
 
   /* ═══════════════════════════════════════════════════════════════════════
+     HOME (the header logo)
+
+     Home is the first step of a fresh plan. With nothing to lose — still on
+     the first step, the plan as it opened — the logo just goes there. Once
+     anything has been entered, or the user has moved past the first step,
+     it asks first: Go to Home resets the plan, clears the local draft and
+     returns to the first step; Stay Here changes nothing.
+
+     A reset also remounts the wizard (flowKey), so no open editor, chosen tab
+     or expanded card carries over from the plan that was thrown away.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  const [confirmingHome, setConfirmingHome] = useState(false);
+  /* The logo that asked, so focus goes back to it when the dialog closes. */
+  const homeControl = useRef(null);
+  const [flowKey, setFlowKey] = useState(0);
+  const enteredData = useMemo(() => hasEnteredData(plan), [plan]);
+  const hasProgress = currentStep > 0 || enteredData;
+
+  const onHomeClick = (e) => {
+    /* Home is this page; the link would only reload what is already here. */
+    e.preventDefault();
+    homeControl.current = e.currentTarget;
+    if (hasProgress) setConfirmingHome(true);
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const resetToHome = () => {
+    setPlan(firstRunPlan());
+    clearDraft();
+    setLoadedProfileId(null);
+    setSaveState({ status: "idle", message: "" });
+    setCurrentStep(0);
+    setFlowKey((k) => k + 1);
+    window.scrollTo({ top: 0 });
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════
      RENDER
      ═══════════════════════════════════════════════════════════════════════ */
 
@@ -312,7 +355,7 @@ export default function FinancialPlanner() {
     <div className="relative flex flex-col min-h-dvh">
       <PageBackground />
 
-      <AppHeader>
+      <AppHeader onHomeClick={onHomeClick}>
         <AuthButton
           onSaveProfile={saveProfile}
           onLoadProfile={loadProfile}
@@ -324,6 +367,9 @@ export default function FinancialPlanner() {
       </AppHeader>
 
       <WizardShell
+        key={flowKey}
+        currentStep={currentStep}
+        onStepChange={setCurrentStep}
         plan={plan}
         setField={setField}
         findingsFor={findingsFor}
@@ -359,6 +405,14 @@ export default function FinancialPlanner() {
         goalPoints={goalPoints}
         policyPoints={policyPoints}
         goalGap={goalGap}
+      />
+
+      <ResetToHomeDialog
+        open={confirmingHome}
+        onOpenChange={setConfirmingHome}
+        onConfirm={resetToHome}
+        signedIn={!!session}
+        returnFocusTo={homeControl}
       />
     </div>
   );

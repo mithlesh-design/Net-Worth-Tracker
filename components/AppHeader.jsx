@@ -13,15 +13,21 @@ import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
    The account button is always the LAST thing on the bar, after the theme
    pill. At 320px the logo steps down a size so logo, pill and a labelled
-   "Sign in" still fit on one line. */
-export default function AppHeader({ children = null }) {
+   "Sign in" still fit on one line.
+
+   The logo is the Home control on every screen. On its own it is a link to
+   the planner's first page. A page with work in progress passes
+   `onHomeClick`, which can take over the click (preventDefault) to confirm
+   before anything is lost. */
+export default function AppHeader({ children = null, onHomeClick = undefined }) {
   return (
     <header
       className="sticky top-0 z-50 border-b"
       style={{ background: "var(--header-bg)", borderColor: "var(--header-border)" }}
     >
       <div className="mx-auto flex h-16 w-full max-w-[1520px] items-center justify-between gap-3 px-4 sm:h-20 sm:px-8">
-        <Link href="/" className="min-w-0 shrink rounded-md py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
+        <Link href="/" onClick={onHomeClick} aria-label="Avdesh Mishra Capitals, Home"
+          className="min-w-0 shrink rounded-md py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]">
           <img src={logo.src} alt="Avdesh Mishra Capitals" className="h-8 w-auto max-w-full min-[375px]:h-9 sm:h-11 lg:h-[52px]" />
         </Link>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
