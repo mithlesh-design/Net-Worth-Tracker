@@ -18,6 +18,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { DEMO_AUTH_ENABLED } from "@/lib/demo/config.mjs";
+import { AUTH_ENABLED } from "@/lib/featureFlags.mjs";
 import {
   makeDemoSession, readDemoSession, writeDemoSession, clearDemoSession,
 } from "@/lib/demo/session.mjs";
@@ -73,11 +74,18 @@ export function useDemoAuth() {
   return useContext(DemoAuthContext);
 }
 
+/* While authentication is paused there is no NextAuth provider to read (see
+   components/SessionProvider.jsx), so the session is a fixed "signed out".
+   Chosen once, when this module loads, from a build-time constant: the same
+   hook runs on every render, as the rules of hooks require. */
+const SIGNED_OUT = { data: null, status: "unauthenticated" };
+const useAuthSession = AUTH_ENABLED ? useSession : () => SIGNED_OUT;
+
 /* The session every other component reads. `isDemo` exists so the planner can
    pick the matching profile store and the menu can label itself honestly;
    nothing else needs to know. */
 export function useAppSession() {
-  const nextAuth = useSession();
+  const nextAuth = useAuthSession();
   const demo = useDemoAuth();
 
   return useMemo(() => {

@@ -9,6 +9,9 @@ import { SectionCard, Button, Input, Label, InfoStrip } from "@/components/ui";
 import { useDemoAuth } from "@/components/DemoAuthProvider";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
+/* Unreachable while authentication is paused: next.config.js redirects every
+   /auth/* page to the planner. Kept intact for when sign-in returns; see
+   lib/featureFlags.mjs. */
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);

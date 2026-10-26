@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import AuthButton from "@/components/AuthButton";
+import { AUTH_ENABLED } from "@/lib/featureFlags.mjs";
 import { useAppSession } from "@/components/DemoAuthProvider";
 import AppHeader from "@/components/AppHeader";
 import PageBackground from "@/components/PageBackground";
@@ -355,15 +356,20 @@ export default function FinancialPlanner() {
     <div className="relative flex flex-col min-h-dvh">
       <PageBackground />
 
+      {/* No Sign in button while authentication is paused (lib/featureFlags.mjs):
+          the planner is complete signed out, and the local draft keeps the
+          user's work across a reload. */}
       <AppHeader onHomeClick={onHomeClick}>
-        <AuthButton
-          onSaveProfile={saveProfile}
-          onLoadProfile={loadProfile}
-          onDeleteProfile={deleteProfile}
-          onRefreshProfiles={refreshProfiles}
-          profiles={savedProfiles}
-          saveState={saveState}
-        />
+        {AUTH_ENABLED && (
+          <AuthButton
+            onSaveProfile={saveProfile}
+            onLoadProfile={loadProfile}
+            onDeleteProfile={deleteProfile}
+            onRefreshProfiles={refreshProfiles}
+            profiles={savedProfiles}
+            saveState={saveState}
+          />
+        )}
       </AppHeader>
 
       <WizardShell

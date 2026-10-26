@@ -19,7 +19,17 @@ for (const key of ["NEXTAUTH_URL", "NEXTAUTH_URL_INTERNAL"]) {
   }
 }
 
+/* Authentication is paused (see lib/featureFlags.mjs, which reads the same
+   variable). While it is, every /auth/* page goes to the planner, as a
+   temporary (307) redirect so no browser remembers it once sign-in returns. */
+const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED === "true";
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  async redirects() {
+    if (AUTH_ENABLED) return [];
+    return [{ source: "/auth/:path*", destination: "/", permanent: false }];
+  },
+};
 
 module.exports = nextConfig;
