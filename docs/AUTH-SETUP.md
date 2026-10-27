@@ -67,4 +67,9 @@ The email link needs Supabase from step 2, which keeps its one-time tokens.
 
 ## Previewing without credentials
 
-In development only, `NEXT_PUBLIC_DEMO_AUTH=true` in `.env.local` turns on a demo login. It accepts any email, signs in instantly and creates no real account. It is compiled out of production builds.
+The demo login accepts any email, signs in instantly and creates no real account. Nothing it does reaches a server. It's a preview of the flow, not security: anyone can get past it.
+
+- `NEXT_PUBLIC_DEMO_AUTH=true` in `.env.local` turns it on in development only.
+- `NEXT_PUBLIC_DEMO_AUTH=live` also turns it on for the live site. The committed `.env.production` sets this for now, so the client can try Log in / Sign up and the sign-in step before See Results.
+
+On the live site, the demo switches itself off as soon as a real method is configured (steps 1 to 5 above). Real sign-in always wins, so nothing else needs changing. You can delete `.env.production` afterwards.

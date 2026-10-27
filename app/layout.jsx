@@ -54,7 +54,7 @@ export default function RootLayout({ children }) {
         <AuthConfigProvider value={auth}>
           <SessionProvider real={auth.real}>
             {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
-                it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}
+                off unless NEXT_PUBLIC_DEMO_AUTH is true (dev) or live. */}
             <DemoAuthProvider>
               <ThemeProvider>
                 <IconProvider>{children}</IconProvider>

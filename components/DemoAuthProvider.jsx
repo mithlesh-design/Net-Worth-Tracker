@@ -17,7 +17,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
-import { DEMO_AUTH_ENABLED } from "@/lib/demo/config.mjs";
+import { useAuthConfig } from "@/components/AuthConfigProvider";
 import {
   makeDemoSession, readDemoSession, writeDemoSession, clearDemoSession,
 } from "@/lib/demo/session.mjs";
@@ -32,28 +32,32 @@ const DemoAuthContext = createContext({
 });
 
 export function DemoAuthProvider({ children }) {
+  /* Whether demo login is on is decided once, on the server
+     (lib/demo/config.mjs via lib/authStatus.mjs), and is fixed for the
+     life of the page. */
+  const enabled = useAuthConfig().demo;
   const [session, setSession] = useState(null);
   /* Nothing to restore when the mode is off, so no loading state is entered. */
-  const [ready, setReady] = useState(!DEMO_AUTH_ENABLED);
+  const [ready, setReady] = useState(!enabled);
   /* False only when the browser refused to store the session, so the menu can
      say a refresh will not hold rather than implying it will. */
   const [persisted, setPersisted] = useState(true);
 
   useEffect(() => {
-    if (!DEMO_AUTH_ENABLED) return;
+    if (!enabled) return;
     setSession(readDemoSession());
     setReady(true);
-  }, []);
+  }, [enabled]);
 
   const signIn = useCallback((email) => {
-    if (!DEMO_AUTH_ENABLED) return false;
+    if (!enabled) return false;
     const next = makeDemoSession(email);
     const stored = writeDemoSession(next);
     setSession(next);
     setPersisted(stored);
     setReady(true);
     return true;
-  }, []);
+  }, [enabled]);
 
   const signOut = useCallback(() => {
     clearDemoSession();
@@ -62,8 +66,8 @@ export function DemoAuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ enabled: DEMO_AUTH_ENABLED, ready, session, persisted, signIn, signOut }),
-    [ready, session, persisted, signIn, signOut]);
+    () => ({ enabled, ready, session, persisted, signIn, signOut }),
+    [enabled, ready, session, persisted, signIn, signOut]);
 
   return <DemoAuthContext.Provider value={value}>{children}</DemoAuthContext.Provider>;
 }

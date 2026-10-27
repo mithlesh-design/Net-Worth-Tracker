@@ -47,9 +47,9 @@ function SignIn() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  /* TEMPORARY: preview-only demo login. `demo.enabled` is a build-time
-     constant that is false in production, so everything below it is the
-     original flow. See lib/demo/config.mjs. */
+  /* TEMPORARY: preview-only demo login. `demo.enabled` is decided on the
+     server (lib/demo/config.mjs): on in development, and on the live site
+     only while no real sign-in method is configured. */
   const demo = useDemoAuth();
 
   /* Already signed in (the back button, another tab): straight to the plan. */
