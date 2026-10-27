@@ -1,12 +1,15 @@
 "use client";
 
-import { SessionProvider as NextAuthSessionProvider } from "next-auth/react";
-import { AUTH_ENABLED } from "@/lib/featureFlags.mjs";
+import { SessionProvider as NextAuthSessionProvider, SessionContext } from "next-auth/react";
 
-/* With authentication paused (lib/featureFlags.mjs) NextAuth is not mounted
-   at all, so it never asks /api/auth/session — which errors while auth is
-   unconfigured — and useAppSession reports a signed-out user instead. */
-export default function SessionProvider({ children }) {
-  if (!AUTH_ENABLED) return children;
+/* NextAuth runs only when a real sign-in method is configured (`real`, from
+   lib/authStatus.mjs). Otherwise it is never asked for a session — which
+   would only error while auth is unconfigured — and every useSession() reads
+   a fixed "signed out" instead. Demo sessions come from DemoAuthProvider,
+   not from here. */
+const SIGNED_OUT = { data: null, status: "unauthenticated", update: async () => null };
+
+export default function SessionProvider({ real = false, children }) {
+  if (!real) return <SessionContext.Provider value={SIGNED_OUT}>{children}</SessionContext.Provider>;
   return <NextAuthSessionProvider>{children}</NextAuthSessionProvider>;
 }

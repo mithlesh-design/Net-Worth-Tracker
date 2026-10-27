@@ -21,7 +21,7 @@ import { WIZARD_STEPS, STEP_COUNT } from "./wizardSteps";
 
    The step is held by the page, not here: the header's Home control needs to
    know how far the user has got, and to send them back to the first step. */
-export default function WizardShell({ currentStep, onStepChange, ...props }) {
+export default function WizardShell({ currentStep, onStepChange, resultsLocked = false, ...props }) {
   const [direction, setDirection] = useState("forward");
   const [animating, setAnimating] = useState(false);
   const mounted = useRef(false);
@@ -86,6 +86,9 @@ export default function WizardShell({ currentStep, onStepChange, ...props }) {
               isFirst={currentStep === 0}
               isLast={currentStep === STEP_COUNT - 1}
               nextLabel={step.nextLabel ?? "Continue"}
+              /* The step before the results says, on its button, that they
+                 need a sign-in, so the gate is never a surprise. */
+              locked={resultsLocked && WIZARD_STEPS[currentStep + 1]?.id === "review"}
               onBack={() => goTo(currentStep - 1)}
               onNext={() => goTo(currentStep + 1)}
             />

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import AuthButton from "@/components/AuthButton";
-import { AUTH_ENABLED } from "@/lib/featureFlags.mjs";
 import { useAppSession } from "@/components/DemoAuthProvider";
+import { useAuthConfig } from "@/components/AuthConfigProvider";
 import AppHeader from "@/components/AppHeader";
 import PageBackground from "@/components/PageBackground";
 
@@ -20,8 +21,10 @@ import { firstRunPlan, hasEnteredData } from "@/lib/profile/firstRun.mjs";
 import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
 import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
 import { getProfileStore } from "@/lib/profile/store.mjs";
+import { saveResume, takeResume, RESUME_PARAM } from "@/lib/profile/resume.mjs";
 
 import WizardShell from "@/components/wizard/WizardShell";
+import { WIZARD_STEPS, STEP_INDEX } from "@/components/wizard/wizardSteps";
 import ResetToHomeDialog from "@/components/wizard/ResetToHomeDialog";
 
 /* Pure state writers. Array indices in a path ("members.2.holdings.mf") walk
@@ -177,7 +180,7 @@ export default function FinancialPlanner() {
      PROFILE SAVE / LOAD (requires auth)
      ══════════════════════════════════════════════════════════════════════ */
 
-  const { data: session, isDemo } = useAppSession();
+  const { data: session, status: sessionStatus, isDemo, signOut } = useAppSession();
   const [savedProfiles, setSavedProfiles] = useState([]);
 
   const store = useMemo(() => getProfileStore(isDemo), [isDemo]);
@@ -215,7 +218,6 @@ export default function FinancialPlanner() {
     }
     if (res.profile?.id) setLoadedProfileId(res.profile.id);
     setSaveState({ status: "saved", message: res.message });
-    if (store.clearsDraftOnSave) clearDraft();
     refreshProfiles();
   }, [session, store, gatherSettings, refreshProfiles, findings, savedProfiles, loadedProfileId]);
 
@@ -244,22 +246,23 @@ export default function FinancialPlanner() {
     refreshProfiles();
   }, [session, store, refreshProfiles, loadedProfileId]);
 
-  /* ── Local working draft ── */
-  const keepsLocalDraft = !session || isDemo;
+  /* ── Local working draft ──
+     The plan in progress is kept in this browser whether or not anyone is
+     signed in, so a reload — including the one a sign-in ends with — never
+     loses it. Signing out clears it (signOutAndClear, below), so the next
+     person on a shared browser starts clean. */
   const draftLoaded = useRef(false);
   useEffect(() => {
-    if (!keepsLocalDraft) { clearDraft(); draftLoaded.current = true; return; }
     if (draftLoaded.current) return;
     draftLoaded.current = true;
     const draft = readDraft();
     if (draft) setPlan(migrate(draft));
-  }, [keepsLocalDraft]);
+  }, []);
 
   useEffect(() => {
-    if (!keepsLocalDraft) return;
     const t = setTimeout(() => writeDraft(plan), 600);
     return () => clearTimeout(t);
-  }, [plan, keepsLocalDraft]);
+  }, [plan]);
 
   useEffect(() => {
     if (session) return;
@@ -349,6 +352,65 @@ export default function FinancialPlanner() {
   };
 
   /* ═══════════════════════════════════════════════════════════════════════
+     SIGN-IN AND THE RESULTS
+
+     The whole planner works signed out, up to and including the Strategy
+     Hub. The results (the Review step) are for signed-in users once this
+     deployment can sign anyone in (useAuthConfig; until then nothing is
+     gated). See Results — or the Review step in the stepper — first saves
+     the plan and where the user was going (lib/profile/resume.mjs), then
+     opens Log in / Sign up. Coming back with ?resume=1 restores the plan and
+     lands on the results, so nothing is typed twice.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  const auth = useAuthConfig();
+  const router = useRouter();
+  const resultsLocked = auth.enabled && !session;
+
+  const goToSignIn = useCallback((stepId, { forResults = false } = {}) => {
+    saveResume({ plan: serialize(plan), step: stepId });
+    router.push(forResults ? "/auth/signin?next=results" : "/auth/signin");
+  }, [plan, router]);
+
+  const changeStep = useCallback((step) => {
+    if (WIZARD_STEPS[step]?.id === "review" && resultsLocked) {
+      goToSignIn("review", { forResults: true });
+      return;
+    }
+    setCurrentStep(step);
+  }, [resultsLocked, goToSignIn]);
+
+  /* Once the session is known: resume from sign-in if the URL says so. Runs
+     after the draft has loaded, so the saved plan wins over the draft. If
+     sign-in did not happen (Back to planner), the plan still comes back and
+     the user is returned to the step before the results. */
+  const resumeChecked = useRef(false);
+  useEffect(() => {
+    if (resumeChecked.current || sessionStatus === "loading") return;
+    resumeChecked.current = true;
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has(RESUME_PARAM)) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    const saved = takeResume();
+    if (!saved) return;
+    setPlan(migrate(saved.plan));
+    const target = STEP_INDEX[saved.step] ?? 0;
+    const blocked = WIZARD_STEPS[target]?.id === "review" && auth.enabled && !session;
+    setCurrentStep(blocked ? STEP_INDEX.review - 1 : target);
+  }, [sessionStatus, session, auth.enabled]);
+
+  /* Signing out puts the browser back to a fresh plan, so nobody's figures
+     are left on a shared screen; saved profiles stay in the account. */
+  const signOutAndClear = useCallback(() => {
+    clearDraft();
+    setPlan(firstRunPlan());
+    setLoadedProfileId(null);
+    setCurrentStep(0);
+    setFlowKey((k) => k + 1);
+    signOut();
+  }, [signOut]);
+
+  /* ═══════════════════════════════════════════════════════════════════════
      RENDER
      ═══════════════════════════════════════════════════════════════════════ */
 
@@ -356,12 +418,13 @@ export default function FinancialPlanner() {
     <div className="relative flex flex-col min-h-dvh">
       <PageBackground />
 
-      {/* No Sign in button while authentication is paused (lib/featureFlags.mjs):
-          the planner is complete signed out, and the local draft keeps the
-          user's work across a reload. */}
+      {/* Log in / Sign up appears once this deployment can sign anyone in.
+          From the header it returns the user to the step they were on. */}
       <AppHeader onHomeClick={onHomeClick}>
-        {AUTH_ENABLED && (
+        {auth.enabled && (
           <AuthButton
+            onSignIn={() => goToSignIn(WIZARD_STEPS[currentStep].id)}
+            onSignOut={signOutAndClear}
             onSaveProfile={saveProfile}
             onLoadProfile={loadProfile}
             onDeleteProfile={deleteProfile}
@@ -375,7 +438,8 @@ export default function FinancialPlanner() {
       <WizardShell
         key={flowKey}
         currentStep={currentStep}
-        onStepChange={setCurrentStep}
+        onStepChange={changeStep}
+        resultsLocked={resultsLocked}
         plan={plan}
         setField={setField}
         findingsFor={findingsFor}

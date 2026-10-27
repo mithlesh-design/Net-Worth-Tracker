@@ -12,6 +12,7 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import ChartLegend from "@/components/charts/ChartLegend";
 import { BreakdownRow, ChartTooltipCard, ChartReadout } from "@/components/charts/ChartBreakdown";
 import { useChartLayout, useChartSelection, refLabelPosition } from "@/components/charts/useChartLayout.mjs";
+import { stackMarkers } from "@/lib/ui/chartLabels.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
@@ -64,7 +65,6 @@ const NoTooltip = () => null;
    projection chart uses to reach Recharts' internal d3 scales. */
 function GoalPins({ goals, series, xScale, yScale, R }) {
   const byAge = new Map(series.map((p) => [p.age, p]));
-  const seen = new Map();
 
   /* required(a) counts only goals AFTER a, so at a goal's own age the curve has
      already stepped down. Anchoring a pin there would float it below the line
@@ -76,29 +76,29 @@ function GoalPins({ goals, series, xScale, yScale, R }) {
     dueAt.set(g.age, (dueAt.get(g.age) ?? 0) + g.requiredInflated);
   }
 
+  const pins = goals.flatMap((goal) => {
+    if (goal.status === "outOfHorizon" || goal.status === "inThePast") return [];
+    const pt = byAge.get(goal.age);
+    if (!pt) return [];
+    const cx = xScale(pt.age);
+    const cy = yScale(Math.max(0, pt.required + (dueAt.get(goal.age) ?? 0)));
+    return isFinite(cx) && isFinite(cy) ? [{ goal, cx, cy }] : [];
+  });
+  /* Goals in the same year, or close enough on a narrow chart that their pins
+     would touch, stack upward rather than drawing over each other. */
+  const STEM = 6;
+  const ys = stackMarkers(pins.map((p) => ({ x: p.cx, y: p.cy - STEM - R })), { r: R, dir: -1 });
+
   return (
     <>
-      {goals.map((goal) => {
-        if (goal.status === "outOfHorizon" || goal.status === "inThePast") return null;
-        const pt = byAge.get(goal.age);
-        if (!pt) return null;
-        const cx = xScale(pt.age);
-        const cy = yScale(Math.max(0, pt.required + (dueAt.get(goal.age) ?? 0)));
-        if (!isFinite(cx) || !isFinite(cy)) return null;
-
-        /* Two goals on the same age would otherwise draw on top of each
-           other. Stack them upward. */
-        const n = seen.get(goal.age) ?? 0;
-        seen.set(goal.age, n + 1);
-
-        const STEM = 6;
-        const by = cy - STEM - R - n * (R * 2 + 4);
+      {pins.map(({ goal, cx, cy }, i) => {
+        const by = ys[i];
         const unfunded = goal.gap > 1;
 
         return (
           <g key={goal.id}>
             <line x1={cx} y1={cy} x2={cx} y2={by + R} stroke="var(--chart-target)" strokeWidth={1.5} strokeOpacity={0.7} />
-            {n === 0 && <circle cx={cx} cy={cy} r={3.5} fill="var(--chart-target)" />}
+            <circle cx={cx} cy={cy} r={3.5} fill="var(--chart-target)" />
             <circle
               cx={cx} cy={by} r={R}
               fill="var(--goal-marker-fill)"

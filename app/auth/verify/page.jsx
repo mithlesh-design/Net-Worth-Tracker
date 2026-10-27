@@ -8,15 +8,16 @@ export default function VerifyPage() {
   return (
     <AuthLayout hero={{
       title: "Check your email",
-      subtitle: "One click on the link we sent and you are back in your plan.",
+      subtitle: "Open the link we sent, in this browser, and your plan opens where you left off.",
     }}>
       <SectionCard title="Magic link sent" icon={Mail}>
         <p className="text-body" style={{ color: "var(--text-secondary)" }}>
-          A sign-in link has been sent to your email address.
-          Click the link in the email to sign in.
+          A sign-in link is on its way to your inbox. Opening it signs you in, and
+          creates your account if you are new.
         </p>
         <p className="mt-4 text-help" style={{ color: "var(--text-muted)" }}>
-          You can close this page and click the link from your email.
+          Open it on this device: that is where your answers are kept until you
+          are signed in. It can take a minute to arrive; check your spam folder too.
         </p>
       </SectionCard>
     </AuthLayout>

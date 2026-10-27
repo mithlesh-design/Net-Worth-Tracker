@@ -13,7 +13,11 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import { StatGrid, StatTile } from "@/components/ui/StatGrid";
 import ChartLegend from "@/components/charts/ChartLegend";
 import { BreakdownRow, ChartTooltipCard, ChartReadout } from "@/components/charts/ChartBreakdown";
-import { useChartLayout, useChartSelection, refLabelPosition } from "@/components/charts/useChartLayout.mjs";
+import { useChartLayout, useChartSelection } from "@/components/charts/useChartLayout.mjs";
+import { measureText } from "@/components/charts/measureText.mjs";
+import {
+  stackMarkers, placeLabels, refLabelCandidates, badgeLabelCandidates,
+} from "@/lib/ui/chartLabels.mjs";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 import { useAnimatedDomain } from "./useAnimatedDomain.mjs";
 
@@ -78,89 +82,152 @@ function NetWorthTooltip({ active, payload }) {
    the year it lands on is read in the panel under the chart. */
 const NoTooltip = () => null;
 
-function GoalOverlay({ goals, projection, xScale, yScale, R }) {
+/* ── Annotations ──
+   Everything drawn on top of the data — goal pins above the line, insurance
+   payouts below it, and the labels of the Retire, Deficit and Life lines —
+   laid out together, so no mark or label can land on another
+   (lib/ui/chartLabels.mjs):
+
+   - markers that would touch stack further from the line, so two goals a
+     year apart, or two policies maturing in the same year, both stay visible;
+   - payouts in the same year share one badge, labelled with their total;
+   - each label takes the first place it fits on the chart, clear of every
+     marker and every earlier label, beside its line or badge on the side with
+     room. A label with nowhere to go is left out; its figure is also in the
+     tooltip and in the list under the chart.
+
+   Labels carry a halo in the card colour, so they stay legible where they
+   cross the line or the grid. */
+const STEM = 6;
+const PAYOUT_R = 10;
+const LABEL_H = 14;
+
+/* One badge per age: two policies maturing together are one event on the
+   line, and two badges there would sit on each other. */
+function groupPayouts(events) {
+  const byAge = new Map();
+  for (const e of events) {
+    if (!byAge.has(e.age)) byAge.set(e.age, []);
+    byAge.get(e.age).push(e);
+  }
+  return [...byAge.entries()].map(([age, items]) => {
+    const total = (keep) => items.filter(keep).reduce((t, e) => t + e.amount, 0);
+    const maturity = total((e) => e.kind === "maturity");
+    const income = total((e) => e.kind !== "maturity");
+    const text = maturity > 0 && income > 0
+      ? `${fmtAxis(maturity)} + ${fmtAxis(income)}/yr`
+      : maturity > 0 ? `${fmtAxis(maturity)} maturity` : `${fmtAxis(income)}/yr`;
+    const title = items.map((e) => `${e.owner ? `${e.owner}: ` : ""}${e.label} — ${e.kind === "maturity"
+      ? `${fmt(e.amount)} at age ${e.ownerAge}`
+      : `${fmt(e.amount)} a year from age ${e.ownerAge}`}`).join("\n");
+    return { key: `payout-${age}`, age, text, title };
+  });
+}
+
+function ChartAnnotations({ xScale, yScale, plot, projection, goals, payouts, refs, R, showPayoutText }) {
+  const at = (age) => {
+    const pt = projection.find((p) => p.age === age);
+    if (!pt) return null;
+    const cx = xScale(pt.age);
+    const cy = yScale(Math.max(0, pt.netWorth));
+    return isFinite(cx) && isFinite(cy) ? { cx, cy } : null;
+  };
+
+  /* Goal pins float above the line; touching ones stack upward. */
+  const pins = goals.map((g) => ({ g, p: at(g.age) })).filter((m) => m.p);
+  const pinYs = stackMarkers(pins.map((m) => ({ x: m.p.cx, y: m.p.cy - STEM - R })), { r: R, dir: -1 });
+  pins.forEach((m, i) => { m.by = pinYs[i]; });
+
+  /* Payout badges hang below it; touching ones stack downward. A payout in a
+     year the portfolio is near zero would hang below the axis, so its badge
+     starts no lower than the bottom of the plot. */
+  const badges = groupPayouts(payouts).map((gr) => ({ gr, p: at(gr.age) })).filter((m) => m.p);
+  const lowest = plot.top + plot.height - PAYOUT_R - 2;
+  const badgeYs = stackMarkers(
+    badges.map((m) => ({ x: m.p.cx, y: Math.min(m.p.cy + STEM + PAYOUT_R, lowest) })),
+    { r: PAYOUT_R, dir: 1 });
+  badges.forEach((m, i) => { m.by = badgeYs[i]; });
+
+  const box = (cx, cy, r) => ({ x: cx - r, y: cy - r, w: r * 2, h: r * 2 });
+  const obstacles = [
+    ...pins.map((m) => box(m.p.cx, m.by, R)),
+    ...badges.map((m) => box(m.p.cx, m.by, PAYOUT_R)),
+  ];
+  const bounds = { x: plot.left, y: plot.top, w: plot.width, h: plot.height };
+
+  /* In priority order: the reference lines name the chart's structure, so
+     they choose first; payout amounts fit around them. */
+  const refLabels = refs
+    .map((r) => ({ ...r, x: xScale(r.age) }))
+    .filter((r) => isFinite(r.x))
+    .map((r) => ({
+      ...r,
+      candidates: refLabelCandidates(r.x, {
+        w: measureText(r.text, { weight: 500 }), h: LABEL_H,
+        top: plot.top + 4, bottom: plot.top + plot.height - 4,
+        rightFirst: r.x - plot.left < plot.width * 0.75,
+      }),
+    }));
+  const payoutLabels = showPayoutText
+    ? badges.map((m) => ({
+        text: m.gr.text,
+        candidates: badgeLabelCandidates(m.p.cx, m.by, {
+          r: PAYOUT_R, w: measureText(m.gr.text, { weight: 600 }), h: LABEL_H,
+        }),
+      }))
+    : [];
+  const placed = placeLabels([...refLabels, ...payoutLabels], { bounds, obstacles });
+  const halo = { stroke: "var(--card-bg)", strokeWidth: 3, paintOrder: "stroke", strokeLinejoin: "round" };
+
   return (
     <>
-      {goals.map((goal) => {
-        const pt = projection.find((p) => p.age === goal.age);
-        if (!pt) return null;
-        const cx = xScale(pt.age);
-        const cy = yScale(Math.max(0, pt.netWorth));
-        if (!isFinite(cx) || !isFinite(cy)) return null;
-        const STEM = 6, by = cy - STEM - R;
-        return (
-          <g key={goal.id}>
-            <line x1={cx} y1={cy} x2={cx} y2={cy - STEM} stroke="var(--chart-target)" strokeWidth={1.5} strokeOpacity={0.7} />
-            <circle cx={cx} cy={cy} r={3.5} fill="var(--chart-target)" />
-            <circle cx={cx} cy={by} r={R} fill="var(--goal-marker-fill)" stroke="var(--chart-target)" strokeWidth={1.5} />
-            <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
-              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--chart-target)" }}>
-                <GoalIcon type={goal.emoji} size={R < 14 ? ICON_SIZE.xs : ICON_SIZE.sm} />
-              </div>
-            </foreignObject>
-          </g>
-        );
-      })}
+      {pins.map(({ g, p, by }) => (
+        <g key={g.id}>
+          <line x1={p.cx} y1={p.cy} x2={p.cx} y2={by + R} stroke="var(--chart-target)" strokeWidth={1.5} strokeOpacity={0.7} />
+          <circle cx={p.cx} cy={p.cy} r={3.5} fill="var(--chart-target)" />
+          <circle cx={p.cx} cy={by} r={R} fill="var(--goal-marker-fill)" stroke="var(--chart-target)" strokeWidth={1.5} />
+          <foreignObject x={p.cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
+            <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--chart-target)" }}>
+              <GoalIcon type={g.emoji} size={R < 14 ? ICON_SIZE.xs : ICON_SIZE.sm} />
+            </div>
+          </foreignObject>
+        </g>
+      ))}
+
+      {badges.map(({ gr, p, by }) => (
+        <g key={gr.key}>
+          <title>{gr.title}</title>
+          <line x1={p.cx} y1={p.cy} x2={p.cx} y2={by - PAYOUT_R} stroke="var(--financial-positive)" strokeWidth={1.5} strokeOpacity={0.7} />
+          <circle cx={p.cx} cy={p.cy} r={3} fill="var(--financial-positive)" />
+          <circle cx={p.cx} cy={by} r={PAYOUT_R} fill="var(--bg-secondary)" stroke="var(--financial-positive)" strokeWidth={1.5} />
+          <foreignObject x={p.cx - PAYOUT_R} y={by - PAYOUT_R} width={PAYOUT_R * 2} height={PAYOUT_R * 2} style={{ overflow: "visible" }}>
+            <div style={{ width: PAYOUT_R * 2, height: PAYOUT_R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--financial-positive)" }}>
+              <HandCoins size={ICON_SIZE.xs} />
+            </div>
+          </foreignObject>
+        </g>
+      ))}
+
+      {[...refLabels, ...payoutLabels].map((l, i) => placed[i] && (
+        <text key={`label-${i}`} x={placed[i].x + 1} y={placed[i].y + LABEL_H - 3}
+          fontSize={12} fontWeight={i < refLabels.length ? 500 : 600}
+          fill={l.color ?? "var(--financial-positive)"} {...halo}>
+          {l.text}
+        </text>
+      ))}
     </>
   );
 }
 
-/* Life insurance payouts: a coin badge BELOW the line (goals sit above it, so
-   the two never collide at the same age) with the amount beside it — "Age 45
-   → ₹X maturity" read straight off the chart. The amount goes to the left of
-   the badge when the right would run past the plot, and is left off a phone
-   chart, where the list under the chart says the same thing. */
-function PolicyOverlay({ events, projection, xScale, yScale, plotRight, showText }) {
+function AnnotationsCustomized(props) {
+  const xAxis = props.xAxisMap?.[Object.keys(props.xAxisMap || {})[0]];
+  const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
+  if (!xAxis?.scale || !yAxis?.scale || !props.offset) return null;
   return (
-    <>
-      {events.map((e) => {
-        const pt = projection.find((p) => p.age === e.age);
-        if (!pt) return null;
-        const cx = xScale(pt.age);
-        const cy = yScale(Math.max(0, pt.netWorth));
-        if (!isFinite(cx) || !isFinite(cy)) return null;
-        const R = 10, STEM = 6, by = cy + STEM + R;
-        const text = e.kind === "maturity" ? `${fmtAxis(e.amount)} maturity` : `${fmtAxis(e.amount)}/yr`;
-        /* About 7px a character at 12px semibold. */
-        const flip = cx + R + 4 + text.length * 7 > plotRight;
-        return (
-          <g key={e.key}>
-            <title>{`${e.owner ? `${e.owner}: ` : ""}${e.label} — ${e.kind === "maturity"
-              ? `${fmt(e.amount)} at age ${e.ownerAge}`
-              : `${fmt(e.amount)} a year from age ${e.ownerAge}`}`}</title>
-            <line x1={cx} y1={cy} x2={cx} y2={cy + STEM} stroke="var(--financial-positive)" strokeWidth={1.5} strokeOpacity={0.7} />
-            <circle cx={cx} cy={cy} r={3} fill="var(--financial-positive)" />
-            <circle cx={cx} cy={by} r={R} fill="var(--bg-secondary)" stroke="var(--financial-positive)" strokeWidth={1.5} />
-            <foreignObject x={cx - R} y={by - R} width={R * 2} height={R * 2} style={{ overflow: "visible" }}>
-              <div style={{ width: R * 2, height: R * 2, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--financial-positive)" }}>
-                <HandCoins size={ICON_SIZE.xs} />
-              </div>
-            </foreignObject>
-            {showText && (
-              <text x={flip ? cx - R - 4 : cx + R + 4} y={by + 4} textAnchor={flip ? "end" : "start"}
-                fontSize={12} fontWeight={600} fill="var(--financial-positive)">{text}</text>
-            )}
-          </g>
-        );
-      })}
-    </>
+    <ChartAnnotations xScale={xAxis.scale} yScale={yAxis.scale} plot={props.offset}
+      projection={props.projection} goals={props.goals} payouts={props.payouts}
+      refs={props.refs} R={props.R} showPayoutText={props.showPayoutText} />
   );
-}
-
-function PolicyOverlayCustomized(props) {
-  const xAxis = props.xAxisMap?.[Object.keys(props.xAxisMap || {})[0]];
-  const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
-  if (!xAxis?.scale || !yAxis?.scale || !props.events?.length) return null;
-  const plotRight = (props.offset?.left ?? 0) + (props.offset?.width ?? Infinity);
-  return <PolicyOverlay events={props.events} projection={props.projection} xScale={xAxis.scale} yScale={yAxis.scale}
-    plotRight={plotRight} showText={props.showText} />;
-}
-
-function GoalOverlayCustomized(props) {
-  const xAxis = props.xAxisMap?.[Object.keys(props.xAxisMap || {})[0]];
-  const yAxis = props.yAxisMap?.[Object.keys(props.yAxisMap || {})[0]];
-  if (!xAxis?.scale || !yAxis?.scale) return null;
-  return <GoalOverlay goals={props.goals} projection={props.projection} xScale={xAxis.scale} yScale={yAxis.scale} R={props.R} />;
 }
 
 export default function ProjectionChart({
@@ -194,10 +261,16 @@ export default function ProjectionChart({
   const selected = compact ? simulation.data[selection.index] : null;
 
   const domain = [currentAge, lifeExpectancy];
-  const retireLabelAt = refLabelPosition(earliestRetireAge, domain);
-  /* Life expectancy is the last tick on the axis anyway; its label goes when
-     there is no room, or when the retirement label has moved over beside it. */
-  const showLifeLabel = !compact && retireLabelAt === "insideTopLeft";
+  /* The reference lines' labels, placed by the annotation layer. A phone
+     keeps only Retire: Life is the axis's last tick, and the deficit's age is
+     in the warning under the chart. */
+  const refs = [
+    earliestRetireAge <= lifeExpectancy && {
+      age: earliestRetireAge, text: compact ? "Retire" : `Retire ${earliestRetireAge}`, color: "var(--chart-target)",
+    },
+    !compact && firstDeficitAge && { age: firstDeficitAge, text: "Deficit", color: "var(--chart-negative)" },
+    !compact && { age: lifeExpectancy, text: `Life ${lifeExpectancy}`, color: "var(--chart-tick)" },
+  ].filter(Boolean);
 
   const legend = [
     { label: "Net Worth", kind: "line", color: "var(--chart-primary)" },
@@ -276,18 +349,13 @@ export default function ProjectionChart({
                 allowEscapeViewBox={{ x: false, y: true }} wrapperStyle={{ zIndex: 20 }} />
 
               {earliestRetireAge <= lifeExpectancy && (
-                <ReferenceLine x={earliestRetireAge} stroke="var(--chart-target)" strokeWidth={1.5} strokeDasharray="5 4" strokeOpacity={0.6}
-                  label={{ value: compact ? "Retire" : `Retire ${earliestRetireAge}`, position: retireLabelAt, fontSize: 12, fill: "var(--chart-target)", offset: 6 }} />
+                <ReferenceLine x={earliestRetireAge} stroke="var(--chart-target)" strokeWidth={1.5} strokeDasharray="5 4" strokeOpacity={0.6} />
               )}
 
-              <ReferenceLine x={lifeExpectancy} stroke="var(--chart-tick)" strokeWidth={1} strokeDasharray="4 4" strokeOpacity={0.5}
-                label={showLifeLabel ? { value: `Life ${lifeExpectancy}`, position: "insideTopRight", fontSize: 12, fill: "var(--chart-tick)", offset: 6 } : undefined} />
+              <ReferenceLine x={lifeExpectancy} stroke="var(--chart-tick)" strokeWidth={1} strokeDasharray="4 4" strokeOpacity={0.5} />
 
-              {/* One line under the retirement label, so the two never sit on
-                  each other; on a phone the warning below gives the age. */}
               {firstDeficitAge && (
-                <ReferenceLine x={firstDeficitAge} stroke="var(--chart-negative)" strokeWidth={1} strokeDasharray="3 3" strokeOpacity={0.5}
-                  label={compact ? undefined : { value: "Deficit", position: "insideTopRight", fontSize: 12, fill: "var(--chart-negative)", dy: 16 }} />
+                <ReferenceLine x={firstDeficitAge} stroke="var(--chart-negative)" strokeWidth={1} strokeDasharray="3 3" strokeOpacity={0.5} />
               )}
 
               <Area type="monotone" dataKey="netWorth" stroke="var(--chart-primary)" strokeWidth={2.5} fill="url(#nwGrad)"
@@ -303,8 +371,12 @@ export default function ProjectionChart({
                   fill="var(--chart-primary)" stroke="var(--card-bg)" strokeWidth={2} />
               )}
 
-              <Customized component={(props) => <GoalOverlayCustomized {...props} goals={goalPoints} projection={simulation.data} R={layout.markerR} />} />
-              <Customized component={(props) => <PolicyOverlayCustomized {...props} events={policyPoints} projection={simulation.data} showText={!compact} />} />
+              {/* Line labels, goal pins and payouts: one layer, laid out together. */}
+              <Customized component={(props) => (
+                <AnnotationsCustomized {...props} projection={simulation.data}
+                  goals={goalPoints} payouts={policyPoints} refs={refs}
+                  R={layout.markerR} showPayoutText={!compact} />
+              )} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

@@ -3,14 +3,43 @@
 -- ═══════════════════════════════════════════════════════════
 -- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New query)
 
--- NextAuth required tables (if not using Supabase Auth adapter auto-creation)
--- The @auth/supabase-adapter usually creates these automatically.
--- If not, uncomment the block below:
+-- ═══════════════════════════════════════════════════════════
+-- Accounts — the next_auth schema @auth/supabase-adapter uses
+-- ═══════════════════════════════════════════════════════════
+-- Needed for the email sign-in link (its one-time tokens live here) and so a
+-- person has ONE user id whether they sign in with Google or by email. The
+-- column names are exactly the ones the adapter reads and writes.
+--
+-- After running this file: Dashboard → Project Settings → API → "Exposed
+-- schemas", add next_auth. The adapter cannot reach it otherwise.
 
-/*
-CREATE TABLE IF NOT EXISTS accounts (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  "userId" UUID NOT NULL,
+CREATE SCHEMA IF NOT EXISTS next_auth;
+GRANT USAGE ON SCHEMA next_auth TO service_role;
+GRANT ALL ON SCHEMA next_auth TO postgres;
+
+CREATE TABLE IF NOT EXISTS next_auth.users (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  name TEXT,
+  email TEXT,
+  "emailVerified" TIMESTAMPTZ,
+  image TEXT,
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT email_unique UNIQUE (email)
+);
+
+CREATE TABLE IF NOT EXISTS next_auth.sessions (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
+  expires TIMESTAMPTZ NOT NULL,
+  "sessionToken" TEXT NOT NULL,
+  "userId" UUID,
+  CONSTRAINT sessions_pkey PRIMARY KEY (id),
+  CONSTRAINT "sessionToken_unique" UNIQUE ("sessionToken"),
+  CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userId")
+    REFERENCES next_auth.users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS next_auth.accounts (
+  id UUID NOT NULL DEFAULT gen_random_uuid(),
   type TEXT NOT NULL,
   provider TEXT NOT NULL,
   "providerAccountId" TEXT NOT NULL,
@@ -21,31 +50,24 @@ CREATE TABLE IF NOT EXISTS accounts (
   scope TEXT,
   id_token TEXT,
   session_state TEXT,
-  UNIQUE(provider, "providerAccountId")
+  oauth_token_secret TEXT,
+  oauth_token TEXT,
+  "userId" UUID,
+  CONSTRAINT accounts_pkey PRIMARY KEY (id),
+  CONSTRAINT provider_unique UNIQUE (provider, "providerAccountId"),
+  CONSTRAINT "accounts_userId_fkey" FOREIGN KEY ("userId")
+    REFERENCES next_auth.users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS sessions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  "sessionToken" TEXT NOT NULL UNIQUE,
-  "userId" UUID NOT NULL,
-  expires TIMESTAMPTZ NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS users (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT,
-  email TEXT UNIQUE,
-  "emailVerified" TIMESTAMPTZ,
-  image TEXT
-);
-
-CREATE TABLE IF NOT EXISTS verification_tokens (
-  identifier TEXT NOT NULL,
-  token TEXT NOT NULL UNIQUE,
+CREATE TABLE IF NOT EXISTS next_auth.verification_tokens (
+  identifier TEXT,
+  token TEXT,
   expires TIMESTAMPTZ NOT NULL,
-  UNIQUE(identifier, token)
+  CONSTRAINT verification_tokens_pkey PRIMARY KEY (token),
+  CONSTRAINT token_identifier_unique UNIQUE (token, identifier)
 );
-*/
+
+GRANT ALL ON ALL TABLES IN SCHEMA next_auth TO postgres, service_role;
 
 -- ═══════════════════════════════════════════════════════════
 -- Profiles table — stores saved planner configurations
@@ -53,7 +75,7 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
 
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES next_auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL DEFAULT 'My Profile',
   settings JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT NOW(),

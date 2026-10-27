@@ -1,6 +1,5 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { LogIn, LogOut, User, Save, FolderOpen, Trash2, ChevronDown, X } from "lucide-react";
 import { useAppSession } from "@/components/DemoAuthProvider";
@@ -20,8 +19,11 @@ import {
 import { cn } from "@/lib/utils";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 
-export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
-  const { data: session, status, isDemo, persisted, signOut } = useAppSession();
+/* The account control at the end of the header. Signed out: Log in / Sign up,
+   which the page wires to its sign-in handoff (so the plan in progress comes
+   back after). Signed in: the account menu — save, load, sign out. */
+export default function AuthButton({ onSignIn, onSignOut, onSaveProfile, onLoadProfile, profiles = [], onDeleteProfile, onRefreshProfiles, saveState = { status: "idle", message: "" } }) {
+  const { data: session, status, isDemo, persisted } = useAppSession();
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [showSaveInput, setShowSaveInput] = useState(false);
@@ -36,13 +38,14 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
     return (
       /* Lives on the navy header bar in both themes, so it is styled for a
          dark ground rather than from the card tokens. Always labelled: an
-         icon alone in a gold-ringed pill read as a broken button. The icon
-         is the part that gives way on the narrowest phones. */
-      <button onClick={() => signIn()}
+         icon alone in a gold-ringed pill read as a broken button. "Log in"
+         on a phone, "Log in / Sign up" where there is room; one step does
+         both. The icon is what gives way on the narrowest phones. */
+      <button type="button" onClick={onSignIn}
         className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-3.5 text-sm font-semibold transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] sm:px-4"
         style={{ borderColor: "var(--brand-gold-500)", color: "var(--header-text)" }}>
         <LogIn size={ICON_SIZE.sm} className="hidden min-[375px]:block" aria-hidden="true" />
-        Sign in
+        Log in<span className="hidden sm:inline">&nbsp;/ Sign up</span>
       </button>
     );
   }
@@ -216,7 +219,7 @@ export default function AuthButton({ onSaveProfile, onLoadProfile, profiles = []
 
         {/* Sign Out */}
         <DropdownMenuItem
-          onSelect={() => signOut()}
+          onSelect={() => onSignOut?.()}
           className="text-[var(--text-secondary)] focus:bg-[var(--info-red-bg)]"
         >
           <LogOut size={ICON_SIZE.sm} />

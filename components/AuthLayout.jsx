@@ -6,10 +6,12 @@ import AppHeader from "@/components/AppHeader";
 import PageBackground from "@/components/PageBackground";
 import StepHero from "@/components/wizard/StepHero";
 import { ICON_SIZE } from "@/lib/ui/icons.mjs";
+import { RESUME_URL } from "@/lib/profile/resume.mjs";
 
 /* The sign-in pages in the planner's own frame: the same header, photograph
    and headline column, with the form in a card where the step content would
-   be. Nothing here knows about authentication. */
+   be. Nothing here knows about authentication. Back to planner resumes:
+   the plan saved on the way here comes back, on the step the user left. */
 export default function AuthLayout({ hero, children }) {
   return (
     <div className="relative flex min-h-dvh flex-col">
@@ -19,7 +21,7 @@ export default function AuthLayout({ hero, children }) {
         <div className="grid gap-7 lg:grid-cols-[clamp(240px,22vw,340px)_minmax(0,1fr)] lg:gap-10 xl:gap-14">
           <StepHero hero={hero} />
           <div className="w-full max-w-[540px] space-y-4">
-            <Link href="/"
+            <Link href={RESUME_URL}
               className="inline-flex items-center gap-1.5 rounded-md text-label transition-colors hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               style={{ color: "var(--text-secondary)" }}>
               <ArrowLeft size={ICON_SIZE.sm} /> Back to planner

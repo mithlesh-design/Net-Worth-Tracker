@@ -1,6 +1,8 @@
 import "./globals.css";
 import { Manrope, DM_Serif_Display } from "next/font/google";
 import SessionProvider from "@/components/SessionProvider";
+import { AuthConfigProvider } from "@/components/AuthConfigProvider";
+import { authStatus } from "@/lib/authStatus.mjs";
 import { DemoAuthProvider } from "@/components/DemoAuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import IconProvider from "@/components/IconProvider";
@@ -43,18 +45,23 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  /* Read here, on the server: which sign-in methods this deployment has.
+     Only booleans go to the browser. */
+  const auth = authStatus();
   return (
     <html lang="en" data-theme="light" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <body>
-        <SessionProvider>
-          {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
-              it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}
-          <DemoAuthProvider>
-            <ThemeProvider>
-              <IconProvider>{children}</IconProvider>
-            </ThemeProvider>
-          </DemoAuthProvider>
-        </SessionProvider>
+        <AuthConfigProvider value={auth}>
+          <SessionProvider real={auth.real}>
+            {/* TEMPORARY: preview-only demo login. See lib/demo/config.mjs —
+                it folds to a no-op unless NEXT_PUBLIC_DEMO_AUTH=true in dev. */}
+            <DemoAuthProvider>
+              <ThemeProvider>
+                <IconProvider>{children}</IconProvider>
+              </ThemeProvider>
+            </DemoAuthProvider>
+          </SessionProvider>
+        </AuthConfigProvider>
       </body>
     </html>
   );

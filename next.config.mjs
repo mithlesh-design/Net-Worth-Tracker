@@ -1,3 +1,5 @@
+import { authStatus } from "./lib/authStatus.mjs";
+
 /* ═══════════════════════════════════════════════════════════════════════════
    An EMPTY NEXTAUTH_URL is worse than an absent one.
 
@@ -19,10 +21,11 @@ for (const key of ["NEXTAUTH_URL", "NEXTAUTH_URL_INTERNAL"]) {
   }
 }
 
-/* Authentication is paused (see lib/featureFlags.mjs, which reads the same
-   variable). While it is, every /auth/* page goes to the planner, as a
-   temporary (307) redirect so no browser remembers it once sign-in returns. */
-const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED === "true";
+/* Until this deployment can actually sign anyone in (lib/authStatus.mjs),
+   every /auth/* page goes to the planner, so a bookmark or a stray error
+   redirect never opens on a sign-in screen that cannot work. A temporary (307)
+   redirect, so no browser remembers it once sign-in is configured. */
+const { enabled: AUTH_ENABLED } = authStatus();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -32,4 +35,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
