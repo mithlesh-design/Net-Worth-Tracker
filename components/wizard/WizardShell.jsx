@@ -4,12 +4,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import WizardProgress from "./WizardProgress";
 import WizardNav from "./WizardNav";
 import StepHero from "./StepHero";
-import BrandTagline from "./BrandTagline";
 import { WIZARD_STEPS, STEP_COUNT } from "./wizardSteps";
 
 /* The page frame every step shares:
 
-     stepper (centred) ··························· brand tagline
+                      stepper (centred)
      ┌ hero ┐  ┌ step content ──────────────────────────────┐
      │      │  │ cards                                       │
      │ ♞    │  │                          Back   [Continue →]│
@@ -68,9 +67,8 @@ export default function WizardShell({ currentStep, onStepChange, resultsLocked =
   return (
     <div className="relative z-[1] flex flex-1 flex-col">
       <div className="mx-auto w-full max-w-[1520px] px-4 pt-6 sm:px-8 lg:pt-8">
-        <div className="relative flex justify-center">
+        <div className="flex justify-center">
           <WizardProgress currentStep={currentStep} onStepClick={goTo} />
-          <BrandTagline className="absolute right-0 top-1 hidden xl:flex" />
         </div>
       </div>
 
