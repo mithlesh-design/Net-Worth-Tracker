@@ -29,17 +29,16 @@ import { ICON_SIZE } from "@/lib/ui/icons.mjs";
 /* A brand-new goal of `type`, opening a few years out. Its inflation starts at
    general inflation (a home at the 5% the seeded home goal always used) — a
    starting point the user edits, never a figure presented as data. */
-function blankGoal(type, plan, age) {
-  const isHome = type === "home";
+function blankGoal(type, age) {
   return {
     id: null,
     name: goalLabel(type),
     emoji: type,
     age: age + 5,
-    amount: isHome ? 8000000 : 1000000,
-    inflationRate: isHome ? 5 : Number(plan.inflationRate) || 0,
-    hasLoan: false, downPaymentPct: isHome ? 20 : 100, loanRate: isHome ? 8.5 : 9, loanTenure: isHome ? 20 : 5,
-    appreciationRate: isHome ? 5 : 0, maintenancePct: isHome ? 1 : 0,
+    amount: 0,
+    inflationRate: 0,
+    hasLoan: false, downPaymentPct: 0, loanRate: 0, loanTenure: 0,
+    appreciationRate: 0, maintenancePct: 0,
   };
 }
 
@@ -130,7 +129,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
     const pick = (type) => {
       const next = draft
         ? { ...draft, emoji: type, name: goalNameForType(draft.name, type) }
-        : blankGoal(type, plan, age);
+        : blankGoal(type, age);
       setEditing({ step: "details", draft: next });
     };
     return (
@@ -200,7 +199,7 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
       </div>
 
       <SliderInput label="Today's cost" value={draft.amount} onChange={(v) => set("amount", v)}
-        min={100000} max={100000000} step={100000} prefix="₹" showWords />
+        min={0} max={100000000} step={100000} prefix="₹" showWords />
 
       <div className="space-y-1">
         <SliderInput label="Expected inflation" value={rate} onChange={(v) => set("inflationRate", v)}
@@ -222,9 +221,9 @@ function GoalEditor({ editing, setEditing, plan, age, lifeExpectancy, onSave, on
       <ToggleSwitch value={draft.hasLoan} onChange={(v) => set("hasLoan", v)} label="Finance via loan" />
       {draft.hasLoan && (
         <div className="space-y-5 border-l-2 pl-4" style={{ borderColor: "var(--border-strong)" }}>
-          <SliderInput label="Down payment %" value={draft.downPaymentPct} onChange={(v) => set("downPaymentPct", v)} min={5} max={80} step={5} suffix="%" />
-          <SliderInput label="Loan interest rate" value={draft.loanRate} onChange={(v) => set("loanRate", v)} min={5} max={15} step={0.25} suffix="%" />
-          <SliderInput label="Loan tenure" value={draft.loanTenure} onChange={(v) => set("loanTenure", v)} min={1} max={30} suffix=" yrs" />
+          <SliderInput label="Down payment %" value={draft.downPaymentPct} onChange={(v) => set("downPaymentPct", v)} min={0} max={80} step={5} suffix="%" />
+          <SliderInput label="Loan interest rate" value={draft.loanRate} onChange={(v) => set("loanRate", v)} min={0} max={15} step={0.25} suffix="%" />
+          <SliderInput label="Loan tenure" value={draft.loanTenure} onChange={(v) => set("loanTenure", v)} min={0} max={30} suffix=" yrs" />
           <div className="text-help tabular-nums" style={{ color: "var(--text-secondary)" }}>
             Loan <strong className="text-value-sm text-[var(--text-primary)]">{fmt(loanAmt)}</strong> · EMI <strong className="text-value-sm text-[var(--text-primary)]">{fmt(emi)}</strong>/mo, in today&rsquo;s rupees
           </div>

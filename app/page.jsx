@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import AuthButton from "@/components/AuthButton";
 import { useAppSession } from "@/components/DemoAuthProvider";
 import { useAuthConfig } from "@/components/AuthConfigProvider";
@@ -16,8 +15,8 @@ import { annualPremium } from "@/lib/finance/insurance.mjs";
 import { householdPolicyEvents } from "@/lib/finance/lifePolicies.mjs";
 import { newMember, personPrefix, MAX_MEMBERS } from "@/lib/household/members.mjs";
 import { migrate } from "@/lib/profile/migrate.mjs";
-import { serialize } from "@/lib/profile/schema.mjs";
-import { firstRunPlan, hasEnteredData } from "@/lib/profile/firstRun.mjs";
+import { serialize, FIRST_RUN_V0 } from "@/lib/profile/schema.mjs";
+import { firstRunPlan, hasEnteredData, sameData } from "@/lib/profile/firstRun.mjs";
 import { validate, clampPlan, hasErrors } from "@/lib/profile/validate.mjs";
 import { readDraft, writeDraft, clearDraft } from "@/lib/profile/draft.mjs";
 import { getProfileStore } from "@/lib/profile/store.mjs";
@@ -26,6 +25,19 @@ import { saveResume, takeResume, RESUME_PARAM } from "@/lib/profile/resume.mjs";
 import WizardShell from "@/components/wizard/WizardShell";
 import { WIZARD_STEPS, STEP_INDEX } from "@/components/wizard/wizardSteps";
 import ResetToHomeDialog from "@/components/wizard/ResetToHomeDialog";
+import { toNetWorthPayload } from "@/lib/netWorthPayload.mjs";
+
+const LEGACY_EMPTY_PLAN = { ...migrate(FIRST_RUN_V0), inflateGoals: true, investSurplus: false };
+const restorePlan = (raw) => {
+  const restored = migrate(raw);
+  if (sameData(restored, LEGACY_EMPTY_PLAN)) return firstRunPlan();
+  // A browser draft may contain other edits while still carrying these old
+  // untouched timeline presets. Clear only values that still match the seed.
+  for (const key of ["currentAge", "lifeExpectancy", "retirementAge"]) {
+    if (restored[key] === LEGACY_EMPTY_PLAN[key]) restored[key] = 0;
+  }
+  return restored;
+};
 
 /* Pure state writers. Array indices in a path ("members.2.holdings.mf") walk
    like object keys. */
@@ -246,6 +258,37 @@ export default function FinancialPlanner() {
     refreshProfiles();
   }, [session, store, refreshProfiles, loadedProfileId]);
 
+  const [netWorthSave, setNetWorthSave] = useState({ status: "idle", message: "" });
+  const submitNetWorth = useCallback(async () => {
+    if (!session?.user?.id || !session.user.netWorthAuthenticated) return false;
+    setNetWorthSave({ status: "saving", message: "Saving your plan and loading your account details..." });
+    try {
+      const savedResponse = await fetch("/api/net-worth/submit", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(toNetWorthPayload(plan, session.user)),
+      });
+      const saved = await savedResponse.json().catch(() => ({}));
+      if (savedResponse.status === 401) {
+        setNetWorthSave({ status: "session_expired", message: "Your sign-in expired. Please sign in again." });
+        return false;
+      }
+      if (!savedResponse.ok) throw new Error(saved.error || saved.message || "Could not save your plan.");
+
+      const detailsResponse = await fetch("/api/net-worth/open", { cache: "no-store" });
+      const details = await detailsResponse.json().catch(() => ({}));
+      if (detailsResponse.status === 401) {
+        setNetWorthSave({ status: "session_expired", message: "Your sign-in expired. Please sign in again." });
+        return false;
+      }
+      if (!detailsResponse.ok) throw new Error(details.error || details.message || "Your plan was saved, but account details could not be loaded.");
+      setNetWorthSave({ status: "saved", message: "Your plan was saved and your account details loaded." });
+      return true;
+    } catch (error) {
+      setNetWorthSave({ status: "error", message: error.message || "Could not save your plan." });
+      return false;
+    }
+  }, [session, plan]);
+
   /* ── Local working draft ──
      The plan in progress is kept in this browser whether or not anyone is
      signed in, so a reload — including the one a sign-in ends with — never
@@ -256,7 +299,7 @@ export default function FinancialPlanner() {
     if (draftLoaded.current) return;
     draftLoaded.current = true;
     const draft = readDraft();
-    if (draft) setPlan(migrate(draft));
+    if (draft) setPlan(restorePlan(draft));
   }, []);
 
   useEffect(() => {
@@ -346,6 +389,7 @@ export default function FinancialPlanner() {
     clearDraft();
     setLoadedProfileId(null);
     setSaveState({ status: "idle", message: "" });
+    setNetWorthSave({ status: "idle", message: "" });
     setCurrentStep(0);
     setFlowKey((k) => k + 1);
     window.scrollTo({ top: 0 });
@@ -364,21 +408,48 @@ export default function FinancialPlanner() {
      ═══════════════════════════════════════════════════════════════════════ */
 
   const auth = useAuthConfig();
-  const router = useRouter();
-  const resultsLocked = auth.enabled && !session;
+  const netWorthEnabled = Boolean(auth.apiEnabled);
+  const hasNetWorthSession = Boolean(session?.user?.netWorthAuthenticated);
+  const resultsLocked = netWorthEnabled ? !hasNetWorthSession : auth.enabled && !session;
 
   const goToSignIn = useCallback((stepId, { forResults = false } = {}) => {
     saveResume({ plan: serialize(plan), step: stepId });
-    router.push(forResults ? "/auth/signin?next=results" : "/auth/signin");
-  }, [plan, router]);
+    const path = forResults ? "/auth/signin?next=results" : "/auth/signin";
+    window.location.assign(path);
+  }, [plan]);
 
+  useEffect(() => {
+    if (netWorthSave.status === "session_expired") goToSignIn("review", { forResults: true });
+  }, [netWorthSave.status, goToSignIn]);
+
+  const netWorthSyncKey = useRef("");
   const changeStep = useCallback((step) => {
     if (WIZARD_STEPS[step]?.id === "review" && resultsLocked) {
       goToSignIn("review", { forResults: true });
       return;
     }
+    if (WIZARD_STEPS[step]?.id === "review" && netWorthEnabled) {
+      setNetWorthSave({ status: "saving", message: "Saving your plan and loading your account details..." });
+    } else if (WIZARD_STEPS[currentStep]?.id === "review" && WIZARD_STEPS[step]?.id !== "review") {
+      netWorthSyncKey.current = "";
+      setNetWorthSave({ status: "idle", message: "" });
+    }
     setCurrentStep(step);
-  }, [resultsLocked, goToSignIn]);
+  }, [resultsLocked, goToSignIn, netWorthEnabled, currentStep]);
+
+  useEffect(() => {
+    if (!netWorthEnabled || WIZARD_STEPS[currentStep]?.id !== "review") return;
+    if (!hasNetWorthSession) {
+      goToSignIn("review", { forResults: true });
+      return;
+    }
+    const key = `${session.user.id}:${JSON.stringify(plan)}`;
+    if (netWorthSyncKey.current === key) return;
+    netWorthSyncKey.current = key;
+    submitNetWorth().then((ok) => {
+      if (!ok && netWorthSyncKey.current === key) netWorthSyncKey.current = "";
+    });
+  }, [netWorthEnabled, currentStep, hasNetWorthSession, session, plan, goToSignIn, submitNetWorth]);
 
   /* Once the session is known: resume from sign-in if the URL says so. Runs
      after the draft has loaded, so the saved plan wins over the draft. If
@@ -393,11 +464,12 @@ export default function FinancialPlanner() {
     window.history.replaceState(null, "", window.location.pathname);
     const saved = takeResume();
     if (!saved) return;
-    setPlan(migrate(saved.plan));
+    setPlan(restorePlan(saved.plan));
     const target = STEP_INDEX[saved.step] ?? 0;
-    const blocked = WIZARD_STEPS[target]?.id === "review" && auth.enabled && !session;
+    const blocked = WIZARD_STEPS[target]?.id === "review" &&
+      (netWorthEnabled ? !session?.user?.netWorthAuthenticated : auth.enabled && !session);
     setCurrentStep(blocked ? STEP_INDEX.review - 1 : target);
-  }, [sessionStatus, session, auth.enabled]);
+  }, [sessionStatus, session, auth.enabled, netWorthEnabled]);
 
   /* Signing out puts the browser back to a fresh plan, so nobody's figures
      are left on a shared screen; saved profiles stay in the account. */
@@ -421,7 +493,7 @@ export default function FinancialPlanner() {
       {/* Log in / Sign up appears once this deployment can sign anyone in.
           From the header it returns the user to the step they were on. */}
       <AppHeader onHomeClick={onHomeClick}>
-        {auth.enabled && (
+        {(auth.enabled || auth.apiEnabled) && (
           <AuthButton
             onSignIn={() => goToSignIn(WIZARD_STEPS[currentStep].id)}
             onSignOut={signOutAndClear}
@@ -475,6 +547,9 @@ export default function FinancialPlanner() {
         goalPoints={goalPoints}
         policyPoints={policyPoints}
         goalGap={goalGap}
+        netWorthSave={netWorthSave}
+        submitNetWorth={submitNetWorth}
+        netWorthEnabled={netWorthEnabled}
       />
 
       <ResetToHomeDialog

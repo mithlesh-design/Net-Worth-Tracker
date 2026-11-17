@@ -34,8 +34,8 @@ export default function PropertyInvestments({
     setField("properties", properties.map((p) => (p.id === id ? { ...p, [key]: val } : p)));
   const remove = (id) => setField("properties", properties.filter((p) => p.id !== id));
   const add = () => setField("properties", [...properties, {
-    id: makeId(), name: "", value: 5000000, rentalIncome: 0, maintenancePct: 1,
-    loanOutstanding: 0, loanRate: 8.5, loanRemainingYears: 0,
+    id: makeId(), name: "", value: 0, rentalIncome: 0, maintenancePct: 0,
+    loanOutstanding: 0, loanRate: 0, loanRemainingYears: 0,
   }]);
 
   return (

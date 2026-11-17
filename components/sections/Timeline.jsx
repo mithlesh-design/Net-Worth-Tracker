@@ -7,7 +7,9 @@ export default function Timeline({ plan, setField, findingsFor, age, ageIsDerive
   return (
     <SectionCard title="Your Financial Timeline" icon={ChartNoAxesColumn} kicker="Key milestones ahead">
       <div className="space-y-6">
-        <MilestoneTrack today={age} retirement={plan.retirementAge} lifeExpectancy={lifeExpectancy} />
+        {(Number(age) > 0 || Number(plan.retirementAge) > 0 || Number(lifeExpectancy) > 0) && (
+          <MilestoneTrack today={age} retirement={plan.retirementAge} lifeExpectancy={lifeExpectancy} />
+        )}
         {ageIsDerived ? (
           <>
             <DerivedStat label="Current Age" value={`${age} yrs`} sub="from your date of birth" />
@@ -17,11 +19,11 @@ export default function Timeline({ plan, setField, findingsFor, age, ageIsDerive
             </button>
           </>
         ) : (
-          <SliderInput label="Current Age" value={currentAge} onChange={setCurrentAge} min={18} max={65} suffix=" yrs" />
+          <SliderInput label="Current Age" value={currentAge} onChange={setCurrentAge} min={0} max={65} suffix=" yrs" />
         )}
-        <SliderInput label="Life Expectancy" value={lifeExpectancy} onChange={setLifeExpectancy} min={60} max={100} suffix=" yrs" />
+        <SliderInput label="Life Expectancy" value={lifeExpectancy} onChange={setLifeExpectancy} min={0} max={100} suffix=" yrs" />
         <SliderInput label="Retirement Age" value={plan.retirementAge}
-          onChange={(v) => setField("retirementAge", v)} min={age} max={80} suffix=" yrs" />
+          onChange={(v) => setField("retirementAge", v)} min={0} max={80} suffix=" yrs" />
         <FieldError findings={[...findingsFor("currentAge"), ...findingsFor("lifeExpectancy"), ...findingsFor("retirementAge")]} />
       </div>
     </SectionCard>
@@ -34,24 +36,26 @@ export default function Timeline({ plan, setField, findingsFor, age, ageIsDerive
    and last milestone, so it fills from today to retirement in navy. */
 function MilestoneTrack({ today, retirement, lifeExpectancy }) {
   const lo = Number(today) || 0;
-  const hi = Math.max(Number(lifeExpectancy) || 0, lo + 1);
+  const life = Number(lifeExpectancy) || 0;
+  const hi = Math.max(lo, Number(retirement) || 0, life, 1);
   const at = (v) => `${Math.min(Math.max(((v - lo) / (hi - lo)) * 100, 0), 100)}%`;
   const points = [
     { label: "Today", value: lo, pos: "0%" },
     { label: "Retirement", value: retirement, pos: at(retirement) },
-    { label: "Life Expectancy", value: hi, pos: "100%" },
-  ];
+    { label: "Life Expectancy", value: life, pos: at(life) },
+  ].filter((point) => Number(point.value) > 0);
+  const retirementPos = points.find((point) => point.label === "Retirement")?.pos ?? "0%";
 
   return (
     <div className="px-2 pt-1 sm:px-6" role="img"
-      aria-label={`Today ${lo} years, retirement at ${retirement}, life expectancy ${hi}`}>
+      aria-label={`Today ${lo} years, retirement at ${retirement}, life expectancy ${life}`}>
       <div className="relative h-14">
-        {points.map((p, i) => (
+        {points.map((p) => (
           <div key={p.label}
             className="absolute top-0 flex flex-col items-center whitespace-nowrap"
             style={{
               left: p.pos,
-              transform: i === 0 ? "translateX(-12%)" : i === 2 ? "translateX(-88%)" : "translateX(-50%)",
+              transform: p.label === "Today" ? "translateX(-12%)" : p.label === "Life Expectancy" ? "translateX(-88%)" : "translateX(-50%)",
             }}>
             <span className="text-overline uppercase" style={{ color: "var(--text-secondary)" }}>{p.label}</span>
             <span className="mt-1 text-value tabular-nums" style={{ color: "var(--text-primary)" }}>
@@ -63,7 +67,7 @@ function MilestoneTrack({ today, retirement, lifeExpectancy }) {
       <div className="relative mt-2 h-4">
         <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full" style={{ background: "var(--slider-track-bg)" }} />
         <div className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full"
-          style={{ width: points[1].pos, background: "var(--slider-fill)" }} />
+          style={{ width: retirementPos, background: "var(--slider-fill)" }} />
         {points.map((p) => (
           <span key={p.label} className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{ left: p.pos, background: "var(--gold-rule)", boxShadow: "0 0 0 3px var(--card-bg)" }} />

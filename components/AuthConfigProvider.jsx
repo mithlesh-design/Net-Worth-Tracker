@@ -11,7 +11,7 @@ import { createContext, useContext } from "react";
      methods   { google, email }: which buttons the sign-in page offers
 
    Booleans only; no credential ever reaches the browser. */
-const OFF = { enabled: false, real: false, demo: false, methods: { google: false, email: false } };
+const OFF = { enabled: false, real: false, demo: false, apiEnabled: false, methods: { google: false, email: false } };
 const AuthConfigContext = createContext(OFF);
 
 export function AuthConfigProvider({ value, children }) {

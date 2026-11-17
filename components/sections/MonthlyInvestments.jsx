@@ -28,8 +28,8 @@ export default function MonthlyInvestments({ plan, setField, findingsFor, cplan,
 
   const addOther = () => setField("contributions.other", [
     ...c.other,
-    { id: makeId(), name: "", amount: 0, frequency: "monthly", annualReturn: null,
-      stepUp: plan.investmentStepUp, fundedFromPayroll: false },
+    { id: makeId(), name: "", amount: 0, frequency: "monthly", annualReturn: 0,
+      stepUp: 0, fundedFromPayroll: false },
   ]);
   const updateOther = (id, key, val) => setField("contributions.other",
     c.other.map((o) => (o.id === id ? { ...o, [key]: val } : o)));

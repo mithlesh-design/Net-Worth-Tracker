@@ -24,12 +24,12 @@ export default function IncomeSources({
   showHint = true,
 }) {
   const [showAddIncome, setShowAddIncome] = useState(false);
-  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5 });
+  const [newInc, setNewInc] = useState({ name: "Bonus", amount: 0, frequency: "yearly", role: "other", growthRate: 0 });
 
   const handleAdd = () => {
     addIncome(newInc);
     setShowAddIncome(false);
-    setNewInc({ name: "Bonus", amount: 300000, frequency: "yearly", role: "other", growthRate: 5 });
+    setNewInc({ name: "Bonus", amount: 0, frequency: "yearly", role: "other", growthRate: 0 });
   };
 
   return (

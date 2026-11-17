@@ -44,6 +44,9 @@ function SignIn() {
   const auth = useAuthConfig();
   const { data: session } = useAppSession();
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -51,22 +54,23 @@ function SignIn() {
      server (lib/demo/config.mjs): on in development, and on the live site
      only while no real sign-in method is configured. */
   const demo = useDemoAuth();
+  const demoEnabled = demo.enabled && !auth.apiEnabled;
 
   /* Already signed in (the back button, another tab): straight to the plan. */
   useEffect(() => {
-    if (session) router.replace(RESUME_URL);
-  }, [session, router]);
+    if (session && (!auth.apiEnabled || session.user?.netWorthAuthenticated)) router.replace(RESUME_URL);
+  }, [session, router, auth.apiEnabled]);
 
   /* NextAuth sends the user back here as ?error=... when a provider is not
      configured, which is the state this build is in. Strip it on arrival so a
      stale failure from the real flow is not carried into the demo session. */
   useEffect(() => {
-    if (!demo.enabled) return;
+    if (!demoEnabled) return;
     const url = new URL(window.location.href);
     if (!url.searchParams.has("error")) return;
     url.searchParams.delete("error");
     window.history.replaceState(null, "", `${url.pathname}${url.search}`);
-  }, [demo.enabled]);
+  }, [demoEnabled]);
 
   /* One click, no email, no OTP, no provider round trip. */
   const startDemoSession = () => {
@@ -75,20 +79,48 @@ function SignIn() {
     router.replace(RESUME_URL);
   };
 
-  const withGoogle = () => (demo.enabled ? startDemoSession() : signIn("google", { callbackUrl: RESUME_URL }));
+  const withGoogle = () => (demoEnabled ? startDemoSession() : signIn("google", { callbackUrl: RESUME_URL }));
 
   /* NextAuth emails the link, then sends the browser to /auth/verify. */
   const withEmail = async (e) => {
     e.preventDefault();
-    if (demo.enabled) return startDemoSession();
+    if (demoEnabled) return startDemoSession();
     if (!email.trim()) return;
     setLoading(true);
     await signIn("email", { email, callbackUrl: RESUME_URL });
   };
 
-  const showGoogle = demo.enabled || auth.methods.google;
-  const showEmail = demo.enabled || auth.methods.email;
-  const error = !demo.enabled && errorCode ? (ERRORS[errorCode] ?? GENERAL_ERROR) : null;
+  const withOtp = async (e) => {
+    e.preventDefault();
+    setOtpError("");
+    setLoading(true);
+    try {
+      if (!otpSent) {
+        const response = await fetch("/api/net-worth/send-otp", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || result.message || "Could not send the code. Try again.");
+        setOtpSent(true);
+      } else {
+        const result = await signIn("net-worth-otp", {
+          email: email.trim(), otp: otp.trim(), redirect: false, callbackUrl: RESUME_URL,
+        });
+        if (!result || result.error) throw new Error("That code is invalid or expired. Request a new code and try again.");
+        router.replace(RESUME_URL);
+      }
+    } catch (error) {
+      setOtpError(error.message || "Sign-in failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showGoogle = demoEnabled || auth.methods.google;
+  const showOtp = !demoEnabled && auth.methods.netWorthOtp;
+  const showEmail = demoEnabled || (auth.methods.email && !auth.methods.netWorthOtp);
+  const error = !demoEnabled && errorCode ? (ERRORS[errorCode] ?? GENERAL_ERROR) : null;
 
   return (
     <AuthLayout hero={forResults ? {
@@ -98,9 +130,17 @@ function SignIn() {
       title: "Log in or sign up",
       subtitle: "Save your plans and pick up where you left off. New here? The same step creates your account.",
     }}>
-      <SectionCard title="Log in or sign up" icon={LogIn} kicker={demo.enabled ? "Demo mode" : null}>
+      <SectionCard title="Log in or sign up" icon={LogIn} kicker={demoEnabled ? "Demo mode" : null}>
         <div className="space-y-5">
           {error && <InfoStrip tone="red">{error}</InfoStrip>}
+          {auth.apiEnabled && !auth.methods.netWorthOtp && (
+            <InfoStrip tone="red">API sign-in is not ready. Set NEXTAUTH_SECRET and restart the app before signing in.</InfoStrip>
+          )}
+          {auth.apiEnabled && auth.methods.netWorthOtp && !auth.methods.google && (
+            <InfoStrip tone="blue">
+              Google sign-in is not configured for this app. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env, then restart the dev server. Email code sign-in is available meanwhile.
+            </InfoStrip>
+          )}
 
           {showGoogle && (
             <Button variant="outline" size="lg" className="w-full gap-3" onClick={withGoogle} disabled={loading}>
@@ -114,7 +154,7 @@ function SignIn() {
             </Button>
           )}
 
-          {showGoogle && showEmail && (
+          {showGoogle && (showEmail || showOtp) && (
             <div className="flex items-center gap-3">
               <div className="h-px flex-1" style={{ background: "var(--border-default)" }} />
               <span className="text-overline uppercase" style={{ color: "var(--text-muted)" }}>or</span>
@@ -132,26 +172,52 @@ function SignIn() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={demo.enabled ? "you@example.com (optional in demo mode)" : "you@example.com"}
+                  placeholder={demoEnabled ? "you@example.com (optional in demo mode)" : "you@example.com"}
                   /* Demo mode must work on one click, so the browser's own
                      required-field block is lifted and an empty box falls back
                      to the default demo identity. */
-                  required={!demo.enabled}
+                  required={!demoEnabled}
                 />
               </div>
               <Button type="submit" variant="cta" size="xl" disabled={loading} className="w-full gap-2.5">
                 <Mail size={ICON_SIZE.md} />
                 {loading
-                  ? (demo.enabled ? "Opening your plan..." : "Sending...")
-                  : (demo.enabled ? "Continue" : "Email me a sign-in link")}
+                  ? (demoEnabled ? "Opening your plan..." : "Sending...")
+                  : (demoEnabled ? "Continue" : "Email me a sign-in link")}
               </Button>
             </form>
           )}
 
+          {showOtp && (
+            <form onSubmit={withOtp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp-email">Email address</Label>
+                <Input id="otp-email" type="email" autoComplete="email" required
+                  value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+              </div>
+              {otpSent && <div className="space-y-2">
+                <Label htmlFor="otp-code">Email verification code</Label>
+                <Input id="otp-code" inputMode="numeric" autoComplete="one-time-code" required
+                  value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter your code" />
+              </div>}
+              {otpError && <InfoStrip tone="red">{otpError}</InfoStrip>}
+              <Button type="submit" variant="cta" size="xl" disabled={loading} className="w-full gap-2.5">
+                <Mail size={ICON_SIZE.md} />
+                {loading ? "Please wait..." : otpSent ? "Verify code and continue" : "Email me a verification code"}
+              </Button>
+              {otpSent && <button type="button" className="w-full text-help underline" disabled={loading}
+                onClick={() => { setOtpSent(false); setOtp(""); setOtpError(""); }}>
+                Use a different email or request another code
+              </button>}
+            </form>
+          )}
+
           <p className="text-center text-help" style={{ color: "var(--text-muted)" }}>
-            {demo.enabled
+            {demoEnabled
               ? "Demo mode: no email is sent. You are signed in instantly on this browser, and profiles are saved here only."
-              : "New here? Continuing with Google or an email link creates your account. No password needed."}
+              : showOtp
+                ? "New here? Enter your email and verify the code we send. No password needed."
+                : "New here? Continuing with Google or an email link creates your account. No password needed."}
           </p>
         </div>
       </SectionCard>

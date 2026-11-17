@@ -74,10 +74,10 @@ export default function InvestmentStrategy({
           </Button>
         </>
       ) : (
-        <SliderInput label="Pre-Retirement Return" value={expectedXIRR} onChange={(v) => setField("expectedXIRR", v)} min={1} max={25} step={0.5} suffix="%" />
+        <SliderInput label="Pre-Retirement Return" value={expectedXIRR} onChange={(v) => setField("expectedXIRR", v)} min={0} max={25} step={0.5} suffix="%" />
       )}
 
-      <SliderInput label="Post-Retirement Return" value={postRetireReturn} onChange={(v) => setField("postRetireReturn", v)} min={1} max={15} step={0.5} suffix="%" />
+      <SliderInput label="Post-Retirement Return" value={postRetireReturn} onChange={(v) => setField("postRetireReturn", v)} min={0} max={15} step={0.5} suffix="%" />
 
       <InfoStrip tone="amber">
         Each instrument uses its own assumed return, editable in Monthly
